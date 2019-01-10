@@ -19,10 +19,6 @@ export type RenderedCoordsT = {
   y: number,
 };
 
-export type ResourceCostT = {
-  [string]: number,
-};
-
 export type DiceT = {
   roll: ?number,
   dots: ?number,
@@ -43,6 +39,10 @@ export type PortParamsT = {
   type: string,
 }
 
+export type CostT = {
+  [string]: number,
+};
+
 export type ScenarioT = {
   name: string,
   dice: DiceT[],
@@ -52,23 +52,16 @@ export type ScenarioT = {
     [string]: {
       name: string,
       max_num: number,
-      cost: ResourceCostT,
+      cost: CostT,
     }
   },
-  developmentCards: {
+  devCards: {
     [string]: {
       count: number,
-      name: {
-        singular: string,
-        plural: string,
-      }
     }
   },
   resources: {
-    [string]: {
-      count: number,
-      yields: boolean,
-    }
+    [string]: number,
   }
 }
 
@@ -103,3 +96,14 @@ export type GameParamsT = {
 };
 
 export type GameSerialT = {};
+export type BoardSerialT = {};
+export type HexSerialT = {};
+export type JuncSerialT = {};
+export type PortSerialT = {};
+export type RoadSerialT = {};
+    
+export type DevCardParamsT = {
+  name: string,
+  count: number,
+  cost: CostT,
+}

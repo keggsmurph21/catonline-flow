@@ -15,29 +15,37 @@ export class Port extends BoardNode {
   id: string;
   num: number;
 
-  params: PortParamsT;
+  type: string;
+  hexParams: {
+    orientation: number,
+    coords: CubeCoordsT,
+  };
   road: Road;
 
-  constructor(num: number, params: PortParamsT, scenario: ScenarioT) {
+  constructor(num: number, params: PortParamsT) {
 
     super('Port', params.hex.coords);
 
     this.id = 'p' + num;
     this.num = num;
 
-    this.params = params;
-    this.road = null;
+    this.type = ''; // init this later
+    this.hexParams = params.hex;
 
   }
 
   bindToRoad(cache: CoordinateCache) {
 
-    const { orientation, coords } = this.params.hex;
+    const { orientation, coords } = this.hexParams;
     const hex = cache.get('h', coords);
 
     this.road = hex.roads[orientation];
     this.coords = this.road.coords; // overwrite from BoardNode
 
+  }
+
+  setType(type: string) {
+    this.type = type;
   }
 
   getHex(): ?Hex {

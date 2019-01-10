@@ -5,7 +5,9 @@ import type { CubeCoordsT, JuncRenderT } from '../../utils';
 import { CatonlineError } from '../../utils';
 import { Hex } from './hex';
 import { BoardNode } from './board-node';
+import { Port } from './port';
 import { Road } from './road';
+import { Player } from '../player';
 
 export class Junc extends BoardNode {
 
@@ -15,6 +17,11 @@ export class Junc extends BoardNode {
   juncs: { [number]: Junc };
   hexes: { [number]: Hex };
   roads: { [number]: Road };
+
+  port: Port;
+  owner: Player;
+  isSettleable: boolean;
+  isCity: boolean;
 
   constructor(num: number, coords: CubeCoordsT) {
 
@@ -26,6 +33,9 @@ export class Junc extends BoardNode {
     this.juncs = {};
     this.hexes = {};
     this.roads = {};
+
+    this.isSettleable = true;
+    this.isCity = false;
 
   }
 

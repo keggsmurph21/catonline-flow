@@ -2,11 +2,12 @@
 
 import _ from 'underscore';
 
-import type { DiceT, HexParamsT, HexRenderT, ScenarioT } from '../../utils';
-import { CatonlineError, pointsArrayToString } from '../../utils';
+import type { DiceT, HexParamsT, HexRenderT, HexSerialT, ScenarioT } from '../../utils';
+import { CatonlineError, pointsArrayToString, thin } from '../../utils';
 import { BoardNode } from './board-node';
 import { Junc } from './junc';
 import { Road } from './road';
+import { Resource } from '../game/resource';
 
 export class Hex extends BoardNode {
 
@@ -15,7 +16,7 @@ export class Hex extends BoardNode {
 
   dice: DiceT;
   isOcean: boolean;
-  resource: ?string;   // to be displayed
+  resource: Resource;   // to be displayed
   resources: string[]; // to be drawn
 
   hexes: { [number]: Hex };
@@ -34,7 +35,6 @@ export class Hex extends BoardNode {
       dots: null,
     };
     this.isOcean = params.isOcean;
-    this.resource = null;
     this.resources = params.resources
       ? params.resources === '*'
         ? _.filter(Object.keys(scenario.resources), res => res !== 'ocean')
@@ -45,6 +45,31 @@ export class Hex extends BoardNode {
     this.juncs = {};
     this.roads = {};
 
+  }
+
+  eachNeighbor(next: (Hex, string) => any) {
+    _.each(this.hexes, next);
+  }
+
+  eachJunc(next: (Junc, string) => any) {
+    _.each(this.juncs, next);
+  }
+
+  eachRoad(next: (Road, string) => any) {
+    _.each(this.roads, next);
+  }
+
+  serialize(): HexSerialT {
+    return {
+      num: this.num,
+      coords: this.coords,
+      dice: this.dice,
+      isOcean: this.isOcean,
+      resource: this.resource.name,
+      hexes: _.mapObject(this.hexes, hex =>  hex  ? hex.num  : null),
+      juncs: _.mapObject(this.juncs, junc => junc ? junc.num : null),
+      roads: _.mapObject(this.roads, road => road ? road.num : null),
+    };
   }
 
   render(): HexRenderT {

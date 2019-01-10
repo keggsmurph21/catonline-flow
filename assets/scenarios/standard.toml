@@ -110,25 +110,25 @@ ports = [
   max_num = 4
   cost = { ore = 3, wheat = 2 }
 
-  [buyable.developmentCard]
+  [buyable.devCard]
   name = 'development card'
   max_num = 25
   cost = { ore = 1, wheat = 1, sheep = 1 }
 
-[developmentCards]
+[devCards]
 
-  vp = { count = 5, name = { singular = 'victory point', plural = 'victory points' }}
-  knight = { count = 14, name = { singular = 'knight', plural = 'knights' }}
-  monopoly = { count = 2, name = { singular = 'monopoly', plural = 'monopolies' }}
-  rb = { count = 2, name = { singular = 'road builder', plural = 'road builders' }}
-  yop = { count = 2, name = { singular = 'year of plenty', plural = 'year of plenties' }}
+  vp = { count = 5 }
+  knight = { count = 14 }
+  monopoly = { count = 2 }
+  rb = { count = 2 }
+  yop = { count = 2 }
 
 [resources]
 
-  ore = { count = 3, yields = true }
-  wheat = { count = 4, yields = true }
-  sheep = { count = 4, yields = true }
-  brick = { count = 3, yields = true }
-  wood = { count = 4, yields = true }
-  desert = { count = 1, yields = false }
-  ocean = { count = 18, yields = false }
+  ore = 3
+  wheat = 4
+  sheep = 4
+  brick = 3
+  wood = 4
+  desert = 1
+  ocean = 18

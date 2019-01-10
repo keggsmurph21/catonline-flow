@@ -1,14 +1,16 @@
 // @flow
 
 import _ from 'underscore';
-import type { CubeCoordsT, ScenarioT } from '../../utils';
-import { CatonlineError, getOffsets } from '../../utils';
+import type { BoardSerialT, CubeCoordsT, DiceT, GameParamsT, ScenarioT } from '../../utils';
+import { CatonlineError, getOffsets, shuffle } from '../../utils';
 import { CoordinateCache } from './cache';
 import { BoardNode } from './board-node';
 import { Hex } from './hex';
 import { Junc } from './junc';
 import { Port } from './port';
 import { Road } from './road';
+import { Resource } from '../game/resource';
+import { Robber } from './robber';
 
 export class Board {
 
@@ -18,6 +20,8 @@ export class Board {
   ports: { [number]: Port };
   roads: { [number]: Road };
 
+  robber: Robber;
+
   constructor(scenario: ScenarioT) {
 
     this.scenario = scenario;
@@ -25,6 +29,8 @@ export class Board {
     this.juncs = {};
     this.ports = {};
     this.roads = {};
+
+    this.robber = new Robber();
 
     // build structure
 
@@ -52,7 +58,7 @@ export class Board {
     // create ports
     scenario.ports.forEach(params => {
 
-      const port = new Port(counters.ports, params, scenario);
+      const port = new Port(counters.ports, params);
 
       this.ports[counters.ports] = port;
 
@@ -172,6 +178,98 @@ export class Board {
 
       });
     });
+
+  }
+
+  randomize(params: GameParamsT) {
+
+    // shuffle resources
+    let resources: Resource[] = [];
+    _.each(this.scenario.resources, (count, name) => {
+      if (name !== 'ocean')
+        for (let i = 0; i < count; i++) {
+
+          const res = new Resource(name);
+          resources.push(res);
+
+        }
+    });
+    shuffle(resources);
+
+    // shuffle dicevalues (maybe)
+    let diceValues: DiceT[] = [...this.scenario.dice];
+    if (params.tileStyle === 'random')
+      shuffle(diceValues);
+
+    // place resources and dicevalues
+    const nullDice = { roll: 0, dots: 0 };
+    _.each(this.hexes, (hex, i) => {
+
+      if (hex.isOcean) {
+
+        const res = new Resource('ocean');
+        hex.resource = res;
+        hex.dice = nullDice;
+
+      } else {
+
+        const res = resources.pop();
+        hex.resource = res;
+
+        if (res.name === 'desert') {
+
+          hex.dice = nullDice;
+          this.robber.moveTo(i);
+
+        } else {
+
+          hex.dice = diceValues.pop();
+
+        }
+
+      }
+    });
+
+    // make sure this is a legal configuration
+    if (!this.isLegal())
+      return this.randomize(params);
+
+    // (shuffle and) place the ports
+    const ports = this.scenario.ports.map(port => port.type);
+    if (params.portStyle === 'random')
+      shuffle(ports);
+      
+    _.each(this.ports, port => {
+      port.type = ports.pop();
+    });
+
+  }
+
+  isLegal(): boolean {
+
+    let isLegal: boolean = true;
+
+    _.each(this.hexes, hex => {
+      if (hex.dice.roll === 6 || hex.dice.roll === 8) {
+        hex.eachNeighbor(neighbor => {
+          if (neighbor.dice.roll === 6 || neighbor.dice.roll === 8) {
+
+            isLegal = false;
+
+          }
+        });
+      }
+    });
+
+    return isLegal;
+
+  }
+
+  serialize(): BoardSerialT {
+
+    return {
+      hexes: _.map(this.hexes, hex => hex.serialize()),
+    };
 
   }
 

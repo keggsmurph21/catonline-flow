@@ -1,16 +1,20 @@
 'use strict';
 
-const Game = require('./lib/game').Game;
+const _ = require('underscore');
+const Game = require('./lib/core/game').Game;
+const params = require('./lib/core/game').defaults;
 
-const params = {
-  scenario: 'standard',
-  isPublic: true,
-  portStyle: 'fixed',
-  tileStyle: 'random',
-  numComputers: 2,
-  numHumans: 2,
-  vpGoal: 10,
-};
+function view(game) {
+  //console.log(game.dice);
+  //console.log(game.deck);
+  console.log(game.board.hexes[31])
+  //console.log(_.pick(game.board.hexes[31], ['id', 'dice', 'isOcean', 'resource', 'resources' ]));
+}
 
 const g = new Game(params);
-console.log(g);
+//view(g);
+g.randomize();
+//view(g);
+
+//console.log(g.board.serialize().hexes)
+console.log(g.board.ports);

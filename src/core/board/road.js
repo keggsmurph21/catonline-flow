@@ -5,6 +5,7 @@ import { CatonlineError, pointsArrayToPath, thin } from '../../utils';
 import { Hex } from './hex';
 import { Junc } from './junc';
 import { BoardNode } from './board-node';
+import { Player } from '../player';
 
 export class Road extends BoardNode {
 
@@ -14,6 +15,8 @@ export class Road extends BoardNode {
   roads: { [number]: Road };
   hexes: { [number]: Hex };
   juncs: { [number]: Junc };
+
+  owner: Player;
 
   constructor(num: number, coords: CubeCoordsT) {
 
