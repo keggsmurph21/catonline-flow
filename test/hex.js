@@ -1,6 +1,6 @@
 'use strict';
 
-const Hex = require('../lib/game/board/hex').Hex;
+const Hex = require('../lib/core/board/hex').Hex;
 
 test('should initialize', () => {
 

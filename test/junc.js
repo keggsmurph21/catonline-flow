@@ -1,6 +1,6 @@
 'use strict';
 
-const Junc = require('../lib/game/board/junc').Junc;
+const Junc = require('../lib/core/board/junc').Junc;
 
 test('should initialize', () => {
 

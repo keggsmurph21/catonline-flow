@@ -1,6 +1,6 @@
 'use strict';
 
-const Road = require('../lib/game/board/road').Road;
+const Road = require('../lib/core/board/road').Road;
 
 test('should initialize', () => {
 

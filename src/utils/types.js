@@ -89,3 +89,17 @@ export type PortRenderT = {};
 export type RoadRenderT = {
   path: string,
 };
+
+export type GameParamsT = {
+
+  scenario: ScenarioT,
+  isPublic: boolean,
+  portStyle: string,
+  tileStyle: string,
+  numComputers: number,
+  numHumans: number,
+  vpGoal: number,
+
+};
+
+export type GameSerialT = {};

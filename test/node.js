@@ -1,9 +1,9 @@
 'use strict';
 
-const Node = require('../lib/game/board/node').Node;
+const BoardNode = require('../lib/core/board/board-node').BoardNode;
 
 test('should initialize', () => {
 
-  expect(() => new Node()).not.toThrow();
+  expect(() => new BoardNode()).not.toThrow();
 
 });

@@ -1,6 +1,6 @@
 'use strict';
 
-const scenarios = require('../src/game').scenarios;
+const scenarios = require('../src/core/scenarios').scenarios;
 
 test('all scenarios initialize', () => {
 

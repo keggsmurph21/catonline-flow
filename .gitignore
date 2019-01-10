@@ -2,3 +2,4 @@ node_modules
 var
 .env
 coverage
+.DS_Store
