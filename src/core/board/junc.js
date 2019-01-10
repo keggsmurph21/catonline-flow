@@ -4,10 +4,10 @@ import _ from 'underscore';
 import type { CubeCoordsT, JuncRenderT } from '../../utils';
 import { CatonlineError } from '../../utils';
 import { Hex } from './hex';
-import { Node } from './node';
+import { BoardNode } from './board-node';
 import { Road } from './road';
 
-export class Junc extends Node {
+export class Junc extends BoardNode {
 
   id: string;
   num: number;

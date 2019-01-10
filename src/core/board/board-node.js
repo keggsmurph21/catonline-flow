@@ -4,7 +4,7 @@ import type { CubeCoordsT, RenderedCoordsT } from '../../utils';
 import { cubeToRendered } from '../../utils';
 
 // base class
-export class Node {
+export class BoardNode {
 
   name: string;
   coords: CubeCoordsT;

@@ -2,11 +2,11 @@
 
 import type { CubeCoordsT } from '../../utils';
 import { round } from '../../utils';
-import { Node } from './node';
+import { BoardNode } from './board-node';
 
 export class CoordinateCache {
 
-  _items: { [string]: Node };
+  _items: { [string]: BoardNode };
 
   constructor() {
     this._items = {};
@@ -26,14 +26,14 @@ export class CoordinateCache {
     return !!this.get(prefix, coords);
   }
 
-  get(prefix: string, coords: CubeCoordsT): Node {
+  get(prefix: string, coords: CubeCoordsT): BoardNode {
 
     const key = this.hash(prefix, coords);
     return this._items[key];
 
   }
 
-  set(prefix: string, coords: CubeCoordsT, node: Node) {
+  set(prefix: string, coords: CubeCoordsT, node: BoardNode) {
 
     const key = this.hash(prefix, coords);
     this._items[key] = node;

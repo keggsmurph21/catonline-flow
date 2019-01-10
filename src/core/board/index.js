@@ -4,7 +4,7 @@ import _ from 'underscore';
 import type { CubeCoordsT, ScenarioT } from '../../utils';
 import { CatonlineError, getOffsets } from '../../utils';
 import { CoordinateCache } from './cache';
-import { Node } from './node';
+import { BoardNode } from './board-node';
 import { Hex } from './hex';
 import { Junc } from './junc';
 import { Port } from './port';
@@ -75,7 +75,7 @@ export class Board {
       _.each(getOffsets('even', 1/3), (offset, clockPos) => {
 
         const coords = hex.offset(offset);
-        let junc: Node;
+        let junc: BoardNode;
 
         if (cache.has('j', coords)) {
 
@@ -98,7 +98,7 @@ export class Board {
       _.each(getOffsets('odd', 1/2), (offset, clockPos) => {
 
         const coords = hex.offset(offset);
-        let road: Node;
+        let road: BoardNode;
 
         if (cache.has('r', coords)) {
 

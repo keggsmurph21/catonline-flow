@@ -8,9 +8,9 @@ import { CoordinateCache } from './cache';
 import { Hex } from './hex';
 import { Junc } from './junc';
 import { Road } from './road';
-import { Node } from './node';
+import { BoardNode } from './board-node';
 
-export class Port extends Node {
+export class Port extends BoardNode {
 
   id: string;
   num: number;
@@ -36,7 +36,7 @@ export class Port extends Node {
     const hex = cache.get('h', coords);
 
     this.road = hex.roads[orientation];
-    this.coords = this.road.coords; // overwrite from Node
+    this.coords = this.road.coords; // overwrite from BoardNode
 
   }
 

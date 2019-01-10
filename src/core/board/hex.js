@@ -4,11 +4,11 @@ import _ from 'underscore';
 
 import type { DiceT, HexParamsT, HexRenderT, ScenarioT } from '../../utils';
 import { CatonlineError, pointsArrayToString } from '../../utils';
-import { Node } from './node';
+import { BoardNode } from './board-node';
 import { Junc } from './junc';
 import { Road } from './road';
 
-export class Hex extends Node {
+export class Hex extends BoardNode {
 
   id: string;
   num: number;

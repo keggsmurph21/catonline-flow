@@ -4,9 +4,9 @@ import type { CubeCoordsT } from '../../utils';
 import { CatonlineError, pointsArrayToPath, thin } from '../../utils';
 import { Hex } from './hex';
 import { Junc } from './junc';
-import { Node } from './node';
+import { BoardNode } from './board-node';
 
-export class Road extends Node {
+export class Road extends BoardNode {
 
   id: string;
   num: number;
