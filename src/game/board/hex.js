@@ -3,8 +3,10 @@
 import _ from 'underscore';
 
 import type { DiceT, HexParamsT, HexRenderT, ScenarioT } from '../../utils';
-import { CatonlineError } from '../../utils';
+import { CatonlineError, pointsArrayToString } from '../../utils';
 import { Node } from './node';
+import { Junc } from './junc';
+import { Road } from './road';
 
 export class Hex extends Node {
 
@@ -16,9 +18,9 @@ export class Hex extends Node {
   resource: ?string;   // to be displayed
   resources: string[]; // to be drawn
 
-  neighbors: [];
-  juncs: [];
-  roads: [];
+  hexes: { [number]: Hex };
+  juncs: { [number]: Junc };
+  roads: { [number]: Road };
 
   constructor(num: number, params: HexParamsT, scenario: ScenarioT) {
 
@@ -39,11 +41,25 @@ export class Hex extends Node {
         : params.resources.split(',')
       : [];
 
+    this.hexes = {};
+    this.juncs = {};
+    this.roads = {};
+
   }
 
   render(): HexRenderT {
 
-    throw new CatonlineError('not implemented');
+    const coords = this.renderedCoords;
+    const points = _
+      .map(this.juncs, junc => junc.renderedCoords);
+    const pString = pointsArrayToString(points);
+
+    return {
+      cx: coords.x,
+      cy: coords.y,
+      points: pString,
+      dice: this.dice,
+    };
 
   }
 

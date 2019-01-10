@@ -78,3 +78,14 @@ export type HexRenderT = {
   points: string,
   dice: ?DiceT,
 };
+
+export type JuncRenderT = {
+  cx: number,
+  cy: number,
+};
+
+export type PortRenderT = {};
+
+export type RoadRenderT = {
+  path: string,
+};

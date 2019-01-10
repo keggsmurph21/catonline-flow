@@ -58,7 +58,7 @@ export function round(num: number, places: number = 0): number {
 
 }
 
-export function thin(arg: mixed): mixed {
+export function thin(arg: any): any {
   return !!arg
     ? arg
     : undefined;
