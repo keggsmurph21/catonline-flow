@@ -1,9 +1,12 @@
 'use strict';
 
-const Board = require('../lib/game/board').Board;
+const _ = require('underscore');
+const Game = require('../lib/game');
 
-test('should initialize', () => {
+test('should initialize for all scenarios', () => {
 
-  expect(() => new Board()).not.toThrow();
+  _.each(Game.scenarios, (scenario, name) => {
+    expect(() => new Game.Board(scenario)).not.toThrow();
+  });
 
 });

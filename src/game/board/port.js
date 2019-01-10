@@ -1,30 +1,23 @@
-// @flow
 
 import _ from 'underscore';
 
-import type { DiceT, HexParamsT, HexRenderT, ScenarioT } from '../../utils';
+import type { PortParamsT, ScenarioT } from '../../utils';
 import { CatonlineError } from '../../utils';
+import { Hex } from './hex';
+import { Road } from './road';
 import { Node } from './node';
 
-export class Hex extends Node {
+export class Port extends Node {
 
   id: string;
   num: number;
 
-  dice: DiceT;
-  isOcean: boolean;
-  resource: ?string;   // to be displayed
-  resources: string[]; // to be drawn
 
-  neighbors: [];
-  juncs: [];
-  roads: [];
+  constructor(num: number, params: PortParamsT, scenario: ScenarioT) {
 
-  constructor(num: number, params: HexParamsT, scenario: ScenarioT) {
+    super(params.coords);
 
-    super('Hex', params.coords);
-
-    this.id = 'h' + num;
+    this.id = 'p' + num;
     this.num = num;
 
     this.dice = {
@@ -41,10 +34,6 @@ export class Hex extends Node {
 
   }
 
-  render(): HexRenderT {
 
-    throw new CatonlineError('not implemented');
-
-  }
 
 }

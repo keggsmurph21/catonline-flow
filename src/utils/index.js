@@ -1,9 +1,6 @@
 // @flow
 
-class CatonlineError extends Error {}
-
-export const Errors = {
-
-  CatonlineError,
-
-};
+export * from './consts';
+export * from './errors';
+export * from './funcs';
+export * from './types';
