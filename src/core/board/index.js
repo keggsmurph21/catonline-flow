@@ -9,7 +9,7 @@ import { Hex } from './hex';
 import { Junc } from './junc';
 import { Port } from './port';
 import { Road } from './road';
-import { Resource } from '../game/resource';
+import { Resource } from './resource';
 import { Robber } from './robber';
 
 export class Board {
@@ -238,7 +238,7 @@ export class Board {
     const ports = this.scenario.ports.map(port => port.type);
     if (params.portStyle === 'random')
       shuffle(ports);
-      
+
     _.each(this.ports, port => {
       port.type = ports.pop();
     });

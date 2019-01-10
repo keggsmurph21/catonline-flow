@@ -7,7 +7,7 @@ import { CatonlineError, pointsArrayToString, thin } from '../../utils';
 import { BoardNode } from './board-node';
 import { Junc } from './junc';
 import { Road } from './road';
-import { Resource } from '../game/resource';
+import { Resource } from './resource';
 
 export class Hex extends BoardNode {
 
