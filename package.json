@@ -1,0 +1,27 @@
+{
+  "name": "catonline-flow",
+  "version": "1.0.0",
+  "description": "flow implementation for catonline",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run build && jest --coverage",
+    "build": "flow && babel src/ -d lib/"
+  },
+  "author": "Kevin Murphy",
+  "license": "MIT",
+  "reposity": {
+    "type": "git",
+    "url": "https://github.com/keggsmurph21/catonline-flow"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-jest": "^23.6.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-flow": "^6.23.0",
+    "babel-register": "^6.26.0",
+    "flow-bin": "^0.89.0",
+    "jest": "^23.6.0"
+  },
+  "dependencies": {},
+  "browserslist": "> 0.25%, not dead"
+}
