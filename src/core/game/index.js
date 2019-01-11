@@ -1,8 +1,8 @@
 // @flow
 
 import _ from 'underscore';
-import type { GameParamsT, GameSerialT } from '../../utils';
-import { CatonlineError, shuffle } from '../../utils';
+import type { GameParamsT, GameSerialT, InitialConditionsT } from '../../utils';
+import { CatonlineError, Serializable, shuffle } from '../../utils';
 import { validate } from './params';
 import { Board } from '../board';
 import { Computer, Human, Player } from '../player';
@@ -10,8 +10,10 @@ import { Graph } from '../graph';
 import { scenarios } from '../scenarios';
 import { DevCardDeck } from './dev-card-deck';
 import { Dice } from './dice';
+import { Flags } from './flags';
+import { History } from './history';
 
-export class Game {
+export class Game implements Serializable {
 
   params: GameParamsT;
   board: Board;
@@ -22,6 +24,9 @@ export class Game {
   players: Player[];
 
   isRandomized: boolean;
+
+  flags: Flags;
+  history: History;
 
   createdAt: Date;
   modifiedAt: Date;
@@ -43,6 +48,9 @@ export class Game {
 
     this.addPlayer(owner);
 
+    this.flags = new Flags();
+    this.history = new History();
+
     this.createdAt = new Date();
     this.modify();
 
@@ -61,15 +69,24 @@ export class Game {
     this.board.randomize(this.params);
     this.deck.shuffle();
 
+    const conds = this.getInitialConditions();
+    this.flags.setInitialConditions(conds)
+
     this.isRandomized = true;
     this.modify();
 
   }
 
   serialize(): GameSerialT {
-
     throw new CatonlineError('not implemented');
+  }
 
+  static deserialize(serial: GameSerialT): Game {
+    throw new CatonlineError('not implemented');
+  }
+
+  getInitialConditions(): InitialConditionsT {
+    throw new CatonlineError('not implemented');
   }
 
   isOwner(player: Player): boolean {

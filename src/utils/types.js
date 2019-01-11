@@ -9,8 +9,8 @@ import type { Hex } from '../core/board/hex';
 import type { Junc } from '../core/board/junc';
 import type { Port } from '../core/board/port';
 import type { Road } from '../core/board/road';
-import type { Player } from '../core/player';
 */
+import type { Player } from '../core/player';
 
 export type CartesianCoordsT = {
   type: string,
@@ -113,7 +113,11 @@ export type SerialT = GameSerialT
   | JuncSerialT
   | PortSerialT
   | RoadSerialT
-  | PlayerSerialT;
+  | PlayerSerialT
+  | FlagsSerialT
+  | HistorySerialT
+  | HandSerialT
+  ;
 
 /*
 // NB: need this block for static deserialize method on Serializable interface,
@@ -134,9 +138,24 @@ export type JuncSerialT = {};
 export type PortSerialT = {};
 export type RoadSerialT = {};
 export type PlayerSerialT = {};
+export type FlagsSerialT = {};
+export type HistorySerialT = {};
+export type HandSerialT = {};
 
 export type DevCardParamsT = {
   name: string,
   count: number,
   cost: CostT,
-}
+};
+
+export type TradeT = {
+  in: { [string]: number },
+  out: { [string]: number },
+  with: Player[];
+};
+
+export type TradeRateT = {
+  [string]: number,
+};
+
+export type InitialConditionsT = {};
