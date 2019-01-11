@@ -90,6 +90,9 @@ export class Game {
     if (this.isFull())
       throw new CatonlineError('all players have already joined');
 
+    if (this.isFullOfHumans())
+      throw new CatonlineError('all human players have already joined');
+
     this.players.push(player);
 
   }
@@ -114,7 +117,27 @@ export class Game {
   }
 
   isFull(): boolean {
-    return this.params.numHumans + this.params.numComputers === this.players.length;
+    return this.isFullOfHumans() && this.isFullOfComputers();
+  }
+
+  getNumHumans(): number {
+    return this.players
+      .filter(p => p.type === 'Human')
+      .length;
+  }
+
+  isFullOfHumans(): boolean {
+    return this.params.numHumans === this.getNumHumans();
+  }
+
+  getNumComputers(): number {
+    return this.players
+      .filter(p => p.type === 'Computer')
+      .length;
+  }
+
+  isFullOfComputers(): boolean {
+    return this.params.numComputers === this.getNumComputers();
   }
 
 }

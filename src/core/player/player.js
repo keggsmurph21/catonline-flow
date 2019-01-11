@@ -2,9 +2,11 @@
 
 export class Player {
 
+  type: string;
   id: string;
 
-  constructor(id: string) {
+  constructor(type: string, id: string) {
+    this.type = type;
     this.id = id;
   }
 
