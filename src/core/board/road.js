@@ -1,7 +1,8 @@
-// @ flow
+// @flow
 
-import type { CubeCoordsT } from '../../utils';
-import { CatonlineError, pointsArrayToPath, RoadSerialT, Serializable, thin } from '../../utils';
+import _ from 'underscore';
+import type { CubeCoordsT, RenderedCoordsT, RoadRenderT, RoadSerialT } from '../../utils';
+import { CatonlineError, pointsArrayToPath, Serializable, thin } from '../../utils';
 import { Hex } from './hex';
 import { Junc } from './junc';
 import { BoardNode } from './board-node';
@@ -11,11 +12,6 @@ export class Road extends BoardNode implements Serializable {
 
   id: string;
   num: number;
-
-  roads: { [number]: Road };
-  hexes: { [number]: Hex };
-  juncs: { [number]: Junc };
-
   owner: Player;
 
   constructor(num: number, coords: CubeCoordsT) {
@@ -52,9 +48,9 @@ export class Road extends BoardNode implements Serializable {
 
   render(): RoadRenderT {
 
-    const points: Junc[] = _
+    const points: RenderedCoordsT[] = _
       .map(this.juncs, junc => junc
-        ? junc.renderedCoords
+        ? junc.getRenderedCoords()
         : null
       )
       .filter(thin);

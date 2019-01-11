@@ -14,10 +14,6 @@ export class Junc extends BoardNode implements Serializable {
   id: string;
   num: number;
 
-  juncs: { [number]: Junc };
-  hexes: { [number]: Hex };
-  roads: { [number]: Road };
-
   port: Port;
   owner: Player;
   isSettleable: boolean;
@@ -60,7 +56,7 @@ export class Junc extends BoardNode implements Serializable {
 
   render(): JuncRenderT {
 
-    const coords = this.renderedCoords;
+    const coords = this.getRenderedCoords();
 
     return {
       cx: coords.x,

@@ -1,5 +1,9 @@
 // @flow
 
+import type { Hex } from './hex';
+import type { Junc } from './junc';
+import type { Port } from './port';
+import type { Road } from './road';
 import type { CubeCoordsT, RenderedCoordsT } from '../../utils';
 import { cubeToRendered } from '../../utils';
 
@@ -10,10 +14,10 @@ export class BoardNode {
   coords: CubeCoordsT;
 
   // overwrite these
-  hexes: { [number]: any };
-  juncs: { [number]: any };
-  ports: { [number]: any };
-  roads: { [number]: any };
+  hexes: { [number]: Hex };
+  juncs: { [number]: Junc };
+  ports: { [number]: Port };
+  roads: { [number]: Road };
 
   constructor(name: string, coords: CubeCoordsT) {
     this.name = name;
@@ -29,7 +33,7 @@ export class BoardNode {
     }
   }
 
-  get renderedCoords(): RenderedCoordsT {
+  getRenderedCoords(): RenderedCoordsT {
     return cubeToRendered(this.coords);
   }
 

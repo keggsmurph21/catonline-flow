@@ -1,12 +1,12 @@
 // @flow
 
-import type { FlagsSerialT, InitialConditionsT, TradeT, TradeRateT } from '../../utils';
+import type { StateSerialT, InitialConditionsT, TradeT, TradeRateT } from '../../utils';
 import type { Hand } from '../player/hand';
 import type { Game } from '.';
 import { CatonlineError, Serializable } from '../../utils';
 import { Player } from '../player';
 
-export class Flags implements Serializable {
+export class State implements Serializable {
 
   initialConditions: InitialConditionsT;
   status: string;
@@ -46,15 +46,23 @@ export class Flags implements Serializable {
 
   }[];
 
+  constructor(game: Game) {
+
+    this.status = game.isFull()
+      ? 'ready'
+      : 'pending';
+      
+  }
+
   setInitialConditions(conds: InitialConditionsT) {
     this.initialConditions = conds;
   }
 
-  serialize(): FlagsSerialT {
+  serialize(): StateSerialT {
     throw new CatonlineError('not implemented');
   }
 
-  deserialize(serial: FlagsSerialT): Flags {
+  deserialize(serial: StateSerialT): State {
     throw new CatonlineError('not implemented');
   }
 

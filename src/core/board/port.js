@@ -59,11 +59,11 @@ export class Port extends BoardNode implements Serializable {
     return _.find(this.hexes, hex => hex && !hex.isOcean);
   }
 
-  getHexes(): Hex[] {
+  getHexes(): { [number]: Hex } {
     return this.road.hexes;
   }
 
-  getJuncs(): Junc[] {
+  getJuncs(): { [number]: Junc } {
     return this.road.juncs;
   }
 

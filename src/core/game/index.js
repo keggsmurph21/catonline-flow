@@ -10,7 +10,7 @@ import { Graph } from '../graph';
 import { scenarios } from '../scenarios';
 import { DevCardDeck } from './dev-card-deck';
 import { Dice } from './dice';
-import { Flags } from './flags';
+import { State } from './state';
 import { History } from './history';
 
 export class Game implements Serializable {
@@ -25,7 +25,7 @@ export class Game implements Serializable {
 
   isRandomized: boolean;
 
-  flags: Flags;
+  state: State;
   history: History;
 
   createdAt: Date;
@@ -48,7 +48,7 @@ export class Game implements Serializable {
 
     this.addPlayer(owner);
 
-    this.flags = new Flags();
+    this.state = new State(this);
     this.history = new History();
 
     this.createdAt = new Date();
@@ -70,7 +70,7 @@ export class Game implements Serializable {
     this.deck.shuffle();
 
     const conds = this.getInitialConditions();
-    this.flags.setInitialConditions(conds)
+    this.state.setInitialConditions(conds)
 
     this.isRandomized = true;
     this.modify();

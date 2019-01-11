@@ -114,7 +114,7 @@ export type SerialT = GameSerialT
   | PortSerialT
   | RoadSerialT
   | PlayerSerialT
-  | FlagsSerialT
+  | StateSerialT
   | HistorySerialT
   | HandSerialT
   ;
@@ -138,7 +138,7 @@ export type JuncSerialT = {};
 export type PortSerialT = {};
 export type RoadSerialT = {};
 export type PlayerSerialT = {};
-export type FlagsSerialT = {};
+export type StateSerialT = {};
 export type HistorySerialT = {};
 export type HandSerialT = {};
 

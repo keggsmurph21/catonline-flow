@@ -17,11 +17,7 @@ export class Hex extends BoardNode implements Serializable {
   dice: DiceT;
   isOcean: boolean;
   resource: Resource;   // to be displayed
-  resources: string[]; // to be drawn
-
-  hexes: { [number]: Hex };
-  juncs: { [number]: Junc };
-  roads: { [number]: Road };
+  resources: string[];  // to be drawn
 
   constructor(num: number, params: HexParamsT, scenario: ScenarioT) {
 
@@ -78,9 +74,9 @@ export class Hex extends BoardNode implements Serializable {
 
   render(): HexRenderT {
 
-    const coords = this.renderedCoords;
+    const coords = this.getRenderedCoords();
     const points = _
-      .map(this.juncs, junc => junc.renderedCoords);
+      .map(this.juncs, junc => junc.getRenderedCoords());
     const pString = pointsArrayToString(points);
 
     return {
