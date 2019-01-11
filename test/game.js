@@ -4,6 +4,7 @@ const _ = require('underscore');
 const Game = require('../lib/core/game').Game;
 const defaults = require('../lib/core/game').defaults;
 const InvalidGameParamsError = require('../lib/utils').InvalidGameParamsError;
+const Human = require('../lib/core/player').Human;
 
 test('should initialize with the default params', () => {
 
@@ -61,4 +62,26 @@ test('should throw errors when initializing with invalid params', () => {
 
   });
 
-})
+});
+
+test('player management', () => {
+
+  const g = new Game(defaults);
+  const players = [0,1,2,3,4].map(i => new Human(i));
+
+  expect(g.players.length).toBe(0);
+
+  players.forEach(player => {
+    expect(g.hasPlayer(player)).toBe(false);
+  });
+
+  g.addPlayer(players[0]);
+
+  expect(g.hasPlayer(players[0])).toBe(true);
+  players.slice(1,4).forEach(player => {
+    expect(g.hasPlayer(player)).toBe(false);
+  });
+
+  g.addPlayer(players[0]);
+
+});
