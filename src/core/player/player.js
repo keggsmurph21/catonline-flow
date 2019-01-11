@@ -9,7 +9,7 @@ export class Player {
   }
 
   equals(player: Player): boolean {
-    return false;
+    return player.id === this.id;
   }
 
 }

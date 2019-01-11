@@ -91,7 +91,7 @@ export function validate(raw: any): GameParamsT {
   if (!(raw.scenario in scenarios)) {
 
     const msg = `no scenario with name "${raw.scenario}"`;
-    throw new InvalidGameParamsError();
+    throw new InvalidGameParamsError(msg);
 
   }
 

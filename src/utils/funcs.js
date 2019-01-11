@@ -92,7 +92,7 @@ export function getRandomChoice(arr: any[]): any {
 }
 
 export function shuffle(arr: any[]) {
-  
+
   // in-place
 
   for (let i = arr.length - 1; i > 0; i--) {
@@ -102,4 +102,18 @@ export function shuffle(arr: any[]) {
     arr[j] = _tmp;
   }
 
+}
+
+export function expectToThrow(fn: any => any, err: { name?: string, message?: RegExp }) {
+  try {
+    fn();
+  } catch (e) {
+
+    if (err.name && e.name !== err.name)
+      throw e;
+
+    if (err.message && !err.message.test(e.message))
+      throw e;
+
+  }
 }

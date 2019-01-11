@@ -17,9 +17,13 @@ export class Game {
   board: Board;
   deck: DevCardDeck;
   dice: Dice;
+
+  owner: Player;
   players: Player[];
 
-  constructor(params: {}) {
+  isRandomized: boolean;
+
+  constructor(owner: Player, params: {}) {
 
     this.params = validate(params); // might throw
 
@@ -28,7 +32,13 @@ export class Game {
     this.board = new Board(scenario);
     this.deck = new DevCardDeck(scenario);
     this.dice = new Dice();
+
+    this.owner = owner;
     this.players = [];
+
+    this.isRandomized = false;
+
+    this.addPlayer(owner);
 
   }
 
@@ -41,12 +51,18 @@ export class Game {
     this.board.randomize(this.params);
     this.deck.shuffle();
 
+    this.isRandomized = true;
+
   }
 
   serialize(): GameSerialT {
 
     throw new CatonlineError('not implemented');
 
+  }
+
+  isOwner(player: Player): boolean {
+    return this.owner.equals(player);
   }
 
   hasPlayer(player: Player): boolean {
@@ -62,12 +78,38 @@ export class Game {
 
   addPlayer(player: Player) {
 
+    if (!(player instanceof Player))
+      throw new CatonlineError(`cannot add player of type "${typeof player}"`);
+
+    if (this.hasPlayer(player))
+      throw new CatonlineError('this player has already joined');
+
+    if (this.isRandomized)
+      throw new CatonlineError('cannot add players after game has been randomized');
+
     if (this.isFull())
       throw new CatonlineError('all players have already joined');
+
+    this.players.push(player);
 
   }
 
   removePlayer(player: Player) {
+
+    if (!(player instanceof Player))
+      throw new CatonlineError(`cannot add player of type "${typeof player}"`);
+
+    if (!this.hasPlayer(player))
+      throw new CatonlineError('this player is not in this game');
+
+    if (this.isRandomized)
+      throw new CatonlineError('cannot remove players after game has been randomized');
+
+    if (this.isOwner(player))
+      throw new CatonlineError('the owner cannot leave the game');
+
+    const i = this.players.indexOf(player);
+    this.players.splice(i, 1);
 
   }
 
