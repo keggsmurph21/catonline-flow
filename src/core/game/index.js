@@ -23,6 +23,9 @@ export class Game {
 
   isRandomized: boolean;
 
+  createdAt: Date;
+  modifiedAt: Date;
+
   constructor(owner: Player, params: {}) {
 
     this.params = validate(params); // might throw
@@ -40,6 +43,13 @@ export class Game {
 
     this.addPlayer(owner);
 
+    this.createdAt = new Date();
+    this.modify();
+
+  }
+
+  modify() {
+    this.modifiedAt = new Date();
   }
 
   randomize() {
@@ -52,6 +62,7 @@ export class Game {
     this.deck.shuffle();
 
     this.isRandomized = true;
+    this.modify();
 
   }
 
@@ -94,6 +105,7 @@ export class Game {
       throw new CatonlineError('all human players have already joined');
 
     this.players.push(player);
+    this.modify();
 
   }
 
@@ -113,6 +125,7 @@ export class Game {
 
     const i = this.players.indexOf(player);
     this.players.splice(i, 1);
+    this.modify();
 
   }
 
