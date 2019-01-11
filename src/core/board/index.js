@@ -2,7 +2,7 @@
 
 import _ from 'underscore';
 import type { BoardSerialT, CubeCoordsT, DiceT, GameParamsT, ScenarioT } from '../../utils';
-import { CatonlineError, getOffsets, shuffle } from '../../utils';
+import { CatonlineError, getOffsets, Serializable, shuffle } from '../../utils';
 import { CoordinateCache } from './cache';
 import { BoardNode } from './board-node';
 import { Hex } from './hex';
@@ -12,7 +12,7 @@ import { Road } from './road';
 import { Resource } from './resource';
 import { Robber } from './robber';
 
-export class Board {
+export class Board implements Serializable {
 
   scenario: ScenarioT;
   hexes: { [number]: Hex };
@@ -271,6 +271,10 @@ export class Board {
       hexes: _.map(this.hexes, hex => hex.serialize()),
     };
 
+  }
+
+  static deserialize(serial: BoardSerialT): Board {
+    throw new CatonlineError('not implemented');
   }
 
   getById() {

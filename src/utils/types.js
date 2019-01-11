@@ -1,5 +1,17 @@
 // @flow
 
+/*
+// NB: need this block for static deserialize method on Serializable interface,
+//       but support does not exist yet :(
+import type { Game } from '../core/game';
+import type { Board } from '../core/board';
+import type { Hex } from '../core/board/hex';
+import type { Junc } from '../core/board/junc';
+import type { Port } from '../core/board/port';
+import type { Road } from '../core/board/road';
+import type { Player } from '../core/player';
+*/
+
 export type CartesianCoordsT = {
   type: string,
   x: number,
@@ -95,13 +107,34 @@ export type GameParamsT = {
 
 };
 
+export type SerialT = GameSerialT
+  | BoardSerialT
+  | HexSerialT
+  | JuncSerialT
+  | PortSerialT
+  | RoadSerialT
+  | PlayerSerialT;
+
+/*
+// NB: need this block for static deserialize method on Serializable interface,
+//       but support does not exist yet :(
+export type DeserialT = Game
+  | Board
+  | Hex
+  | Junc
+  | Port
+  | Road
+  | Player;
+*/
+
 export type GameSerialT = {};
 export type BoardSerialT = {};
 export type HexSerialT = {};
 export type JuncSerialT = {};
 export type PortSerialT = {};
 export type RoadSerialT = {};
-    
+export type PlayerSerialT = {};
+
 export type DevCardParamsT = {
   name: string,
   count: number,

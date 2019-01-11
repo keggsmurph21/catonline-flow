@@ -1,13 +1,13 @@
 // @ flow
 
 import type { CubeCoordsT } from '../../utils';
-import { CatonlineError, pointsArrayToPath, thin } from '../../utils';
+import { CatonlineError, pointsArrayToPath, RoadSerialT, Serializable, thin } from '../../utils';
 import { Hex } from './hex';
 import { Junc } from './junc';
 import { BoardNode } from './board-node';
 import { Player } from '../player';
 
-export class Road extends BoardNode {
+export class Road extends BoardNode implements Serializable {
 
   id: string;
   num: number;
@@ -29,6 +29,14 @@ export class Road extends BoardNode {
     this.hexes = {};
     this.juncs = {};
 
+  }
+
+  serialize(): RoadSerialT {
+    throw new CatonlineError('not implemented');
+  }
+
+  static deserialize(serial: RoadSerialT): Road {
+    throw new CatonlineError('not implemented');
   }
 
   isOcean(): boolean {

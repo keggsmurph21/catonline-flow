@@ -1,15 +1,15 @@
 // @flow
 
 import _ from 'underscore';
-import type { CubeCoordsT, JuncRenderT } from '../../utils';
-import { CatonlineError } from '../../utils';
+import type { CubeCoordsT, JuncRenderT, JuncSerialT } from '../../utils';
+import { CatonlineError, Serializable } from '../../utils';
 import { Hex } from './hex';
 import { BoardNode } from './board-node';
 import { Port } from './port';
 import { Road } from './road';
 import { Player } from '../player';
 
-export class Junc extends BoardNode {
+export class Junc extends BoardNode implements Serializable {
 
   id: string;
   num: number;
@@ -37,6 +37,14 @@ export class Junc extends BoardNode {
     this.isSettleable = true;
     this.isCity = false;
 
+  }
+
+  serialize(): JuncSerialT {
+    throw new CatonlineError('not implemented');
+  }
+
+  static deserialize(serial: JuncSerialT): Junc {
+    throw new CatonlineError('not implemented');
   }
 
   isOcean(): boolean {

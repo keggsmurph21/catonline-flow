@@ -3,13 +3,13 @@
 import _ from 'underscore';
 
 import type { DiceT, HexParamsT, HexRenderT, HexSerialT, ScenarioT } from '../../utils';
-import { CatonlineError, pointsArrayToString, thin } from '../../utils';
+import { CatonlineError, pointsArrayToString, Serializable, thin } from '../../utils';
 import { BoardNode } from './board-node';
 import { Junc } from './junc';
 import { Road } from './road';
 import { Resource } from './resource';
 
-export class Hex extends BoardNode {
+export class Hex extends BoardNode implements Serializable {
 
   id: string;
   num: number;
@@ -70,6 +70,10 @@ export class Hex extends BoardNode {
       juncs: _.mapObject(this.juncs, junc => junc ? junc.num : null),
       roads: _.mapObject(this.roads, road => road ? road.num : null),
     };
+  }
+
+  static deserialize(serial: HexSerialT): Hex {
+    throw new CatonlineError('not implemented');
   }
 
   render(): HexRenderT {

@@ -1,16 +1,15 @@
 // @flow
 
 import _ from 'underscore';
-
-import type { CubeCoordsT, PortParamsT, PortRenderT, ScenarioT } from '../../utils';
-import { CatonlineError } from '../../utils';
+import type { CubeCoordsT, PortParamsT, PortRenderT, PortSerialT, ScenarioT } from '../../utils';
+import { CatonlineError, Serializable } from '../../utils';
 import { CoordinateCache } from './cache';
 import { Hex } from './hex';
 import { Junc } from './junc';
 import { Road } from './road';
 import { BoardNode } from './board-node';
 
-export class Port extends BoardNode {
+export class Port extends BoardNode implements Serializable {
 
   id: string;
   num: number;
@@ -32,6 +31,14 @@ export class Port extends BoardNode {
     this.type = ''; // init this later
     this.hexParams = params.hex;
 
+  }
+
+  serialize(): PortSerialT {
+    throw new CatonlineError('not implemented');
+  }
+
+  static deserialize(serial: PortSerialT): Port {
+    throw new CatonlineError('not implemented');
   }
 
   bindToRoad(cache: CoordinateCache) {
