@@ -27,8 +27,8 @@ export class Hex extends BoardNode implements Serializable {
     this.num = num;
 
     this.dice = {
-      roll: null,
-      dots: null,
+      roll: -1,
+      dots: -1,
     };
     this.isOcean = params.isOcean;
     this.resources = params.resources

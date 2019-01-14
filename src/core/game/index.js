@@ -10,22 +10,27 @@ import { Graph } from '../graph';
 import { scenarios } from '../scenarios';
 import { DevCardDeck } from './dev-card-deck';
 import { Dice } from './dice';
-import { State } from './state';
+//import { State } from './state';
 import { History } from './history';
+import { Bank } from './bank';
+import { Participant } from './Participant';
 
 export class Game implements Serializable {
 
   params: GameParamsT;
+  graph: Graph;
   board: Board;
   deck: DevCardDeck;
   dice: Dice;
+  bank: Bank;
 
   owner: Player;
-  players: Player[];
+  participants: Participant[];
 
+  initialConditions: InitialConditionsT;
   isRandomized: boolean;
 
-  state: State;
+  //state: State;
   history: History;
 
   createdAt: Date;
@@ -37,18 +42,20 @@ export class Game implements Serializable {
 
     const scenario = this.params.scenario;
 
+    this.graph = new Graph(scenario);
     this.board = new Board(scenario);
     this.deck = new DevCardDeck(scenario);
     this.dice = new Dice();
+    this.bank = new Bank();
 
     this.owner = owner;
-    this.players = [];
+    this.participants = [];
 
     this.isRandomized = false;
 
     this.addPlayer(owner);
 
-    this.state = new State(this);
+    //this.state = new State(this);
     this.history = new History();
 
     this.createdAt = new Date();
@@ -60,17 +67,28 @@ export class Game implements Serializable {
     this.modifiedAt = new Date();
   }
 
+  begin() {
+
+    if (this.isFull())
+      throw new CatonlineError('cannot begin a game until all participants have joined');
+
+    this.fillWithComputers();
+    this.randomize();
+
+    this.modify();
+
+  }
+
   randomize() {
 
     if (!this.isFull())
-      throw new CatonlineError('cannot randomize game until all players have joined');
+      throw new CatonlineError('cannot randomize game until all participants have joined');
 
-    shuffle(this.players);
+    shuffle(this.participants);
     this.board.randomize(this.params);
     this.deck.shuffle();
 
-    const conds = this.getInitialConditions();
-    this.state.setInitialConditions(conds)
+    this.initialConditions = this.getInitialConditions();
 
     this.isRandomized = true;
     this.modify();
@@ -86,17 +104,48 @@ export class Game implements Serializable {
   }
 
   getInitialConditions(): InitialConditionsT {
-    throw new CatonlineError('not implemented');
+    return {
+      participants: this.participants
+        .map(participant => participant.player.id),
+      board: {
+        hexes: _.mapObject(this.board.hexes, hex => {
+          return {
+            resource: hex.resource.name,
+            dice: hex.dice.roll,
+          }
+        }),
+        ports: _.mapObject(this.board.ports, port => port.type),
+      },
+      deck: this.deck.cards.map(card => card.type),
+    };
   }
 
   isOwner(player: Player): boolean {
     return this.owner.equals(player);
   }
 
+  /*
+  getParticipant(player: Player): Participant {
+
+    if (!this.hasPlayer(player))
+      throw new CatonlineError(`player "${player.id}" not in game`);
+
+    for (let i = 0; i < this.participants.length; i++) {
+
+      if (this.participants[i].player.equals(player))
+        return this.participants[i];
+
+    }
+
+    throw new CatonlineError(`unable to get state for player "${player.id}"`);
+
+  }
+  */
+
   hasPlayer(player: Player): boolean {
 
-    for (let i = 0; i < this.players.length; i++) {
-      if (this.players[i].equals(player))
+    for (let i = 0; i < this.participants.length; i++) {
+      if (this.participants[i].player.equals(player))
         return true;
     }
 
@@ -113,15 +162,13 @@ export class Game implements Serializable {
       throw new CatonlineError('this player has already joined');
 
     if (this.isRandomized)
-      throw new CatonlineError('cannot add players after game has been randomized');
+      throw new CatonlineError('cannot add participants after game has been randomized');
 
     if (this.isFull())
-      throw new CatonlineError('all players have already joined');
+      throw new CatonlineError('all participants have already joined');
 
-    if (this.isFullOfHumans())
-      throw new CatonlineError('all human players have already joined');
-
-    this.players.push(player);
+    const participant = new Participant(this, player);
+    this.participants.push(participant);
     this.modify();
 
   }
@@ -135,39 +182,35 @@ export class Game implements Serializable {
       throw new CatonlineError('this player is not in this game');
 
     if (this.isRandomized)
-      throw new CatonlineError('cannot remove players after game has been randomized');
+      throw new CatonlineError('cannot remove participants after game has been randomized');
 
     if (this.isOwner(player))
       throw new CatonlineError('the owner cannot leave the game');
 
-    const i = this.players.indexOf(player);
-    this.players.splice(i, 1);
+    const i = this.participants.indexOf(player);
+    this.participants.splice(i, 1);
     this.modify();
 
   }
 
   isFull(): boolean {
-    return this.isFullOfHumans() && this.isFullOfComputers();
-  }
-
-  getNumHumans(): number {
-    return this.players
-      .filter(p => p.type === 'Human')
-      .length;
-  }
-
-  isFullOfHumans(): boolean {
     return this.params.numHumans === this.getNumHumans();
   }
 
-  getNumComputers(): number {
-    return this.players
-      .filter(p => p.type === 'Computer')
+  fillWithComputers() {
+    throw new CatonlineError('not implemented');
+  }
+
+  getNumHumans(): number {
+    return this.participants
+      .filter(p => p.isHuman())
       .length;
   }
 
-  isFullOfComputers(): boolean {
-    return this.params.numComputers === this.getNumComputers();
+  getNumComputers(): number {
+    return this.participants
+      .filter(p => !p.isHuman())
+      .length;
   }
 
 }

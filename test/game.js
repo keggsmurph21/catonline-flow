@@ -76,7 +76,7 @@ test('player management', () => {
   const g = new Game(h, defaults);
   const players = [0,1,2,3,4].map(i => new Human(i));
 
-  expect(g.players.length).toBe(1);
+  expect(g.participants.length).toBe(1);
   expect(g.owner.equals(h)).toBe(true);
 
   players.forEach(player => {
@@ -86,7 +86,7 @@ test('player management', () => {
   expectToThrow(() => g.addPlayer(), { name: 'CatonlineError', message: /type "undefined"/ });
 
   g.addPlayer(players[0]);
-  expect(g.players.length).toBe(2);
+  expect(g.participants.length).toBe(2);
 
   players.slice(0,1).forEach(player => {
     expect(g.hasPlayer(player)).toBe(true);
@@ -98,7 +98,7 @@ test('player management', () => {
   expectToThrow(() => g.addPlayer(players[0]), { name: 'CatonlineError', message: /this player has already joined/});
 
   g.addPlayer(players[1]);
-  expect(g.players.length).toBe(3);
+  expect(g.participants.length).toBe(3);
 
   players.slice(0,2).forEach(player => {
     expect(g.hasPlayer(player)).toBe(true);
@@ -108,7 +108,7 @@ test('player management', () => {
   });
 
   g.addPlayer(players[2]);
-  expect(g.players.length).toBe(4);
+  expect(g.participants.length).toBe(4);
 
   players.slice(0,3).forEach(player => {
     expect(g.hasPlayer(player)).toBe(true);
@@ -127,9 +127,9 @@ test('player management', () => {
   expectToThrow(() => g.removePlayer(players[3]), { name: 'CatonlineError', message: /player is not in/ });
   expectToThrow(() => g.removePlayer(players[4]), { name: 'CatonlineError', message: /player is not in/ });
 
-  expect(g.players.length).toBe(4);
+  expect(g.participants.length).toBe(4);
   g.removePlayer(players[2]);
-  expect(g.players.length).toBe(3);
+  expect(g.participants.length).toBe(3);
 
   players.slice(0,2).forEach(player => {
     expect(g.hasPlayer(player)).toBe(true);
@@ -139,7 +139,7 @@ test('player management', () => {
   });
 
   g.removePlayer(players[1]);
-  expect(g.players.length).toBe(2);
+  expect(g.participants.length).toBe(2);
 
   players.slice(0,1).forEach(player => {
     expect(g.hasPlayer(player)).toBe(true);
@@ -149,7 +149,7 @@ test('player management', () => {
   });
 
   g.removePlayer(players[0]);
-  expect(g.players.length).toBe(1);
+  expect(g.participants.length).toBe(1);
 
   players.forEach(player => {
     expect(g.hasPlayer(player)).toBe(false);
@@ -157,6 +157,6 @@ test('player management', () => {
 
   expectToThrow(() => g.removePlayer(h), { name: 'CatonlineError', message: /owner/ });
 
-  expect(g.players.length).toBe(1);
-  
+  expect(g.participants.length).toBe(1);
+
 });

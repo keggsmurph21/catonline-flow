@@ -1,7 +1,8 @@
 // @flow
 
-import type { HandSerialT } from '../../utils';
-import { CatonlineError, Serializable } from '../../utils';
+import _ from 'underscore';
+import type { HandSerialT } from '../../../utils';
+import { CatonlineError, Serializable } from '../../../utils';
 
 export class Hand implements Serializable {
 
@@ -25,6 +26,25 @@ export class Hand implements Serializable {
 
   deserialize(serial: HandSerialT): History {
     throw new CatonlineError('not implemented');
+  }
+
+  getNumDevCardsInHand(): number {
+
+    let acc: number = 0;
+    _.each(this.unplayedDCs, num => acc += num);
+    _.each(this.unplayableDCs, num => acc += num);
+
+    return acc;
+
+  }
+
+  getNumResources(): number {
+
+    let acc: number = 0;
+    _.each(this.resources, num => acc += num);
+
+    return acc;
+
   }
 
 }
