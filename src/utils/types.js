@@ -11,6 +11,7 @@ import type { Port } from '../core/board/port';
 import type { Road } from '../core/board/road';
 */
 import type { Player } from '../core/player';
+import type { Participant } from '../core/game/participant';
 import type { Hand } from '../core/game/participant/hand';
 
 export type CartesianCoordsT = {
@@ -149,9 +150,14 @@ export type DevCardParamsT = {
 };
 
 export type TradeT = {
-  in: { [string]: number },
-  out: { [string]: number },
-  with: Player[];
+  from: {
+    participant: Participant,
+    cards: CostT,
+  },
+  for: {
+    participants: Participant[],
+    cards: CostT,
+  },
 };
 
 export type TradeRateT = {

@@ -157,11 +157,8 @@ export class Game implements Serializable {
 
     // overwrite the board hex values
     _.each(conds.board.hexes, (hex, i) => {
-      //console.log(hex);
       game.board.hexes[i].resource = new Resource(hex.resource);
       game.board.hexes[i].dice = new DiceValue(hex.dice);
-      //console.log(game.board.hexes[i].dice);
-      // TODO: overwrite dots
     });
 
     // overwrite the board port values
@@ -174,6 +171,14 @@ export class Game implements Serializable {
 
     return game;
 
+  }
+
+  mutate() {
+
+  }
+
+  mutateBatch() {
+    
   }
 
   equals(game: Game): boolean {

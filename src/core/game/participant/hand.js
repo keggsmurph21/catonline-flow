@@ -1,7 +1,7 @@
 // @flow
 
 import _ from 'underscore';
-import type { HandSerialT } from '../../../utils';
+import type { CostT, HandSerialT } from '../../../utils';
 import { CatonlineError, Serializable } from '../../../utils';
 
 export class Hand implements Serializable {
@@ -45,6 +45,30 @@ export class Hand implements Serializable {
 
     return acc;
 
+  }
+
+  canAfford(cost: CostT): boolean {
+
+    let canAfford = true;
+
+    _.each(cost, (name, num) => {
+      if (this.resources[name] < num)
+        canAfford = false;
+    });
+
+    return canAfford;
+
+  }
+
+  spend(cost: CostT) {
+
+    if (!this.canAfford(cost))
+      throw new CatonlineError(`cannot afford! cost: "${JSON.stringify(cost)}", resources: "${JSON.stringify(this.resources)}"`);
+
+    _.each(cost, (name, num) => {
+      this.resources[name] -= num;
+    });
+    
   }
 
 }

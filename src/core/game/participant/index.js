@@ -1,13 +1,16 @@
 // @flow
 
 import _ from 'underscore';
+import type { Junc } from '../../board/junc';
+import type { Road } from '../../board/road';
 import type { Edge, Vertex } from '../../graph';
-import type { HandSerialT, ParticipantSerialT, PublicStateT, TradeRateT } from '../../../utils';
+import type { CostT, HandSerialT, ParticipantSerialT, PublicStateT, TradeRateT } from '../../../utils';
 import { CatonlineError, Serializable } from '../../../utils';
 import { BANK_TRADE_RATES as DEFAULT_TRADE_RATE } from '../../../utils';
 import { Player } from '../../player';
 import { Game } from '..';
 import { Hand } from './hand';
+import { scenarios } from '../../scenarios';
 
 export class Participant implements Serializable {
 
@@ -28,6 +31,9 @@ export class Participant implements Serializable {
   bankTradeRate: TradeRateT;
   //numKnights: 0, // calculate this on the fly
 
+  settlements: Junc[];
+  roads: Road[];
+
   constructor(game: Game, player: Player) {
 
     this.game = game;
@@ -43,6 +49,9 @@ export class Participant implements Serializable {
     this.hasHeavyPurse = false;
 
     this.bankTradeRate = DEFAULT_TRADE_RATE;
+
+    this.settlements = [];
+    this.roads = [];
 
   }
 
@@ -85,6 +94,22 @@ export class Participant implements Serializable {
 
   }
 
+  getNumSettlements(): number {
+    return this.settlements.length;
+  }
+
+  getNumCities(): number {
+    return this.settlements.filter(junc => junc.isCity).length;
+  }
+
+  getNumRoads(): number {
+    return this.roads.length;
+  }
+
+  getLongestRoad(): Road[] {
+    throw new CatonlineError('not implemented');
+  }
+
   isHuman(): boolean {
     return this.player.type === 'Human';
   }
@@ -114,8 +139,45 @@ export class Participant implements Serializable {
   }
 
   canAcceptTrade(): boolean {
-    return false;
+
+    const trade = this.game.currentTrade;
+    if (!trade)
+      return false;
+
+    if (trade.from.participant.player.equals(this.player))
+      return false;
+
+    if (trade.for.participants.indexOf(this) === -1)
+      return false;
+
+    return this.hand.canAfford(trade.for.cards);
+
   }
+
+  canBuild(obj: string): boolean {
+
+    const scenario = scenarios[this.game.params.scenario];
+    if (!(obj in scenario.buyable))
+      throw new CatonlineError(`cannot calculate canBuild(): unrecognized object "${obj}"`);
+
+    const cost = scenario.buyable[obj].cost;
+
+    switch (obj) {
+
+      case 'city':
+        return this.hand.canAfford(cost) && this.getNumCities() < scenario.buyable.city.max_num;
+
+      case 'road':
+      case 'settlement':
+      case 'dev card':
+        throw new CatonlineError('not implemented');
+
+      default:
+        throw new CatonlineError(`cannot calculate canBuild(): unrecognized object "${obj}"`);
+
+    }
+  }
+
 }
 
 /*

@@ -51,7 +51,7 @@ export class Edge {
       case ('_e_after_discard_other'):
         this.target = '_v_end_turn';
         this.check = (game, participant) => {
-          throw new CatonlineError('not implemented'); // true;
+          return true; // true;
         };
         this.arguments = '';
         this.execute = (game, participant, argv) => {
@@ -64,7 +64,7 @@ export class Edge {
       case ('_e_after_trade_other'):
         this.target = '_v_end_turn';
         this.check = (game, participant) => {
-          throw new CatonlineError('not implemented'); // true;
+          return true; // true;
         };
         this.arguments = '';
         this.execute = (game, participant, argv) => {
@@ -77,7 +77,7 @@ export class Edge {
       case ('_e_build_city'):
         this.target = '_v_fortify';
         this.check = (game, participant) => {
-          throw new CatonlineError('not implemented'); // f.hasRolled && f.canBuild.city;
+          return game.hasRolled && participant.canBuild('city'); // f.hasRolled && f.canBuild.city;
         };
         this.arguments = 'settlement';
         this.execute = (game, participant, argv) => {
