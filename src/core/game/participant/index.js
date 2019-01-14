@@ -16,7 +16,7 @@ export class Participant implements Serializable {
   hand: Hand;
 
   vertex: Vertex;
-  adjacents: Edge[];
+  //adjacents: Edge[];
 
   //isHuman: player.isHuman(), // calculate this on the fly
 
@@ -52,6 +52,18 @@ export class Participant implements Serializable {
 
   deserialize(serial: HandSerialT): History {
     throw new CatonlineError('not implemented');
+  }
+
+  isCurrentPlayer(): boolean {
+    return this.player.equals(this.game.getCurrentParticipant().player);
+  }
+
+  isOwner(): boolean {
+    return this.game.isOwner(this.player);
+  }
+
+  getEdges(): Edge[] {
+    return this.game.graph.getAdjacents(this);
   }
 
   getNumDevCardsInHand(): number {

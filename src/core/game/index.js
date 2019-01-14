@@ -13,7 +13,7 @@ import { Dice } from './dice';
 //import { State } from './state';
 import { History } from './history';
 import { Bank } from './bank';
-import { Participant } from './Participant';
+import { Participant } from './participant';
 
 export class Game implements Serializable {
 
@@ -105,6 +105,9 @@ export class Game implements Serializable {
   }
 
   randomize() {
+
+    if (this.isRandomized)
+      throw new CatonlineError('game has already been randomized');
 
     if (!this.isFull())
       throw new CatonlineError('cannot randomize game until all participants have joined');
