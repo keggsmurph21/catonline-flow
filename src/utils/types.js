@@ -11,6 +11,7 @@ import type { Port } from '../core/board/port';
 import type { Road } from '../core/board/road';
 */
 import type { Player } from '../core/player';
+import type { Hand } from '../core/game/participant/hand';
 
 export type CartesianCoordsT = {
   type: string,
@@ -32,8 +33,8 @@ export type RenderedCoordsT = {
 };
 
 export type DiceT = {
-  roll: ?number,
-  dots: ?number,
+  roll: number,
+  dots: number,
 };
 
 export type HexParamsT = {
@@ -81,7 +82,7 @@ export type HexRenderT = {
   cy: number,
   cx: number,
   points: string,
-  dice: ?DiceT,
+  dice: DiceT,
 };
 
 export type JuncRenderT = {
@@ -114,6 +115,7 @@ export type SerialT = GameSerialT
   | PortSerialT
   | RoadSerialT
   | PlayerSerialT
+  | ParticipantSerialT
   | StateSerialT
   | HistorySerialT
   | HandSerialT
@@ -138,6 +140,7 @@ export type JuncSerialT = {};
 export type PortSerialT = {};
 export type RoadSerialT = {};
 export type PlayerSerialT = {};
+export type ParticipantSerialT = {};
 export type StateSerialT = {};
 export type HistorySerialT = {};
 export type HandSerialT = {};
@@ -159,3 +162,56 @@ export type TradeRateT = {
 };
 
 export type InitialConditionsT = {};
+
+export type PublicStateT = {};
+
+/*
+export type PlayerStateT = {
+
+  id: string,
+  vertex: string,
+  adjacents: string[],
+
+  isHuman: boolean,
+  discard: number,
+  hasDeclinedTrade: boolean,
+  canAcceptTrade : boolean,
+  hasHeavyPurse : boolean,
+  bankTradeRates: TradeRateT,
+  numKnights: number,
+  hand: Hand,
+
+};
+
+export type PublicGameStateT = {
+
+  status: string,
+  turn: number,
+
+  isFirstTurn: boolean,
+  isSecondTurn: boolean,
+  isGameOver: boolean,
+  isRollSeven: boolean,
+  waiting: Player[],
+  canSteal: boolean,
+  tradeAccepted: boolean,
+  waitForDiscard: boolean,
+  currentTrade: TradeT | null,
+  currentPlayerID: number,
+  hasRolled: boolean,
+
+  largestArmy: number,
+  hasLargestArmy: Player | null,
+  longestRoad: number,
+  hasLongestRoad: Player | null,
+
+  players: PublicPlayerStateT[],
+
+};
+
+export type PublicPlayerStateT = {
+
+
+
+};
+*/
