@@ -117,4 +117,19 @@ export const VERTEX_NAMES = [
   '_v_settle',
   '_v_steal',
   '_v_trade_with_bank',
-]
+];
+
+export const DICE_DOTS_MAP = {
+  '-1': 0,
+  '0': 0,
+  '2': 1,
+  '3': 2,
+  '4': 3,
+  '5': 4,
+  '6': 5,
+  '8': 5,
+  '9': 4,
+  '10': 3,
+  '11': 2,
+  '12': 1,
+};

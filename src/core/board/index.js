@@ -11,6 +11,7 @@ import { Port } from './port';
 import { Road } from './road';
 import { Resource } from './resource';
 import { Robber } from './robber';
+import { DiceValue } from './dice-value';
 
 export class Board implements Serializable {
 
@@ -197,9 +198,9 @@ export class Board implements Serializable {
     shuffle(resources);
 
     // shuffle dicevalues (maybe)
-    let diceValues: DiceT[] = [...this.scenario.dice];
+    let dice: DiceT[] = [...this.scenario.dice];
     if (params.tileStyle === 'random')
-      shuffle(diceValues);
+      shuffle(dice);
 
     // place resources and dicevalues
     const nullDice = { roll: 0, dots: 0 };
@@ -209,7 +210,7 @@ export class Board implements Serializable {
 
         const res = new Resource('ocean');
         hex.resource = res;
-        hex.dice = nullDice;
+        hex.dice = new DiceValue(0);
 
       } else {
 
@@ -218,12 +219,12 @@ export class Board implements Serializable {
 
         if (res.name === 'desert') {
 
-          hex.dice = nullDice;
+          hex.dice = new DiceValue(0);
           this.robber.moveTo(i);
 
         } else {
 
-          hex.dice = diceValues.pop();
+          hex.dice = new DiceValue(dice.pop());
 
         }
 

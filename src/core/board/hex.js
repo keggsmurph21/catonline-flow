@@ -8,13 +8,14 @@ import { BoardNode } from './board-node';
 import { Junc } from './junc';
 import { Road } from './road';
 import { Resource } from './resource';
+import { DiceValue } from './dice-value';
 
 export class Hex extends BoardNode implements Serializable {
 
   id: string;
   num: number;
 
-  dice: DiceT;
+  dice: DiceValue;
   isOcean: boolean;
   resource: Resource;   // to be displayed
   resources: string[];  // to be drawn
@@ -26,10 +27,7 @@ export class Hex extends BoardNode implements Serializable {
     this.id = 'h' + num;
     this.num = num;
 
-    this.dice = {
-      roll: -1,
-      dots: -1,
-    };
+    this.dice = new DiceValue(-1);
     this.isOcean = params.isOcean;
     this.resources = params.resources
       ? params.resources === '*'
@@ -83,7 +81,7 @@ export class Hex extends BoardNode implements Serializable {
       cx: coords.x,
       cy: coords.y,
       points: pString,
-      dice: this.dice,
+      dice: this.dice.value,
     };
 
   }
