@@ -19,6 +19,34 @@ test('should initialize with the default params', () => {
 
 });
 
+test('should test for equality', () => {
+
+  const g1 = new Game(h, { ...defaults, numHumans: 1 });
+  g1.begin();
+
+  const g2 = new Game(h, { ...defaults, numHumans: 1 });
+  g2.begin();
+
+  const g3 = new Game(h, { ...defaults, numHumans: 1, vpGoal: 11 });
+  g3.begin();
+
+  // in general two games won't be the same unless we miraculously happen to
+  //   plop out the same board & dev cards & such
+
+  expect(g1.equals(g1)).toBe(true);
+  expect(g1.equals(g2)).toBe(false);
+  expect(g1.equals(g3)).toBe(false);
+
+  expect(g2.equals(g1)).toBe(false);
+  expect(g2.equals(g2)).toBe(true);
+  expect(g2.equals(g3)).toBe(false);
+
+  expect(g3.equals(g1)).toBe(false);
+  expect(g3.equals(g2)).toBe(false);
+  expect(g3.equals(g3)).toBe(true);
+
+});
+
 test('should throw errors when initializing with invalid params', () => {
 
   function defaultsLessOneParam(name) {
@@ -158,5 +186,25 @@ test('player management', () => {
   expectToThrow(() => g.removePlayer(h), { name: 'CatonlineError', message: /owner/ });
 
   expect(g.participants.length).toBe(1);
+
+});
+
+test('initialize from initial conditions', () => {
+
+  const original = new Game(h, { ...defaults, numHumans: 1 });
+  original.begin();
+
+  const originalConds = original.getInitialConditions();
+  const originalOwner = original.owner;
+  const originalPlayers = {
+    [h.id]: h,
+  };
+
+  expect(() => Game.initialize(originalConds, originalOwner, originalPlayers)).not.toThrow();
+
+  const copy = Game.initialize(originalConds, originalOwner, originalPlayers);
+
+  expect(original.equals(original)).toBe(true);
+  expect(original.equals(copy)).toBe(true);
 
 });

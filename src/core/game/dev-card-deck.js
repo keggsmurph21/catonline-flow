@@ -40,4 +40,12 @@ export class DevCardDeck {
   isEmpty(): boolean {
     return !!this.cards.length;
   }
+
+  setCards(scenario: ScenarioT, cards: string[]) {
+    this.cards = cards.map(name => new DevCard({
+      name,
+      count: scenario.devCards[name].count,
+      cost: scenario.buyable.devCard.cost,
+    }));
+  }
 }

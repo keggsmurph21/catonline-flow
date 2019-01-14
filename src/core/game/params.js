@@ -97,7 +97,7 @@ export function validate(raw: any): GameParamsT {
 
   return {
 
-    scenario: scenarios[raw.scenario],
+    scenario: /*scenarios[*/raw.scenario/*]*/,
     isPublic: raw.isPublic,
     portStyle: raw.portStyle,
     tileStyle: raw.tileStyle,

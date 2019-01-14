@@ -1,12 +1,12 @@
 // @flow
 
-import type { PlayerSerialT } from '../../utils';
+import type { PlayerIDT, PlayerSerialT } from '../../utils';
 import { CatonlineError, hashToHexColor, Serializable } from '../../utils';
 
 export class Player implements Serializable {
 
   type: string;
-  id: string;
+  id: PlayerIDT;
   color: string;
 
   constructor(type: string, id: string) {

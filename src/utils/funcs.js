@@ -1,5 +1,6 @@
 // @flow
 
+import _ from 'underscore';
 import { offsetsByClockPosition } from './consts';
 import type { CartesianCoordsT, CubeCoordsT, RenderedCoordsT } from './types';
 import { CatonlineError } from './errors';
@@ -131,4 +132,9 @@ export function hashToHexColor(str: string): string {
   }
   return color;
 
+}
+
+export function objectsMatch(obj1: {} | Array<any>, obj2: {} | Array<any>): boolean {
+
+  return _.isMatch(obj1, obj2) && _.isMatch(obj2, obj1);
 }

@@ -1,8 +1,8 @@
 // @flow
 
 import _ from 'underscore';
-import type { GameParamsT, GameSerialT, InitialConditionsT, TradeT } from '../../utils';
-import { CatonlineError, Serializable, shuffle } from '../../utils';
+import type { GameParamsT, GameSerialT, InitialConditionsT, PlayerIDT, TradeT } from '../../utils';
+import { CatonlineError, objectsMatch, Serializable, shuffle } from '../../utils';
 import { validate } from './params';
 import { Board } from '../board';
 import { Computer, Human, Player } from '../player';
@@ -14,6 +14,8 @@ import { Dice } from './dice';
 import { History } from './history';
 import { Bank } from './bank';
 import { Participant } from './participant';
+import { Resource } from '../board/resource';
+import { DiceValue } from '../board/dice-value';
 
 export class Game implements Serializable {
 
@@ -52,7 +54,7 @@ export class Game implements Serializable {
 
     this.params = validate(params); // might throw
 
-    const scenario = this.params.scenario;
+    const scenario = scenarios[this.params.scenario];
 
     this.graph = new Graph(this);
     this.board = new Board(scenario);
@@ -116,11 +118,97 @@ export class Game implements Serializable {
     this.board.randomize(this.params);
     this.deck.shuffle();
 
+    this.isRandomized = true;
     this.initialConditions = this.getInitialConditions();
 
-    this.isRandomized = true;
     this.modify();
 
+  }
+
+  static initialize(conds: InitialConditionsT, owner: Player, players: { [PlayerIDT]: Player }): Game {
+
+    // make params the same
+    const game = new Game(owner, conds.params);
+    const scenario = scenarios[conds.params.scenario];
+
+    // add all the players
+    conds.players.forEach(id => {
+
+      const player = players[id];
+      if (!player)
+        throw new CatonlineError(`cannot find player with id "${id}"`);
+
+      if (!game.isOwner(player))
+        game.addPlayer(player);
+
+    });
+
+    // do an independent randomization for the new game
+    game.begin();
+
+    // overwrite the participant order
+    game.participants = conds.players.map(id => {
+
+      const player = players[id];
+      const participant = game.getParticipant(player);
+      return participant;
+
+    });
+
+    // overwrite the board hex values
+    _.each(conds.board.hexes, (hex, i) => {
+      //console.log(hex);
+      game.board.hexes[i].resource = new Resource(hex.resource);
+      game.board.hexes[i].dice = new DiceValue(hex.dice);
+      //console.log(game.board.hexes[i].dice);
+      // TODO: overwrite dots
+    });
+
+    // overwrite the board port values
+    _.each(conds.board.ports, (port, i) => {
+      game.board.ports[i].type = port;
+    });
+
+    // overwrite the deck
+    game.deck.setCards(scenario, conds.deck);
+
+    return game;
+
+  }
+
+  equals(game: Game): boolean {
+
+    if (!(game instanceof Game))
+      throw new CatonlineError(`cannot compare game to object of type "${typeof game}"`);
+
+    if (!this.isRandomized || !game.isRandomized)
+      throw new CatonlineError('can only compare games that are randomized');
+
+    const thisConds = this.getInitialConditions();
+    const thatConds = game.getInitialConditions();
+
+    let equal = true;
+
+    _.each(thisConds.board.hexes, (hex, i) => {
+      equal = equal && objectsMatch(hex, thatConds.board.hexes[i])
+    });
+
+    _.each(thatConds.board.hexes, (hex, i) => {
+      equal = equal && objectsMatch(hex, thisConds.board.hexes[i]);
+    });
+
+    _.each(thisConds.board.ports, (port, i) => {
+      equal = equal && (port === thatConds.board.ports[i]);
+    });
+
+    _.each(thatConds.board.ports, (port, i) => {
+      equal = equal && (port === thisConds.board.ports[i]);
+    });
+
+    return equal
+      && objectsMatch(thisConds.params, thatConds.params)
+      && objectsMatch(thisConds.players, thatConds.players)
+      && objectsMatch(thisConds.deck, thatConds.deck);
   }
 
   serialize(): GameSerialT {
@@ -132,14 +220,19 @@ export class Game implements Serializable {
   }
 
   getInitialConditions(): InitialConditionsT {
+
+    if (!this.isRandomized)
+      throw new CatonlineError('cannot get initial conditions for non-randomized game');
+
     return {
-      participants: this.participants
+      params: this.params,
+      players: this.participants
         .map(participant => participant.player.id),
       board: {
         hexes: _.mapObject(this.board.hexes, hex => {
           return {
             resource: hex.resource.name,
-            dice: hex.dice.roll,
+            dice: hex.dice.value,
           }
         }),
         ports: _.mapObject(this.board.ports, port => port.type),

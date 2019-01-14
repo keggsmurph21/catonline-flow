@@ -32,10 +32,7 @@ export type RenderedCoordsT = {
   y: number,
 };
 
-export type DiceT = {
-  roll: number,
-  dots: number,
-};
+export type DiceT = number;
 
 export type HexParamsT = {
   coords: CubeCoordsT,
@@ -98,7 +95,7 @@ export type RoadRenderT = {
 
 export type GameParamsT = {
 
-  scenario: ScenarioT,
+  scenario: string,//ScenarioT,
   isPublic: boolean,
   portStyle: string,
   tileStyle: string,
@@ -161,10 +158,26 @@ export type TradeRateT = {
   [string]: number,
 };
 
-export type InitialConditionsT = {};
+export type InitialConditionsT = {
+  params: GameParamsT,
+  players: PlayerIDT[],
+  board: {
+    hexes: {
+      [string]: {
+        resource: string,
+        dice: number,
+      }
+    },
+    ports: {
+      [number]: string, // port.type
+    },
+  },
+  deck: string[], // card.type
+};
 
 export type PublicStateT = {};
 
+export type PlayerIDT = string;
 /*
 export type PlayerStateT = {
 
