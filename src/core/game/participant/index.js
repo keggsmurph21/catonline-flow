@@ -4,7 +4,7 @@ import _ from 'underscore';
 import type { Junc } from '../../board/junc';
 import type { Road } from '../../board/road';
 import type { Edge, Vertex } from '../../graph';
-import type { CostT, HandSerialT, ParticipantSerialT, PublicStateT, TradeRateT } from '../../../utils';
+import type { CostT, DevCardName, HandSerialT, ParticipantSerialT, PublicStateT, TradeRateT } from '../../../utils';
 import { CatonlineError, Serializable } from '../../../utils';
 import { BANK_TRADE_RATES as DEFAULT_TRADE_RATE } from '../../../utils';
 import { Player } from '../../player';
@@ -75,6 +75,17 @@ export class Participant implements Serializable {
     return this.game.graph.getAdjacents(this);
   }
 
+  getNumDevCards(): number {
+
+    let acc: number = 0;
+    _.each(this.hand.playedDCs, num => acc += num);
+    _.each(this.hand.unplayedDCs, num => acc += num);
+    _.each(this.hand.unplayableDCs, num => acc += num);
+
+    return acc;
+
+  }
+
   getNumDevCardsInHand(): number {
 
     let acc: number = 0;
@@ -138,7 +149,7 @@ export class Participant implements Serializable {
     */
   }
 
-  canAcceptTrade(): boolean {
+  canAcceptCurrentTrade(): boolean {
 
     const trade = this.game.currentTrade;
     if (!trade)
@@ -150,7 +161,22 @@ export class Participant implements Serializable {
     if (trade.for.participants.indexOf(this) === -1)
       return false;
 
-    return this.hand.canAfford(trade.for.cards);
+    return this.canAfford(trade.for.cards);
+
+  }
+
+  canTradeWithBank(): boolean {
+
+    let canTrade = false;
+
+    _.each(this.bankTradeRate, (num, name) => {
+
+      const cost = { [name]: num };
+      canTrade = canTrade || this.canAfford(cost);
+
+    });
+
+    return canTrade;
 
   }
 
@@ -161,21 +187,60 @@ export class Participant implements Serializable {
       throw new CatonlineError(`cannot calculate canBuild(): unrecognized object "${obj}"`);
 
     const cost = scenario.buyable[obj].cost;
+    const max = scenario.buyable[obj].maxNum;
 
     switch (obj) {
 
       case 'city':
-        return this.hand.canAfford(cost) && this.getNumCities() < scenario.buyable.city.max_num;
+        return this.canAfford(cost) && this.getNumCities() < max;
+
+      case 'dev card':
+        return this.canAfford(cost) && this.getNumDevCards() < max;
 
       case 'road':
+        return this.canAfford(cost) && this.getNumRoads() < max;
+
       case 'settlement':
-      case 'dev card':
-        throw new CatonlineError('not implemented');
+        return this.canAfford(cost) && this.getNumSettlements() < max;
 
       default:
         throw new CatonlineError(`cannot calculate canBuild(): unrecognized object "${obj}"`);
 
     }
+  }
+
+  canPlayDevCard(name: DevCardName): boolean {
+    return this.hand.unplayedDCs[name] > 0;
+  }
+
+  canAfford(cost: CostT): boolean {
+
+    let canAfford = true;
+
+    _.each(cost, (name, num) => {
+      if (this.hand.resources[name] < num)
+        canAfford = false;
+    });
+
+    return canAfford;
+
+  }
+
+  spend(cost: CostT) {
+
+    if (!this.canAfford(cost))
+      throw new CatonlineError(`cannot afford! cost: "${JSON.stringify(cost)}", resources: "${JSON.stringify(this.hand.resources)}"`);
+
+    _.each(cost, (name, num) => {
+      this.hand.resources[name] -= num;
+    });
+
+  }
+
+  collect(cost: CostT) {
+    _.each(cost, (name, num) => {
+      this.hand.resources[name] += num;
+    });
   }
 
 }

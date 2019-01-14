@@ -62,7 +62,7 @@ export type ScenarioT = {
   buyable: {
     [string]: {
       name: string,
-      max_num: number,
+      maxNum: number,
       cost: CostT,
     }
   },
@@ -184,6 +184,13 @@ export type InitialConditionsT = {
 export type PublicStateT = {};
 
 export type PlayerIDT = string;
+
+export type DevCardName = 'vp'
+  | 'rb'
+  | 'yop'
+  | 'knight'
+  | 'monopoly';
+  
 /*
 export type PlayerStateT = {
 

@@ -47,28 +47,4 @@ export class Hand implements Serializable {
 
   }
 
-  canAfford(cost: CostT): boolean {
-
-    let canAfford = true;
-
-    _.each(cost, (name, num) => {
-      if (this.resources[name] < num)
-        canAfford = false;
-    });
-
-    return canAfford;
-
-  }
-
-  spend(cost: CostT) {
-
-    if (!this.canAfford(cost))
-      throw new CatonlineError(`cannot afford! cost: "${JSON.stringify(cost)}", resources: "${JSON.stringify(this.resources)}"`);
-
-    _.each(cost, (name, num) => {
-      this.resources[name] -= num;
-    });
-    
-  }
-
 }

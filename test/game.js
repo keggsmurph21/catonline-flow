@@ -19,6 +19,53 @@ test('should initialize with the default params', () => {
 
 });
 
+test('should initialize to the correct state', () => {
+
+  let g;
+  const [p1, p2, p3, p4] = [1,2,3,4].map(num => new Human('player_' + num));
+
+  g = new Game(h, { ...defaults, numHumans: 1 });
+  g.begin();
+
+  expect(g.isFirstTurn()).toBe(true);
+  expect(g.isSecondTurn()).toBe(false);
+
+  g = new Game(h, { ...defaults, numHumans: 2 });
+  g.addPlayer(p1);
+  g.begin();
+
+  expect(g.isFirstTurn()).toBe(true);
+  expect(g.isSecondTurn()).toBe(false);
+
+  g = new Game(h, { ...defaults, numHumans: 3 });
+  g.addPlayer(p1);
+  g.addPlayer(p2);
+  g.begin();
+
+  expect(g.isFirstTurn()).toBe(true);
+  expect(g.isSecondTurn()).toBe(false);
+
+  g = new Game(h, { ...defaults, numHumans: 4 });
+  g.addPlayer(p1);
+  g.addPlayer(p2);
+  g.addPlayer(p3);
+  g.begin();
+
+  expect(g.isFirstTurn()).toBe(true);
+  expect(g.isSecondTurn()).toBe(false);
+
+  g = new Game(h, { ...defaults, numHumans: 5 });
+  g.addPlayer(p1);
+  g.addPlayer(p2);
+  g.addPlayer(p3);
+  g.addPlayer(p4);
+  g.begin();
+
+  expect(g.isFirstTurn()).toBe(true);
+  expect(g.isSecondTurn()).toBe(false);
+
+});
+
 test('should test for equality', () => {
 
   const g1 = new Game(h, { ...defaults, numHumans: 1 });

@@ -2,7 +2,7 @@
 
 import _ from 'underscore';
 import type { GameParamsT, GameSerialT, InitialConditionsT, PlayerIDT, TradeT } from '../../utils';
-import { CatonlineError, objectsMatch, Serializable, shuffle } from '../../utils';
+import { CatonlineError, objectsMatch, round, Serializable, shuffle } from '../../utils';
 import { validate } from './params';
 import { Board } from '../board';
 import { Computer, Human, Player } from '../player';
@@ -178,7 +178,7 @@ export class Game implements Serializable {
   }
 
   mutateBatch() {
-    
+
   }
 
   equals(game: Game): boolean {
@@ -352,6 +352,45 @@ export class Game implements Serializable {
     return this.participants
       .filter(p => !p.isHuman())
       .length;
+  }
+
+  isFirstTurn(): boolean {
+
+    if (!this.isRandomized)
+      throw new CatonlineError('cannot calculate isFirstTurn() until game is randomized');
+
+    return Math.floor((this.turn - 1) / this.participants.length) === 0;
+
+  }
+
+  isSecondTurn(): boolean {
+
+    if (!this.isRandomized)
+      throw new CatonlineError('cannot calculate isFirstTurn() until game is randomized');
+
+    return Math.floor((this.turn - 1) / this.participants.length) === 1;
+
+  }
+
+  isRollSeven(): boolean {
+
+    if (!this.isRandomized)
+      throw new CatonlineError('cannot calculate isRollSeven() until game is randomized');
+
+    return this.dice.getTotal() === 7;
+
+  }
+
+  isOver(): boolean {
+
+    if (!this.isRandomized)
+      throw new CatonlineError('cannot calculate isOver() until game is randomized');
+
+    throw new CatonlineError('not implemented');
+  }
+
+  end() {
+    throw new CatonlineError('not implemented');
   }
 
 }

@@ -97,22 +97,22 @@ ports = [
 
   [buyable.road]
   name = 'road'
-  max_num = 15
+  maxNum = 15
   cost = { brick = 1, wood = 1 }
 
   [buyable.settlement]
   name = 'settlement'
-  max_num = 5
+  maxNum = 5
   cost = { wheat = 1, sheep = 1, brick = 1, wood = 1 }
 
   [buyable.city]
   name = 'city'
-  max_num = 4
+  maxNum = 4
   cost = { ore = 3, wheat = 2 }
 
   [buyable.devCard]
   name = 'development card'
-  max_num = 25
+  maxNum = 25
   cost = { ore = 1, wheat = 1, sheep = 1 }
 
 [devCards]
