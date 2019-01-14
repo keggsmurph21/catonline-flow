@@ -2,19 +2,16 @@
 
 const _ = require('underscore');
 const Game = require('./lib/core/game').Game;
-const params = require('./lib/core/game').defaults;
+const defaults = require('./lib/core/game').defaults;
+const Human = require('./lib/core/player').Human;
 
-function view(game) {
-  //console.log(game.dice);
-  //console.log(game.deck);
-  console.log(game.board.hexes[31])
-  //console.log(_.pick(game.board.hexes[31], ['id', 'dice', 'isOcean', 'resource', 'resources' ]));
-}
+defaults.numHumans = 1;
 
-const g = new Game(params);
-//view(g);
-g.randomize();
-//view(g);
+const h = new Human('test');
+const g = new Game(h, defaults);
 
-//console.log(g.board.serialize().hexes)
-console.log(g.board.ports);
+g.begin();
+
+const p = g.participants[0];
+console.log(p.vertex);
+console.log(g.graph.getAdjacents(p));

@@ -22,7 +22,7 @@ export class Participant implements Serializable {
 
   toDiscard: number;
   hasDeclinedTrade: boolean;
-  canAcceptTrade: boolean;
+  //canAcceptTrade: boolean;
   hasHeavyPurse: boolean; // @ alejo
 
   bankTradeRate: TradeRateT;
@@ -35,11 +35,11 @@ export class Participant implements Serializable {
     this.hand = new Hand();
 
     this.vertex = this.game.graph.INITIAL_VERTEX;
-    //this.adjacents = this.game.graph.getAdjacents(this.vertex);
+    //this.adjacents = this.game.graph.getAdjacents(this);
 
     this.toDiscard = 0;
     this.hasDeclinedTrade = false;
-    this.canAcceptTrade = false;
+    //this.canAcceptTrade = false;
     this.hasHeavyPurse = false;
 
     this.bankTradeRate = DEFAULT_TRADE_RATE;
@@ -101,6 +101,9 @@ export class Participant implements Serializable {
     */
   }
 
+  canAcceptTrade(): boolean {
+    return false;
+  }
 }
 
 /*

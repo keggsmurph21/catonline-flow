@@ -1,7 +1,7 @@
 // @flow
 
 import _ from 'underscore';
-import type { GameParamsT, GameSerialT, InitialConditionsT } from '../../utils';
+import type { GameParamsT, GameSerialT, InitialConditionsT, TradeT } from '../../utils';
 import { CatonlineError, Serializable, shuffle } from '../../utils';
 import { validate } from './params';
 import { Board } from '../board';
@@ -30,7 +30,19 @@ export class Game implements Serializable {
   initialConditions: InitialConditionsT;
   isRandomized: boolean;
 
-  //state: State;
+  turn: number;
+  // waiting: Participant[]; // do i need this?
+  canSteal: boolean;
+  // tradeAccepted: boolean; // do i need this?
+  currentTrade: TradeT | null;
+  currentParticipantID: number;
+  hasRolled: boolean;
+
+  largestArmy: number;
+  hasLargestArmy: Participant | null;
+  longestRoad: number;
+  hasLongestRoad: Participant | null;
+
   history: History;
 
   createdAt: Date;
@@ -42,7 +54,7 @@ export class Game implements Serializable {
 
     const scenario = this.params.scenario;
 
-    this.graph = new Graph(scenario);
+    this.graph = new Graph(this);
     this.board = new Board(scenario);
     this.deck = new DevCardDeck(scenario);
     this.dice = new Dice();
@@ -69,11 +81,24 @@ export class Game implements Serializable {
 
   begin() {
 
-    if (this.isFull())
+    if (!this.isFull())
       throw new CatonlineError('cannot begin a game until all participants have joined');
 
     this.fillWithComputers();
     this.randomize();
+
+    this.turn = 1;
+    // this.waiting = Participant[]; // do i need this?
+    this.canSteal = false;
+    // this.tradeAccepted = boolean; // do i need this?
+    this.currentTrade = null;
+    this.currentParticipantID = 0;
+    this.hasRolled = false;
+
+    this.largestArmy = 2;
+    this.hasLargestArmy = null;
+    this.longestRoad = 4;
+    this.hasLongestRoad = null;
 
     this.modify();
 
@@ -120,11 +145,24 @@ export class Game implements Serializable {
     };
   }
 
+  getStatus(): string {
+    if (this.isRandomized) {
+      return 'in-progess';
+    } else if (this.isFull()) {
+      return 'ready';
+    } else {
+      return 'pending';
+    }
+  }
+
   isOwner(player: Player): boolean {
     return this.owner.equals(player);
   }
 
-  /*
+  getCurrentParticipant(): Participant {
+    return this.participants[this.currentParticipantID];
+  }
+
   getParticipant(player: Player): Participant {
 
     if (!this.hasPlayer(player))
@@ -140,7 +178,6 @@ export class Game implements Serializable {
     throw new CatonlineError(`unable to get state for player "${player.id}"`);
 
   }
-  */
 
   hasPlayer(player: Player): boolean {
 
@@ -198,7 +235,10 @@ export class Game implements Serializable {
   }
 
   fillWithComputers() {
-    throw new CatonlineError('not implemented');
+    for (let i = 0; i < this.params.numComputers; i++) {
+      const cpu = new Computer('CPU_' + (i + 1));
+      this.addPlayer(cpu);
+    }
   }
 
   getNumHumans(): number {

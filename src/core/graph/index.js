@@ -1,6 +1,7 @@
 // @flow
 
 import type { Game } from '../game';
+import type { Participant } from '../game/participant';
 import type { ScenarioT } from '../../utils';
 import { CatonlineError, EDGE_NAMES, VERTEX_NAMES } from '../../utils';
 import { Edge } from './edge';
@@ -8,16 +9,16 @@ import { Vertex } from './vertex';
 
 export class Graph {
 
-  scenario: ScenarioT;
+  game: Game;
 
   vertices: { [string]: Vertex };
   edges: { [string]: Edge };
 
   INITIAL_VERTEX: Vertex;
 
-  constructor(scenario: ScenarioT) {
+  constructor(game: Game) {
 
-    this.scenario = scenario;
+    this.game = game;
 
     this.vertices = {};
     VERTEX_NAMES.forEach(name => {
@@ -34,10 +35,10 @@ export class Graph {
 
   }
 
-  getAdjacents(game: Game, vertex: Vertex): Edge[] {
-    return vertex.edges
+  getAdjacents(participant: Participant): Edge[] {
+    return participant.vertex.edges
       .map(name => this.getEdge(name))
-      .filter(edge => edge.check(game));
+      .filter(edge => edge.check(this.game, participant));
   }
 
   hasEdge(name: string): boolean {

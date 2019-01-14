@@ -17,4 +17,8 @@ export class Dice {
     this.values = [ getRandomInt(1,6), getRandomInt(1,6) ];
 
   }
+
+  getTotal(): number {
+    return this.values[0] + this.values[1];
+  }
 }
