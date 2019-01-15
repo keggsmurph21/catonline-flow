@@ -9,7 +9,7 @@
   },
   "author": "Kevin Murphy",
   "license": "MIT",
-  "reposity": {
+  "repository": {
     "type": "git",
     "url": "https://github.com/keggsmurph21/catonline-flow"
   },
@@ -19,6 +19,7 @@
     "babel-preset-env": "^1.7.0",
     "babel-preset-flow": "^6.23.0",
     "babel-register": "^6.26.0",
+    "documentation": "^9.1.1",
     "flow-bin": "^0.89.0",
     "jest": "^23.6.0"
   },
