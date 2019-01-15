@@ -1,7 +1,8 @@
-// @flow
+// @flow strict
 
 import { readFileSync } from 'fs';
 import { join } from 'path';
+// flowlint-next-line untyped-import:off
 import { parse } from 'toml';
 import type { ScenarioT } from '../../utils';
 import { GAME_PARAM_SCENARIO_OPTIONS as scenarioNames } from '../../utils';

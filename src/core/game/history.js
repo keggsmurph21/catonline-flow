@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 
 import type { HistorySerialT } from '../../utils';
 import { CatonlineError, Serializable } from '../../utils';

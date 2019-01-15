@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 
 import _ from 'underscore';
 import type { CubeCoordsT, JuncRenderT, JuncSerialT } from '../../utils';
@@ -54,6 +54,7 @@ export class Junc extends BoardNode implements Serializable {
     return isOcean;
   }
 
+  /*
   render(): JuncRenderT {
 
     const coords = this.getRenderedCoords();
@@ -64,5 +65,6 @@ export class Junc extends BoardNode implements Serializable {
     };
 
   }
+  */
 
 }

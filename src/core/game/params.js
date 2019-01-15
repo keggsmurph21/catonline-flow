@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 
 import type { GameParamsT } from '../../utils';
 import {
@@ -65,7 +65,7 @@ function assertValidRange(params: {}, name: string, min: number, max: number) {
 
 }
 
-export function validate(raw: any): GameParamsT {
+export function validate(raw: GameParamsT): GameParamsT {
 
   assertValidType(raw, 'isPublic', 'boolean');
 

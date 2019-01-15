@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 
 import type { PlayerIDT, PlayerSerialT } from '../../utils';
 import { CatonlineError, hashToHexColor, Serializable } from '../../utils';

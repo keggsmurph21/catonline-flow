@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 
 import type { Game } from '../game';
 import type { Participant } from '../game/participant';
@@ -15,7 +15,7 @@ export class Edge {
   arguments: string;//('hex' | 'resource' | 'road' | 'settlement' | 'trade')[];
 
   check: (Game, Participant) => boolean;
-  execute: (Game, Participant, any[]/* arguments */) => { game: Game, messages: string[] };
+  execute: (Game, Participant, $TODO[]/* arguments */) => { game: Game, messages: string[] };
 
   constructor(name: string) {
 

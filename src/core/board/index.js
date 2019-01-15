@@ -1,8 +1,8 @@
-// @flow
+// @flow strict
 
 import _ from 'underscore';
-import type { BoardSerialT, CubeCoordsT, DiceT, GameParamsT, ScenarioT } from '../../utils';
-import { CatonlineError, getOffsets, Serializable, shuffle } from '../../utils';
+import type { BoardSerialT, ClockPosition, CubeCoordsT, DiceT, GameParamsT, OffsetsT, ScenarioT } from '../../utils';
+import { CatonlineError, eachOffset, getOffsets, Serializable, shuffle } from '../../utils';
 import { CoordinateCache } from './cache';
 import { BoardNode } from './board-node';
 import { Hex } from './hex';
@@ -16,10 +16,10 @@ import { DiceValue } from './dice-value';
 export class Board implements Serializable {
 
   scenario: ScenarioT;
-  hexes: { [number]: Hex };
-  juncs: { [number]: Junc };
-  ports: { [number]: Port };
-  roads: { [number]: Road };
+  hexes: { [string]: Hex };
+  juncs: { [string]: Junc };
+  ports: { [string]: Port };
+  roads: { [string]: Road };
 
   robber: Robber;
 
@@ -49,8 +49,8 @@ export class Board implements Serializable {
 
       const hex = new Hex(counters.hexes, params, scenario);
 
-      this.hexes[counters.hexes] = hex;
-      cache.set('h', hex.coords, hex);
+      this.hexes['' + counters.hexes] = hex;
+      cache.setHex(hex.coords, hex);
 
       ++counters.hexes;
 
@@ -61,38 +61,38 @@ export class Board implements Serializable {
 
       const port = new Port(counters.ports, params);
 
-      this.ports[counters.ports] = port;
+      this.ports['' + counters.ports] = port;
 
       ++counters.ports;
 
     });
 
     // connect hexes to hexes, juncs, and roads
-    _.each(this.hexes, hex => {
+    _.each(this.hexes, (hex: Hex) => {
 
-      _.each(getOffsets('odd', 1), (offset, clockPos) => {
+      eachOffset('odd', 1, (offset, clockPos) => {
 
         const coords = hex.offset(offset);
-        const neighborHex = cache.get('h', coords);
+        const neighborHex = cache.getHex(coords);
 
         hex.hexes[clockPos] = neighborHex;
 
       });
 
-      _.each(getOffsets('even', 1/3), (offset, clockPos) => {
+      eachOffset('even', 1/3, (offset, clockPos) => {
 
         const coords = hex.offset(offset);
         let junc: BoardNode;
 
-        if (cache.has('j', coords)) {
+        if (cache.hasJunc(coords)) {
 
-          junc = cache.get('j', coords);
+          junc = cache.getJunc(coords);
 
         } else {
 
           junc = new Junc(counters.juncs, coords);
-          this.juncs[counters.juncs] = junc;
-          cache.set('j', coords, junc);
+          this.juncs['' + counters.juncs] = junc;
+          cache.setJunc(coords, junc);
 
           ++counters.juncs;
 
@@ -102,20 +102,20 @@ export class Board implements Serializable {
 
       });
 
-      _.each(getOffsets('odd', 1/2), (offset, clockPos) => {
+      eachOffset('odd', 1/2, (offset, clockPos) => {
 
         const coords = hex.offset(offset);
         let road: BoardNode;
 
-        if (cache.has('r', coords)) {
+        if (cache.hasRoad(coords)) {
 
-          road = cache.get('r', coords);
+          road = cache.getRoad(coords);
 
         } else {
 
           road = new Road(counters.roads, coords);
-          this.roads[counters.roads] = road;
-          cache.set('r', coords, road);
+          this.roads['' + counters.roads] = road;
+          cache.setRoad(coords, road);
 
           ++counters.roads;
 
@@ -128,53 +128,53 @@ export class Board implements Serializable {
     });
 
     // connect juncs to juncs, hexes, and roads
-    _.each(this.juncs, junc => {
+    _.each(this.juncs, (junc: Junc) => {
 
-      _.each(getOffsets('even', 1/3), (offset, clockPos) => {
+      eachOffset('even', 1/3, (offset, clockPos) => {
 
         const coords = junc.offset(offset);
 
-        const neighborJunc = cache.get('j', coords);
+        const neighborJunc = cache.getJunc(coords);
         junc.juncs[clockPos] = neighborJunc;
 
-        const hex = cache.get('h', coords);
+        const hex = cache.getHex(coords);
         junc.hexes[clockPos] = hex;
 
       });
 
-      _.each(getOffsets('even', 1/6), (offset, clockPos) => {
+      eachOffset('even', 1/6, (offset, clockPos) => {
 
         const coords = junc.offset(offset);
-        const road = cache.get('r', coords);
+        const road = cache.getRoad(coords);
         junc.roads[clockPos] = road;
 
       });
     });
 
     // set port coords and connect port to underlying road
-    _.each(this.ports, port => {
+    _.each(this.ports, (port: Port) => {
       port.bindToRoad(cache);
     });
 
     // connect roads to roads, hexes, and juncs
-    _.each(this.roads, road => {
+    _.each(this.roads, (road: Road) => {
 
-      _.each(getOffsets('odd', 1/2), (offset, clockPos) => {
+      eachOffset('odd', 1/2, (offset, clockPos) => {
 
         const coords = road.offset(offset);
 
-        const neighborRoad = cache.get('r', coords);
+        const neighborRoad = cache.getRoad(coords);
         road.roads[clockPos] = neighborRoad;
 
-        const hex = cache.get('h', coords);
+        const hex = cache.getHex(coords);
         road.hexes[clockPos] = hex;
 
       });
 
-      _.each(getOffsets('even', 1/6), (offset, clockPos) => {
+      eachOffset('even', 1/6, (offset, clockPos) => {
 
         const coords = road.offset(offset);
-        const junc = cache.get('j', coords);
+        const junc = cache.getJunc(coords);
         road.juncs[clockPos] = junc;
 
       });
@@ -186,7 +186,7 @@ export class Board implements Serializable {
 
     // shuffle resources
     let resources: Resource[] = [];
-    _.each(this.scenario.resources, (count, name) => {
+    _.each(this.scenario.resources, (count: number, name: string) => {
       if (name !== 'ocean')
         for (let i = 0; i < count; i++) {
 
@@ -204,7 +204,7 @@ export class Board implements Serializable {
 
     // place resources and dicevalues
     const nullDice = { roll: 0, dots: 0 };
-    _.each(this.hexes, (hex, i) => {
+    _.each(this.hexes, (hex: Hex, i: string) => {
 
       if (hex.isOcean) {
 
@@ -251,9 +251,9 @@ export class Board implements Serializable {
     let isLegal: boolean = true;
 
     _.each(this.hexes, hex => {
-      if (hex.dice.roll === 6 || hex.dice.roll === 8) {
+      if (hex.dice.value === 6 || hex.dice.value === 8) {
         hex.eachNeighbor(neighbor => {
-          if (neighbor.dice.roll === 6 || neighbor.dice.roll === 8) {
+          if (neighbor.dice.value === 6 || neighbor.dice.value === 8) {
 
             isLegal = false;
 

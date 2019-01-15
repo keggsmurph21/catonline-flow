@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 
 import _ from 'underscore';
 
@@ -29,9 +29,11 @@ export class Hex extends BoardNode implements Serializable {
 
     this.dice = new DiceValue(-1);
     this.isOcean = params.isOcean;
+
+    // flowlint-next-line sketchy-null:off
     this.resources = params.resources
       ? params.resources === '*'
-        ? _.filter(Object.keys(scenario.resources), res => res !== 'ocean')
+        ? Object.keys(scenario.resources).filter(res => { res !== 'ocean' })
         : params.resources.split(',')
       : [];
 
@@ -41,17 +43,25 @@ export class Hex extends BoardNode implements Serializable {
 
   }
 
-  eachNeighbor(next: (Hex, string) => any) {
-    _.each(this.hexes, next);
+  eachNeighbor(next: (Hex, string) => void) {
+
+    const keys = Object.keys(this.hexes);
+    keys.forEach(key => {
+      const val = this.hexes[key];
+      next(val, key);
+    });
+    
   }
 
-  eachJunc(next: (Junc, string) => any) {
+  /*
+  eachJunc(next: (Junc, string) => void) {
     _.each(this.juncs, next);
   }
 
-  eachRoad(next: (Road, string) => any) {
+  eachRoad(next: (Road, string) => void) {
     _.each(this.roads, next);
   }
+  */
 
   serialize(): HexSerialT {
     return {
@@ -70,6 +80,7 @@ export class Hex extends BoardNode implements Serializable {
     throw new CatonlineError('not implemented');
   }
 
+  /*
   render(): HexRenderT {
 
     const coords = this.getRenderedCoords();
@@ -85,5 +96,6 @@ export class Hex extends BoardNode implements Serializable {
     };
 
   }
+  */
 
 }

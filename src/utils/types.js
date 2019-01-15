@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 
 /*
 // NB: need this block for static deserialize method on Serializable interface,
@@ -15,22 +15,19 @@ import type { Participant } from '../core/game/participant';
 import type { Hand } from '../core/game/participant/hand';
 
 export type CartesianCoordsT = {
-  type: string,
-  x: number,
-  y: number,
+  +x: number,
+  +y: number,
 };
 
 export type CubeCoordsT = {
-  type: string,
-  x: number,
-  y: number,
-  z: number,
+  +x: number,
+  +y: number,
+  +z: number,
 };
 
 export type RenderedCoordsT = {
-  type: string,
-  x: number,
-  y: number,
+  +x: number,
+  +y: number,
 };
 
 export type DiceT = number;
@@ -54,6 +51,8 @@ export type CostT = {
   [string]: number,
 };
 
+export type ScenarioDevCardsT = { count: number };
+
 export type ScenarioT = {
   name: string,
   dice: DiceT[],
@@ -66,11 +65,7 @@ export type ScenarioT = {
       cost: CostT,
     }
   },
-  devCards: {
-    [string]: {
-      count: number,
-    }
-  },
+  devCards: { [string]: ScenarioDevCardsT },
   resources: {
     [string]: number,
   }
@@ -164,19 +159,19 @@ export type TradeRateT = {
   [string]: number,
 };
 
+export type InitialConditionsHexT = {
+  resource: string,
+  dice: number,
+};
+
+export type InitialConditionsPortT = string; // port.type
+
 export type InitialConditionsT = {
   params: GameParamsT,
   players: PlayerIDT[],
   board: {
-    hexes: {
-      [string]: {
-        resource: string,
-        dice: number,
-      }
-    },
-    ports: {
-      [number]: string, // port.type
-    },
+    hexes: { [string]: InitialConditionsHexT },
+    ports: { [string]: InitialConditionsPortT },
   },
   deck: string[], // card.type
 };
@@ -190,7 +185,15 @@ export type DevCardName = 'vp'
   | 'yop'
   | 'knight'
   | 'monopoly';
-  
+
+export type ClockPosition = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12;
+
+export type OffsetsT = $ReadOnly<{
+  [ClockPosition]: CubeCoordsT
+}>;
+
+export type ParityT = 'even' | 'odd';
+
 /*
 export type PlayerStateT = {
 

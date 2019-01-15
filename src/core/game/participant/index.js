@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 
 import _ from 'underscore';
 import type { Junc } from '../../board/junc';
@@ -78,9 +78,9 @@ export class Participant implements Serializable {
   getNumDevCards(): number {
 
     let acc: number = 0;
-    _.each(this.hand.playedDCs, num => acc += num);
-    _.each(this.hand.unplayedDCs, num => acc += num);
-    _.each(this.hand.unplayableDCs, num => acc += num);
+    _.each(this.hand.playedDCs, (num: number) => { acc += num });
+    _.each(this.hand.unplayedDCs, (num: number) => { acc += num });
+    _.each(this.hand.unplayableDCs, (num: number) => { acc += num });
 
     return acc;
 
@@ -89,8 +89,8 @@ export class Participant implements Serializable {
   getNumDevCardsInHand(): number {
 
     let acc: number = 0;
-    _.each(this.hand.unplayedDCs, num => acc += num);
-    _.each(this.hand.unplayableDCs, num => acc += num);
+    _.each(this.hand.unplayedDCs, (num: number) => { acc += num });
+    _.each(this.hand.unplayableDCs, (num: number) => { acc += num });
 
     return acc;
 
@@ -99,7 +99,7 @@ export class Participant implements Serializable {
   getNumResources(): number {
 
     let acc: number = 0;
-    _.each(this.hand.resources, num => acc += num);
+    _.each(this.hand.resources, (num: number) => { acc += num });
 
     return acc;
 
@@ -169,7 +169,7 @@ export class Participant implements Serializable {
 
     let canTrade = false;
 
-    _.each(this.bankTradeRate, (num, name) => {
+    _.each(this.bankTradeRate, (num: number, name: string) => {
 
       const cost = { [name]: num };
       canTrade = canTrade || this.canAfford(cost);
@@ -217,7 +217,7 @@ export class Participant implements Serializable {
 
     let canAfford = true;
 
-    _.each(cost, (name, num) => {
+    _.each(cost, (num: number, name: string) => {
       if (this.hand.resources[name] < num)
         canAfford = false;
     });
@@ -231,14 +231,14 @@ export class Participant implements Serializable {
     if (!this.canAfford(cost))
       throw new CatonlineError(`cannot afford! cost: "${JSON.stringify(cost)}", resources: "${JSON.stringify(this.hand.resources)}"`);
 
-    _.each(cost, (name, num) => {
+    _.each(cost, (num: number, name: string) => {
       this.hand.resources[name] -= num;
     });
 
   }
 
   collect(cost: CostT) {
-    _.each(cost, (name, num) => {
+    _.each(cost, (num: number, name: string) => {
       this.hand.resources[name] += num;
     });
   }

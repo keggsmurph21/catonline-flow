@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 
 export class CatonlineError extends Error {
   name: string;

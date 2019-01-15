@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 
 import { CatonlineError, DICE_DOTS_MAP } from '../../utils';
 

@@ -1,16 +1,16 @@
-// @flow
+// @flow strict
 
-import { Player } from '../player';
+//import { Player } from '../player';
 
 export class Robber {
 
-  location: number;
+  location: string;
 
   constructor() {
 
   }
 
-  moveTo(location: number) {
+  moveTo(location: string) {
     this.location = location;
   }
 

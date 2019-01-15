@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 
 export { Player } from './player';
 export { Computer } from './computer';

@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 
 import _ from 'underscore';
 import type { CubeCoordsT, RenderedCoordsT, RoadRenderT, RoadSerialT } from '../../utils';
@@ -46,6 +46,7 @@ export class Road extends BoardNode implements Serializable {
     return isOcean;
   }
 
+  /*
   render(): RoadRenderT {
 
     const points: RenderedCoordsT[] = _
@@ -58,4 +59,5 @@ export class Road extends BoardNode implements Serializable {
 
     return { path };
   }
+  */
 }

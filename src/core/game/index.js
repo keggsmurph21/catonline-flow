@@ -1,7 +1,7 @@
-// @flow
+// @flow strict
 
 import _ from 'underscore';
-import type { GameParamsT, GameSerialT, InitialConditionsT, PlayerIDT, TradeT } from '../../utils';
+import type { GameParamsT, GameSerialT, InitialConditionsHexT, InitialConditionsPortT, InitialConditionsT, PlayerIDT, TradeT } from '../../utils';
 import { CatonlineError, objectsMatch, round, Serializable, shuffle } from '../../utils';
 import { validate } from './params';
 import { Board } from '../board';
@@ -50,7 +50,7 @@ export class Game implements Serializable {
   createdAt: Date;
   modifiedAt: Date;
 
-  constructor(owner: Player, params: {}) {
+  constructor(owner: Player, params: GameParamsT) {
 
     this.params = validate(params); // might throw
 
@@ -156,13 +156,13 @@ export class Game implements Serializable {
     });
 
     // overwrite the board hex values
-    _.each(conds.board.hexes, (hex, i) => {
+    _.each(conds.board.hexes, (hex: InitialConditionsHexT, i: string) => {
       game.board.hexes[i].resource = new Resource(hex.resource);
       game.board.hexes[i].dice = new DiceValue(hex.dice);
     });
 
     // overwrite the board port values
-    _.each(conds.board.ports, (port, i) => {
+    _.each(conds.board.ports, (port: InitialConditionsPortT, i: string) => {
       game.board.ports[i].type = port;
     });
 
@@ -194,20 +194,20 @@ export class Game implements Serializable {
 
     let equal = true;
 
-    _.each(thisConds.board.hexes, (hex, i) => {
+    _.each(thisConds.board.hexes, (hex: InitialConditionsHexT, i: string) => {
       equal = equal && objectsMatch(hex, thatConds.board.hexes[i])
     });
 
-    _.each(thatConds.board.hexes, (hex, i) => {
+    _.each(thatConds.board.hexes, (hex: InitialConditionsHexT, i: string) => {
       equal = equal && objectsMatch(hex, thisConds.board.hexes[i]);
     });
 
-    _.each(thisConds.board.ports, (port, i) => {
-      equal = equal && (port === thatConds.board.ports[i]);
+    _.each(thisConds.board.ports, (portType: InitialConditionsPortT, i: string) => {
+      equal = equal && (portType === thatConds.board.ports[i]);
     });
 
-    _.each(thatConds.board.ports, (port, i) => {
-      equal = equal && (port === thisConds.board.ports[i]);
+    _.each(thatConds.board.ports, (portType: InitialConditionsPortT, i: string) => {
+      equal = equal && (portType === thisConds.board.ports[i]);
     });
 
     return equal

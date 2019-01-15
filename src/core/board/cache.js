@@ -1,43 +1,74 @@
-// @flow
+// @flow strict
 
+import type { Hex } from './hex';
+import type { Junc } from './junc';
+import type { Road } from './road';
 import type { CubeCoordsT } from '../../utils';
 import { round } from '../../utils';
 import { BoardNode } from './board-node';
 
 export class CoordinateCache {
 
-  _items: { [string]: BoardNode };
+  _hexes: { [string]: Hex };
+  _juncs: { [string]: Junc };
+  _roads: { [string]: Road };
 
   constructor() {
-    this._items = {};
+    this._hexes = {};
+    this._juncs = {};
+    this._roads = {};
   }
 
-  hash(prefix: string, coords: CubeCoordsT): string {
+  hash(coords: CubeCoordsT): string {
 
     const x = round(coords.x, 2);
     const y = round(coords.y, 2);
     const z = round(coords.z, 2);
 
-    return `${prefix}_${x}_${y}_${z}`;
+    return `${x}_${y}_${z}`;
 
   }
 
-  has(prefix: string, coords: CubeCoordsT): boolean {
-    return !!this.get(prefix, coords);
+  getHex(coords: CubeCoordsT): Hex {
+    const key = this.hash(coords);
+    return this._hexes[key];
   }
 
-  get(prefix: string, coords: CubeCoordsT): BoardNode {
-
-    const key = this.hash(prefix, coords);
-    return this._items[key];
-
+  hasHex(coords: CubeCoordsT): boolean {
+    return !!this.getHex(coords);
   }
 
-  set(prefix: string, coords: CubeCoordsT, node: BoardNode) {
+  setHex(coords: CubeCoordsT, hex: Hex): void {
+    const key = this.hash(coords);
+    this._hexes[key] = hex;
+  }
 
-    const key = this.hash(prefix, coords);
-    this._items[key] = node;
+  getJunc(coords: CubeCoordsT): Junc {
+    const key = this.hash(coords);
+    return this._juncs[key];
+  }
 
+  hasJunc(coords: CubeCoordsT): boolean {
+    return !!this.getJunc(coords);
+  }
+
+  setJunc(coords: CubeCoordsT, junc: Junc): void {
+    const key = this.hash(coords);
+    this._juncs[key] = junc;
+  }
+
+  getRoad(coords: CubeCoordsT): Road {
+    const key = this.hash(coords);
+    return this._roads[key];
+  }
+
+  hasRoad(coords: CubeCoordsT): boolean {
+    return !!this.getRoad(coords);
+  }
+
+  setRoad(coords: CubeCoordsT, road: Road): void {
+    const key = this.hash(coords);
+    this._roads[key] = road;
   }
 
 }

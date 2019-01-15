@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 
 import _ from 'underscore';
 import type { CubeCoordsT, PortParamsT, PortRenderT, PortSerialT, ScenarioT } from '../../utils';
@@ -44,9 +44,9 @@ export class Port extends BoardNode implements Serializable {
   bindToRoad(cache: CoordinateCache) {
 
     const { orientation, coords } = this.hexParams;
-    const hex = cache.get('h', coords);
+    const hex = cache.getHex(coords);
 
-    this.road = hex.roads[orientation];
+    this.road = hex.roads['' + orientation];
     this.coords = this.road.coords; // overwrite from BoardNode
 
   }
@@ -55,6 +55,7 @@ export class Port extends BoardNode implements Serializable {
     this.type = type;
   }
 
+  /*
   getHex(): ?Hex {
     return _.find(this.hexes, hex => hex && !hex.isOcean);
   }
@@ -66,9 +67,12 @@ export class Port extends BoardNode implements Serializable {
   getJuncs(): { [number]: Junc } {
     return this.road.juncs;
   }
+  */
 
+  /*
   render(): PortRenderT {
     return {};
   }
+  */
 
 }

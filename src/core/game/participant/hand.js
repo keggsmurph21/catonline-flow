@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 
 import _ from 'underscore';
 import type { CostT, HandSerialT } from '../../../utils';
@@ -28,11 +28,12 @@ export class Hand implements Serializable {
     throw new CatonlineError('not implemented');
   }
 
+  /*
   getNumDevCardsInHand(): number {
 
     let acc: number = 0;
-    _.each(this.unplayedDCs, num => acc += num);
-    _.each(this.unplayableDCs, num => acc += num);
+    _.each(this.unplayedDCs, (num: number) => { acc += num });
+    _.each(this.unplayableDCs, (num: number) => { acc += num });
 
     return acc;
 
@@ -41,10 +42,11 @@ export class Hand implements Serializable {
   getNumResources(): number {
 
     let acc: number = 0;
-    _.each(this.resources, num => acc += num);
+    _.each(this.resources, (num: number) => { acc += num });
 
     return acc;
 
   }
+  */
 
 }

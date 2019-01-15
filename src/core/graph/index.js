@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 
 import type { Game } from '../game';
 import type { Participant } from '../game/participant';

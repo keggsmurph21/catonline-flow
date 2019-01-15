@@ -1,4 +1,4 @@
-// @flow
+// @flow strict
 
 import type { Hex } from './hex';
 import type { Junc } from './junc';
@@ -14,10 +14,10 @@ export class BoardNode {
   coords: CubeCoordsT;
 
   // overwrite these
-  hexes: { [number]: Hex };
-  juncs: { [number]: Junc };
-  ports: { [number]: Port };
-  roads: { [number]: Road };
+  hexes: { [string]: Hex };
+  juncs: { [string]: Junc };
+  ports: { [string]: Port };
+  roads: { [string]: Road };
 
   constructor(name: string, coords: CubeCoordsT) {
     this.name = name;
@@ -26,7 +26,6 @@ export class BoardNode {
 
   offset(offset: CubeCoordsT): CubeCoordsT {
     return {
-      type: 'cube',
       x: this.coords.x + offset.x,
       y: this.coords.y + offset.y,
       z: this.coords.z + offset.z,

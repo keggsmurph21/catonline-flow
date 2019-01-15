@@ -1,7 +1,7 @@
-// @flow
+// @flow strict
 
 import _ from 'underscore';
-import type { ScenarioT, CostT } from '../../utils';
+import type { ScenarioDevCardsT, ScenarioT, CostT } from '../../utils';
 import { shuffle } from '../../utils';
 import { DevCard } from './dev-card';
 
@@ -14,7 +14,7 @@ export class DevCardDeck {
     const cost: CostT = scenario.buyable.devCard.cost;
     this.cards = [];
 
-    _.each(scenario.devCards, (params, name) => {
+    _.each(scenario.devCards, (params: ScenarioDevCardsT, name: string) => {
       for (let i = 0; i < params.count; i++) {
 
         const card = new DevCard({
