@@ -1,7 +1,15 @@
 // @flow strict
 
+import type {
+
+  CubeCoordsT,
+  PortParamsT,
+  PortRenderT,
+  PortSerialT,
+  ScenarioT,
+
+} from '../../utils';
 import _ from 'underscore';
-import type { CubeCoordsT, PortParamsT, PortRenderT, PortSerialT, ScenarioT } from '../../utils';
 import { CatonlineError, Serializable } from '../../utils';
 import { CoordinateCache } from './cache';
 import { Hex } from './hex';

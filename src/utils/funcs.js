@@ -1,8 +1,18 @@
 // @flow strict
 
+import type {
+
+  Board,
+  CartesianCoordsT,
+  ClockPosition,
+  CubeCoordsT,
+  OffsetsT,
+  ParityT,
+  RenderedCoordsT,
+
+} from './types';
 import _ from 'underscore';
 import { offsetsByClockPosition } from './consts';
-import type { CartesianCoordsT, ClockPosition, CubeCoordsT, OffsetsT, ParityT, RenderedCoordsT } from './types';
 import { CatonlineError } from './errors';
 
 export function cartesianToCube(coords: CartesianCoordsT): CubeCoordsT {
@@ -97,7 +107,6 @@ export function getOffsets(parity: string, factor: number = 1): OffsetsT {
     }
   }
 
-  console.log(offsets);
   return offsets;
 }
 
@@ -158,4 +167,81 @@ export function hashToHexColor(str: string): string {
 
 export function objectsMatch<T>(obj1: {} | T[], obj2: {} | T[]): boolean {
   return _.isMatch(obj1, obj2) && _.isMatch(obj2, obj1);
+}
+
+export function cubeDistance(p: CubeCoordsT, q: CubeCoordsT) {
+  return (p.x - q.x) + (p.y - q.y) + (p.z - q.z);
+}
+
+export function print(b: Board) {
+
+  function frame(i) {
+    const { x, y } = i.getRenderedCoords();
+    dims.minX = Math.min(x, dims.minX);
+    dims.maxX = Math.max(x, dims.maxX);
+    dims.minY = Math.min(y, dims.minY);
+    dims.maxY = Math.max(y, dims.maxY);
+  }
+
+  function lock(x) {
+    return round(x * 4 * width, 0);
+  }
+
+  function place(i) {
+
+    let { x, y } = i.getRenderedCoords();
+    x = lock(x) - dims.minX;
+    y = lock(y) - dims.minY;
+
+    if (m[x][y] !== ' '.repeat(width))
+      throw new Error('overlap');
+
+    m[x][y] = pad(i.id);
+
+  }
+
+  function pad(num) {
+    return (num + ' '.repeat(width)).slice(0, width);
+  }
+
+  var width = 2;
+
+  var dims = {
+    minX:  Infinity,
+    maxX:  -Infinity,
+    minY:  Infinity,
+    maxY:  -Infinity,
+  };
+
+  _.each(b.hexes, frame);
+  _.each(b.juncs, frame);
+  _.each(b.roads, frame);
+
+  dims.minX = lock(dims.minX);
+  dims.maxX = lock(dims.maxX);
+  dims.minY = lock(dims.minY);
+  dims.maxY = lock(dims.maxY);
+
+  var m = [];
+  for (let i = dims.minX; i <= dims.maxX; i++) {
+    let n = [];
+    for (let j = dims.minY; j <= dims.maxY; j++) {
+      n.push(' '.repeat(width));
+    }
+    m.push(n);
+  }
+
+  try {
+
+    _.each(b.hexes, place)
+    _.each(b.juncs, place)
+    _.each(b.roads, place)
+
+  } catch (e) {
+    console.log(dims);
+    throw e;
+  }
+
+  return m.map(n => n.join('')).join('\n');
+
 }

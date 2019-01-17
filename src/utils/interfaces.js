@@ -1,6 +1,11 @@
 // @flow strict
 
-import type { SerialT/*, DeserialT*/ } from './types';
+import type {
+
+  SerialT,
+  //DeserialT,
+
+} from './types';
 
 export interface Serializable {
   serialize(): SerialT,

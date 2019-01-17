@@ -1,7 +1,13 @@
 // @flow strict
 
+import type {
+
+  CubeCoordsT,
+  RenderedCoordsT,
+  RoadRenderT,
+  RoadSerialT
+} from '../../utils';
 import _ from 'underscore';
-import type { CubeCoordsT, RenderedCoordsT, RoadRenderT, RoadSerialT } from '../../utils';
 import { CatonlineError, pointsArrayToPath, Serializable, thin } from '../../utils';
 import { Hex } from './hex';
 import { Junc } from './junc';

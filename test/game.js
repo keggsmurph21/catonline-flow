@@ -13,6 +13,32 @@ const {
 const Human = require('../lib/core/player').Human;
 const h = new Human('test');
 
+function checkGame(g) {
+
+  expect(g.isRandomized).toBe(true);
+
+  // test the robber
+  const robberHex = g.board.hexes[g.board.robber.location];
+  expect(robberHex.resource.name).toBe('desert');
+
+  // test the hexes
+
+  const resourcesSeen = {};
+  _.each(g.board.hexes, hex => {
+
+    if (!resourcesSeen[hex.resource.name])
+      resourcesSeen[hex.resource.name] = 0;
+
+    resourcesSeen[hex.resource.name] += 1;
+
+  });
+
+  _.each(resourcesSeen, (count, name) => {
+    expect(g.board.scenario.resources[name]).toBe(count);
+  });
+
+}
+
 test('should initialize with the default params', () => {
 
   expect(() => new Game(h, defaults)).not.toThrow();
@@ -26,33 +52,25 @@ test('should initialize to the correct state', () => {
 
   g = new Game(h, { ...defaults, numHumans: 1 });
   g.begin();
-
-  expect(g.isFirstTurn()).toBe(true);
-  expect(g.isSecondTurn()).toBe(false);
+  checkGame(g);
 
   g = new Game(h, { ...defaults, numHumans: 2 });
   g.addPlayer(p1);
   g.begin();
-
-  expect(g.isFirstTurn()).toBe(true);
-  expect(g.isSecondTurn()).toBe(false);
+  checkGame(g);
 
   g = new Game(h, { ...defaults, numHumans: 3 });
   g.addPlayer(p1);
   g.addPlayer(p2);
   g.begin();
-
-  expect(g.isFirstTurn()).toBe(true);
-  expect(g.isSecondTurn()).toBe(false);
+  checkGame(g);
 
   g = new Game(h, { ...defaults, numHumans: 4 });
   g.addPlayer(p1);
   g.addPlayer(p2);
   g.addPlayer(p3);
   g.begin();
-
-  expect(g.isFirstTurn()).toBe(true);
-  expect(g.isSecondTurn()).toBe(false);
+  checkGame(g);
 
   g = new Game(h, { ...defaults, numHumans: 5 });
   g.addPlayer(p1);
@@ -60,9 +78,7 @@ test('should initialize to the correct state', () => {
   g.addPlayer(p3);
   g.addPlayer(p4);
   g.begin();
-
-  expect(g.isFirstTurn()).toBe(true);
-  expect(g.isSecondTurn()).toBe(false);
+  checkGame(g);
 
 });
 

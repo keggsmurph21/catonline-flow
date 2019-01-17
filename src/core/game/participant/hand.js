@@ -1,7 +1,13 @@
 // @flow strict
 
+import type {
+
+  CostT,
+  HandSerialT,
+  ScenarioT,
+
+} from '../../../utils';
 import _ from 'underscore';
-import type { CostT, HandSerialT } from '../../../utils';
 import { CatonlineError, Serializable } from '../../../utils';
 
 export class Hand implements Serializable {
@@ -11,12 +17,25 @@ export class Hand implements Serializable {
   unplayableDCs: { [string]: number };
   resources: { [string]: number };
 
-  constructor() {
+  constructor(scenario: ScenarioT) {
 
     this.playedDCs = {};
     this.unplayedDCs = {};
     this.unplayableDCs = {};
+    _.each(scenario.devCards, (count: number, name: string) => {
+
+      this.playedDCs[name] = 0;
+      this.unplayedDCs[name] = 0;
+      this.unplayableDCs[name] = 0;
+
+    });
+
     this.resources = {};
+    _.each(scenario.resources, (count: number, name: string) => {
+
+      this.resources[name] = 0;
+
+    });
 
   }
 

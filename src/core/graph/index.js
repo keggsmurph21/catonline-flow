@@ -1,8 +1,12 @@
 // @flow strict
 
-import type { Game } from '../game';
-import type { Participant } from '../game/participant';
-import type { ScenarioT } from '../../utils';
+import type {
+
+  Game,
+  Participant,
+  ScenarioT,
+
+} from '../../utils';
 import { CatonlineError, EDGE_NAMES, VERTEX_NAMES } from '../../utils';
 import { Edge } from './edge';
 import { Vertex } from './vertex';

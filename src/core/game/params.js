@@ -1,6 +1,10 @@
 // @flow strict
 
-import type { GameParamsT } from '../../utils';
+import type {
+
+  GameParamsT,
+
+} from '../../utils';
 import {
 
   InvalidGameParamsError,

@@ -1,13 +1,19 @@
 // @flow strict
 
+import type {
+
+  CubeCoordsT,
+  JuncRenderT,
+  JuncSerialT,
+  Participant,
+
+} from '../../utils';
 import _ from 'underscore';
-import type { CubeCoordsT, JuncRenderT, JuncSerialT } from '../../utils';
 import { CatonlineError, Serializable } from '../../utils';
 import { Hex } from './hex';
 import { BoardNode } from './board-node';
 import { Port } from './port';
 import { Road } from './road';
-import { Player } from '../player';
 
 export class Junc extends BoardNode implements Serializable {
 
@@ -15,7 +21,7 @@ export class Junc extends BoardNode implements Serializable {
   num: number;
 
   port: Port;
-  owner: Player;
+  owner: Participant;
   isSettleable: boolean;
   isCity: boolean;
 
@@ -52,6 +58,23 @@ export class Junc extends BoardNode implements Serializable {
     });
 
     return isOcean;
+  }
+
+  getNeighbors(): Set<Junc> {
+
+    let neighbors = new Set();
+
+    _.each(this.roads, (road: Road,) => {
+      if (road)
+        _.each(road.juncs, (junc: Junc,) => {
+          if (junc)
+            neighbors.add(junc);
+        });
+    });
+
+    neighbors.delete(this);
+    return neighbors;
+
   }
 
   /*

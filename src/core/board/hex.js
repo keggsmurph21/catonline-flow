@@ -1,8 +1,15 @@
 // @flow strict
 
-import _ from 'underscore';
+import type {
 
-import type { DiceT, HexParamsT, HexRenderT, HexSerialT, ScenarioT } from '../../utils';
+  DiceT,
+  HexParamsT,
+  HexRenderT,
+  HexSerialT,
+  ScenarioT,
+
+} from '../../utils';
+import _ from 'underscore';
 import { CatonlineError, pointsArrayToString, Serializable, thin } from '../../utils';
 import { BoardNode } from './board-node';
 import { Junc } from './junc';
@@ -47,10 +54,11 @@ export class Hex extends BoardNode implements Serializable {
 
     const keys = Object.keys(this.hexes);
     keys.forEach(key => {
-      const val = this.hexes[key];
-      next(val, key);
+      const hex = this.hexes[key];
+      if (hex)
+        next(hex, key);
     });
-    
+
   }
 
   /*

@@ -1,10 +1,15 @@
 // @flow strict
 
-import type { Hex } from './hex';
-import type { Junc } from './junc';
-import type { Port } from './port';
-import type { Road } from './road';
-import type { CubeCoordsT, RenderedCoordsT } from '../../utils';
+import type {
+
+  CubeCoordsT,
+  Hex,
+  Junc,
+  Port,
+  RenderedCoordsT,
+  Road,
+  
+} from '../../utils';
 import { cubeToRendered } from '../../utils';
 
 // base class

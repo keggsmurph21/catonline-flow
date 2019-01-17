@@ -1,6 +1,11 @@
 // @flow strict
 
-import type { DevCardParamsT, CostT } from '../../utils';
+import type {
+
+  DevCardParamsT,
+  CostT,
+
+} from '../../utils';
 import { DEVCARD_NAMES_MAP } from '../../utils';
 
 export class DevCard {

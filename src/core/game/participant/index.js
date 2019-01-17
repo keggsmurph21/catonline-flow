@@ -1,12 +1,22 @@
 // @flow strict
 
+import type {
+
+  CostT,
+  DevCardName,
+  Edge,
+  EdgeArgumentT,
+  HandSerialT,
+  Junc,
+  ParticipantSerialT,
+  PublicStateT,
+  Road,
+  TradeRateT,
+  Vertex,
+
+} from '../../../utils';
 import _ from 'underscore';
-import type { Junc } from '../../board/junc';
-import type { Road } from '../../board/road';
-import type { Edge, Vertex } from '../../graph';
-import type { CostT, DevCardName, HandSerialT, ParticipantSerialT, PublicStateT, TradeRateT } from '../../../utils';
 import { CatonlineError, Serializable } from '../../../utils';
-import { BANK_TRADE_RATES as DEFAULT_TRADE_RATE } from '../../../utils';
 import { Player } from '../../player';
 import { Game } from '..';
 import { Hand } from './hand';
@@ -38,7 +48,7 @@ export class Participant implements Serializable {
 
     this.game = game;
     this.player = player;
-    this.hand = new Hand();
+    this.hand = new Hand(game.board.scenario);
 
     this.vertex = this.game.graph.INITIAL_VERTEX;
     //this.adjacents = this.game.graph.getAdjacents(this);
@@ -48,7 +58,7 @@ export class Participant implements Serializable {
     //this.canAcceptTrade = false;
     this.hasHeavyPurse = false;
 
-    this.bankTradeRate = DEFAULT_TRADE_RATE;
+    this.bankTradeRate = this.game.bank.DEFAULT_TRADE_RATE;
 
     this.settlements = [];
     this.roads = [];
@@ -63,7 +73,7 @@ export class Participant implements Serializable {
     throw new CatonlineError('not implemented');
   }
 
-  isCurrentPlayer(): boolean {
+  isCurrentParticipant(): boolean {
     return this.player.equals(this.game.getCurrentParticipant().player);
   }
 
@@ -118,6 +128,10 @@ export class Participant implements Serializable {
   }
 
   getLongestRoad(): Road[] {
+    throw new CatonlineError('not implemented');
+  }
+
+  getLargestArmy(): number {
     throw new CatonlineError('not implemented');
   }
 
@@ -194,7 +208,7 @@ export class Participant implements Serializable {
       case 'city':
         return this.canAfford(cost) && this.getNumCities() < max;
 
-      case 'dev card':
+      case 'devCard':
         return this.canAfford(cost) && this.getNumDevCards() < max;
 
       case 'road':
@@ -241,6 +255,26 @@ export class Participant implements Serializable {
     _.each(cost, (num: number, name: string) => {
       this.hand.resources[name] += num;
     });
+  }
+
+  do(name: string, args: EdgeArgumentT): $TODO {
+
+    const ret = this.game.mutate(this, name, args);
+    
+  }
+
+  getPublicScore(): number {
+
+    return this.hand.playedDCs.vp
+      + this.getNumSettlements()
+      + this.getNumCities()
+      + (this === this.game.hasLongestRoad ? 2 : 0)
+      + (this === this.game.hasLargestArmy ? 2 : 0);
+
+  }
+
+  getPrivateScore(): number {
+    return this.getPublicScore() + this.hand.unplayedDCs.vp;
   }
 
 }

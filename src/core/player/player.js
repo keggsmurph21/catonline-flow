@@ -1,6 +1,11 @@
 // @flow strict
 
-import type { PlayerIDT, PlayerSerialT } from '../../utils';
+import type {
+
+  PlayerIDT,
+  PlayerSerialT,
+
+} from '../../utils';
 import { CatonlineError, hashToHexColor, Serializable } from '../../utils';
 
 export class Player implements Serializable {

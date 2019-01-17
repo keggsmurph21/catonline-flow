@@ -1,7 +1,17 @@
 // @flow strict
 
+import type {
+
+  BoardSerialT,
+  ClockPosition,
+  CubeCoordsT,
+  DiceT,
+  GameParamsT,
+  OffsetsT,
+  ScenarioT,
+
+} from '../../utils';
 import _ from 'underscore';
-import type { BoardSerialT, ClockPosition, CubeCoordsT, DiceT, GameParamsT, OffsetsT, ScenarioT } from '../../utils';
 import { CatonlineError, eachOffset, getOffsets, Serializable, shuffle } from '../../utils';
 import { CoordinateCache } from './cache';
 import { BoardNode } from './board-node';

@@ -1,8 +1,15 @@
 // @flow strict
 
-import type { Game } from '../game';
-import type { Participant } from '../game/participant';
-import { CatonlineError } from '../../utils';
+import type {
+
+  EdgeArgumentT,
+  EdgeReturnT,
+  Game,
+  Participant,
+  RawEdgeArgumentT,
+
+} from '../../utils';
+import { CatonlineError, EdgeArgumentError, EdgeExecutionError, } from '../../utils';
 
 export class Edge {
 
@@ -15,7 +22,8 @@ export class Edge {
   arguments: string;//('hex' | 'resource' | 'road' | 'settlement' | 'trade')[];
 
   check: (Game, Participant) => boolean;
-  execute: (Game, Participant, $TODO[]/* arguments */) => { game: Game, messages: string[] };
+  validateArgs: (Game, RawEdgeArgumentT) => EdgeArgumentT;
+  execute: (Game, Participant, EdgeArgumentT) => EdgeReturnT;
 
   constructor(name: string) {
 
@@ -27,8 +35,8 @@ export class Edge {
         this.check = (game, participant) => {
           return !!game.currentTrade; // f.tradeAccepted;
         };
-        this.arguments = '';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => { };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); //  acceptTradeAsOffer(m,g,p);
         };
         this.isPriority = true;
@@ -40,8 +48,8 @@ export class Edge {
         this.check = (game, participant) => {
           return participant.canAcceptCurrentTrade(); // f.canAcceptCurrentTrade;
         };
-        this.arguments = '';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => { };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); //  acceptTradeAsOther(m,g,p);
         };
         this.isPriority = false;
@@ -53,8 +61,8 @@ export class Edge {
         this.check = (game, participant) => {
           return true; // true;
         };
-        this.arguments = '';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => { };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented');
         };
         this.isPriority = true;
@@ -66,8 +74,8 @@ export class Edge {
         this.check = (game, participant) => {
           return true; // true;
         };
-        this.arguments = '';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => { };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented');
         };
         this.isPriority = true;
@@ -79,8 +87,11 @@ export class Edge {
         this.check = (game, participant) => {
           return game.hasRolled && participant.canBuild('city'); // f.hasRolled && f.canBuild.city;
         };
-        this.arguments = 'settlement';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => {
+          // settlement
+          throw new EdgeArgumentError('not implemented');
+        };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // fortify(m,g,p,a[0]);
         };
         this.isPriority = false;
@@ -92,8 +103,11 @@ export class Edge {
         this.check = (game, participant) => {
           return game.hasRolled && participant.canBuild('road'); // f.hasRolled && f.canBuild.road;
         };
-        this.arguments = 'road';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => {
+          // road
+          throw new EdgeArgumentError('not implemented');
+        };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // pave(m,g,p,a[0]);
         };
         this.isPriority = false;
@@ -105,8 +119,11 @@ export class Edge {
         this.check = (game, participant) => {
           return game.hasRolled && participant.canBuild('settlement'); // f.hasRolled && f.canBuild.settlement;
         };
-        this.arguments = 'settlement';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => {
+          // settlement
+          throw new EdgeArgumentError('not implemented');
+        };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // settle(m,g,p,a[0]);
         };
         this.isPriority = false;
@@ -118,8 +135,8 @@ export class Edge {
         this.check = (game, participant) => {
           return game.hasRolled && participant.canBuild('dev card'); // f.hasRolled && f.canBuy.dc;
         };
-        this.arguments = '';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => { };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); //  buyDevCard(m,g,p);
         };
         this.isPriority = false;
@@ -131,8 +148,8 @@ export class Edge {
         this.check = (game, participant) => {
           return true; // true;
         };
-        this.arguments = '';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => { };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // cancelTrade(m,g,p);
         };
         this.isPriority = false;
@@ -144,8 +161,8 @@ export class Edge {
         this.check = (game, participant) => {
           return participant.canAcceptCurrentTrade(); // f.canAcceptTrade;
         };
-        this.arguments = '';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => { };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // declineTrade(m,g,p);
         };
         this.isPriority = false;
@@ -162,8 +179,11 @@ export class Edge {
             && false; // f.isCurrentPlayer && f.isRollSeven && !f.waitForDiscard;
           */
         };
-        this.arguments = 'hex';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => {
+          // hex
+          throw new EdgeArgumentError('not implemented');
+        };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // moveRobber(m,g,p,a[0]);
         };
         this.isPriority = false;
@@ -175,8 +195,8 @@ export class Edge {
         this.check = (game, participant) => {
           return game.isOver(); // f.isGameOver;
         };
-        this.arguments = '';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => { };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // end(m,g);
         };
         this.isPriority = true;
@@ -188,8 +208,8 @@ export class Edge {
         this.check = (game, participant) => {
           return game.isFirstTurn() || game.isSecondTurn(); // f.isFirstTurn || f.isSecondTurn;
         };
-        this.arguments = '';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => { };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // iterateTurn(m,g,p);
         };
         this.isPriority = true;
@@ -201,8 +221,8 @@ export class Edge {
         this.check = (game, participant) => {
           return game.hasRolled; // f.hasRolled;
         };
-        this.arguments = '';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => { };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // iterateTurn(m,g,p);
         };
         this.isPriority = false;
@@ -214,8 +234,8 @@ export class Edge {
         this.check = (game, participant) => {
           throw new CatonlineError('not implemented'); // !f.waitForTrade; // TODO: implement this
         };
-        this.arguments = '';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => { };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // failTrade(m,g,p);
         };
         this.isPriority = true;
@@ -227,8 +247,11 @@ export class Edge {
         this.check = (game, participant) => {
           return game.isFirstTurn(); // f.isFirstTurn;
         };
-        this.arguments = 'road';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => {
+          // road
+          throw new EdgeArgumentError('not implemented');
+        };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // initPave(m,g,p,a[0]);
         };
         this.isPriority = false;
@@ -240,8 +263,8 @@ export class Edge {
         this.check = (game, participant) => {
           return game.isSecondTurn(); // f.isSecondTurn;
         };
-        this.arguments = '';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => { };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // initCollect(m,g,p);
         };
         this.isPriority = true;
@@ -253,9 +276,20 @@ export class Edge {
         this.check = (game, participant) => {
           return game.isFirstTurn() || game.isSecondTurn(); // f.isFirstTurn || f.isSecondTurn;
         };
-        this.arguments = 'settlement';
-        this.execute = (game, participant, argv) => {
-          throw new CatonlineError('not implemented'); // initSettle(m,g,p,a[0]);
+        this.validateArgs = (game, args) => {
+
+          const junc = game.board.juncs[args.junc];
+
+          if (!junc)
+            throw new EdgeArgumentError(`cannot get Junc at "${args.junc}"`);
+
+          return { junc };
+
+        };
+        this.execute = (game, participant, args) => {
+
+          game.settle(participant, args.junc, false);
+
         };
         this.isPriority = false;
         this.label = '';
@@ -266,8 +300,11 @@ export class Edge {
         this.check = (game, participant) => {
           return game.isSecondTurn(); // f.isSecondTurn;
         };
-        this.arguments = 'road';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => {
+          // road
+          throw new EdgeArgumentError('not implemented');
+        };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // initPave(m,g,p,a[0]);
         };
         this.isPriority = false;
@@ -279,8 +316,8 @@ export class Edge {
         this.check = (game, participant) => {
           return !game.canSteal; // !f.canSteal;
         };
-        this.arguments = '';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => { };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented');
         };
         this.isPriority = true;
@@ -295,8 +332,11 @@ export class Edge {
             && !game.hasRolled
             && !participant.canAcceptCurrentTrade(); // !f.isFirstTurn && !f.isSecondTurn && f.hasRolled && f.canTrade;
         };
-        this.arguments = 'trade';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => {
+          // trade
+          throw new EdgeArgumentError('not implemented');
+        };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // offerTrade(m,g,p,a);
         };
         this.isPriority = false;
@@ -308,8 +348,11 @@ export class Edge {
         this.check = (game, participant) => {
           return participant.canPlayDevCard('knight'); // f.canPlayDC.knight;
         };
-        this.arguments = 'hex';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => {
+          // hex
+          throw new EdgeArgumentError('not implemented');
+        };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // playDC(m,g,p,'knight',a[0]);
         };
         this.isPriority = false;
@@ -321,8 +364,11 @@ export class Edge {
         this.check = (game, participant) => {
           return participant.canPlayDevCard('monopoly'); // f.canPlayDC.monopoly;
         };
-        this.arguments = 'resource';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => {
+          // resource
+          throw new EdgeArgumentError('not implemented');
+        };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // playDC(m,g,p,'monopoly',a[0]);
         };
         this.isPriority = false;
@@ -334,8 +380,11 @@ export class Edge {
         this.check = (game, participant) => {
           return participant.canPlayDevCard('rb'); // f.canPlayDC.rb;
         };
-        this.arguments = 'road road';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => {
+          // road road
+          throw new EdgeArgumentError('not implemented');
+        };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // playDC(m,g,p,'rb',a);
         };
         this.isPriority = false;
@@ -347,8 +396,8 @@ export class Edge {
         this.check = (game, participant) => {
           return participant.canPlayDevCard('vp'); // f.canPlayDC.vp;
         };
-        this.arguments = '';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => { };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); //  playDC(m,g,p,'vp');
         };
         this.isPriority = false;
@@ -360,8 +409,11 @@ export class Edge {
         this.check = (game, participant) => {
           return participant.canPlayDevCard('yop'); // f.canPlayDC.yop;
         };
-        this.arguments = 'resource resource';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => {
+          // resource resource
+          throw new EdgeArgumentError('not implemented');
+        };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // playDC(m,g,p,'yop',a);
         };
         this.isPriority = false;
@@ -375,8 +427,8 @@ export class Edge {
             && !game.isFirstTurn()
             && !game.isSecondTurn(); // !f.hasRolled && !f.isFirstTurn && !f.isSecondTurn;
         };
-        this.arguments = '';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => { };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // return roll(m,g,p,a);
         };
         this.isPriority = false;
@@ -386,10 +438,10 @@ export class Edge {
       case ('_e_roll_collect'):
         this.target = '_v_collect';
         this.check = (game, participant) => {
-          return game.dice.getTotal() !== 7; // !f.isRollSeven;
+          return game.isRollSeven(); // !f.isRollSeven;
         };
-        this.arguments = '';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => { };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // collectResources(m,g);
         };
         this.isPriority = true;
@@ -401,8 +453,11 @@ export class Edge {
         this.check = (game, participant) => {
           return participant.toDiscard > 0; // f.discard > 0
         };
-        this.arguments = 'trade';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => {
+          // trade
+          throw new EdgeArgumentError('not implemented');
+        };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // discard(m,g,p,a.out);
         };
         this.isPriority = false;
@@ -414,8 +469,11 @@ export class Edge {
         this.check = (game, participant) => {
           return participant.toDiscard > 0; // f.discard > 0
         };
-        this.arguments = 'trade';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => {
+          // trade
+          throw new EdgeArgumentError('not implemented');
+        };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // discard(m,g,p,a.out);
         };
         this.isPriority = false;
@@ -432,8 +490,11 @@ export class Edge {
             && false; // f.isCurrentPlayer && f.isRollSeven && !f.waitForDiscard;
           */
         };
-        this.arguments = 'hex';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => {
+          // hex
+          throw new EdgeArgumentError('not implemented');
+        };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // moveRobber(m,g,p,a[0]);
         };
         this.isPriority = false;
@@ -445,8 +506,11 @@ export class Edge {
         this.check = (game, participant) => {
           return game.canSteal; // f.canSteal;
         };
-        this.arguments = 'player';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => {
+          // player
+          throw new EdgeArgumentError('not implemented');
+        };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // steal(m,g,p,a[0]);
         };
         this.isPriority = false;
@@ -456,12 +520,10 @@ export class Edge {
       case ('_e_take_turn'):
         this.target = '_v_root';
         this.check = (game, participant) => {
-          return participant.isCurrentPlayer(); // f.isCurrentPlayer;
+          return participant.isCurrentParticipant(); // f.isCurrentPlayer;
         };
-        this.arguments = '';
-        this.execute = (game, participant, argv) => {
-          throw new CatonlineError('not implemented');
-        };
+        this.validateArgs = (game, args) => { };
+        this.execute = (game, participant, args) => { };
         this.isPriority = true;
         this.label = '';
         break;
@@ -471,8 +533,8 @@ export class Edge {
         this.check = (game, participant) => {
           return !game.isFirstTurn(); // !f.isFirstTurn;
         };
-        this.arguments = '';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => { };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented');
         };
         this.isPriority = true;
@@ -487,8 +549,11 @@ export class Edge {
             && game.hasRolled
             && participant.canTradeWithBank(); // !f.isFirstTurn && !f.isSecondTurn && f.hasRolled && f.canTradeBank;
         };
-        this.arguments = 'trade';
-        this.execute = (game, participant, argv) => {
+        this.validateArgs = (game, args) => {
+          // trade
+          throw new EdgeArgumentError('not implemented');
+        };
+        this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // tradeWithBank(m,g,p,a);
         };
         this.isPriority = false;

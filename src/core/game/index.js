@@ -1,8 +1,22 @@
 // @flow strict
 
+import type {
+
+  EdgeArgumentT,
+  GameParamsT,
+  GameSerialT,
+  InitialConditionsHexT,
+  InitialConditionsPortT,
+  InitialConditionsT,
+  Junc,
+  PlayerIDT,
+  RawEdgeArgumentT,
+  TradeT,
+
+} from '../../utils';
 import _ from 'underscore';
-import type { GameParamsT, GameSerialT, InitialConditionsHexT, InitialConditionsPortT, InitialConditionsT, PlayerIDT, TradeT } from '../../utils';
-import { CatonlineError, objectsMatch, round, Serializable, shuffle } from '../../utils';
+import Emitter from 'events';
+import { CatonlineError, EdgeExecutionError, objectsMatch, round, Serializable, shuffle } from '../../utils';
 import { validate } from './params';
 import { Board } from '../board';
 import { Computer, Human, Player } from '../player';
@@ -17,7 +31,7 @@ import { Participant } from './participant';
 import { Resource } from '../board/resource';
 import { DiceValue } from '../board/dice-value';
 
-export class Game implements Serializable {
+export class Game extends Emitter implements Serializable {
 
   params: GameParamsT;
   graph: Graph;
@@ -52,6 +66,8 @@ export class Game implements Serializable {
 
   constructor(owner: Player, params: GameParamsT) {
 
+    super();
+    
     this.params = validate(params); // might throw
 
     const scenario = scenarios[this.params.scenario];
@@ -173,12 +189,103 @@ export class Game implements Serializable {
 
   }
 
-  mutate() {
+  getWaiting(): Participant[] {
+
+    let waiting = [];
+    this.participants.forEach(participant => {
+
+      if (participant.getEdges().length)
+        waiting.push(participant);
+
+    });
+
+    return waiting;
+
+  }
+
+  mutate(participant: Participant, name: string, rawArgs: RawEdgeArgumentT): boolean {
+
+    try {
+
+      const edge = this.graph.getEdge(name);
+      const args = edge.validateArgs(this, rawArgs);
+      const result = edge.execute(this, participant, args);
+
+      this.history.store({ participant, edge, args, result });
+
+      const target = this.graph.getVertex(edge.target);
+      participant.vertex = target;
+
+      this.modify();
+
+      return true;
+
+    } catch (e) {
+
+      if (e instanceof CatonlineError)
+        return false;
+
+      throw e;
+
+    }
 
   }
 
   mutateBatch() {
 
+  }
+
+  settle(participant: Participant, junc: Junc, collect: boolean = true) {
+
+    if (junc.owner === participant)
+      throw new EdgeExecutionError(`You have already settled here`);
+
+    if (!!junc.owner)
+      throw new EdgeExecutionError(`Someone has already settled here`);
+
+    if (!junc.isSettleable)
+      throw new EdgeExecutionError(`You can't settle next an existing settlement`);
+
+    if (collect) {
+      const cost = this.board.scenario.buyable.settlement.cost;
+      participant.spend(cost);
+    }
+
+    participant.settlements.push(junc);
+    junc.owner = participant;
+    junc.isSettleable = false;
+    junc.getNeighbors().forEach(neighbor => {
+      neighbor.isSettleable = false;
+    });
+
+    this.updateLongestRoad();
+    this.isOver();
+
+    if (junc.port != null) {
+
+      let bankTradeRate = Object.assign({}, participant.bankTradeRate);
+      const type = junc.port.type;
+
+      if (type === 'mystery') {
+        _.each(bankTradeRate, (rate: number, resource: string) => {
+          if (3 < rate) {
+            bankTradeRate[resource] = rate;
+          }
+        });
+      } else {
+        if (2 < bankTradeRate[type]) {
+          bankTradeRate[type] = 2;
+        }
+      }
+
+      participant.bankTradeRate = bankTradeRate;
+
+    }
+
+  }
+
+  updateLongestRoad() {
+    console.log(new CatonlineError('not implemented')); // $TODO
   }
 
   equals(game: Game): boolean {
@@ -248,7 +355,7 @@ export class Game implements Serializable {
 
   getStatus(): string {
     if (this.isRandomized) {
-      return 'in-progess';
+      return 'in-progress';
     } else if (this.isFull()) {
       return 'ready';
     } else {
@@ -386,7 +493,8 @@ export class Game implements Serializable {
     if (!this.isRandomized)
       throw new CatonlineError('cannot calculate isOver() until game is randomized');
 
-    throw new CatonlineError('not implemented');
+    console.log(new CatonlineError('not implemented')); // $TODO
+    return false;
   }
 
   end() {

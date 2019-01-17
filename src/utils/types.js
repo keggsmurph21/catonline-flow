@@ -1,8 +1,6 @@
 // @flow strict
 
 /*
-// NB: need this block for static deserialize method on Serializable interface,
-//       but support does not exist yet :(
 import type { Game } from '../core/game';
 import type { Board } from '../core/board';
 import type { Hex } from '../core/board/hex';
@@ -10,9 +8,10 @@ import type { Junc } from '../core/board/junc';
 import type { Port } from '../core/board/port';
 import type { Road } from '../core/board/road';
 */
-import type { Player } from '../core/player';
 import type { Participant } from '../core/game/participant';
 import type { Hand } from '../core/game/participant/hand';
+import type { Player } from '../core/player';
+import type { Edge } from '../core/graph';
 
 export type CartesianCoordsT = {
   +x: number,
@@ -51,7 +50,7 @@ export type CostT = {
   [string]: number,
 };
 
-export type ScenarioDevCardsT = { count: number };
+//export type ScenarioDevCardsT = { count: number };
 
 export type ScenarioT = {
   name: string,
@@ -65,7 +64,7 @@ export type ScenarioT = {
       cost: CostT,
     }
   },
-  devCards: { [string]: ScenarioDevCardsT },
+  devCards: { [string]: number },
   resources: {
     [string]: number,
   }
@@ -83,7 +82,7 @@ export type JuncRenderT = {
   cy: number,
 };
 
-export type PortRenderT = {};
+export type PortRenderT = $TODO;
 
 export type RoadRenderT = {
   path: string,
@@ -126,17 +125,17 @@ export type DeserialT = Game
   | Player;
 */
 
-export type GameSerialT = {};
-export type BoardSerialT = {};
-export type HexSerialT = {};
-export type JuncSerialT = {};
-export type PortSerialT = {};
-export type RoadSerialT = {};
-export type PlayerSerialT = {};
-export type ParticipantSerialT = {};
-export type StateSerialT = {};
-export type HistorySerialT = {};
-export type HandSerialT = {};
+export type GameSerialT = $TODO;
+export type BoardSerialT = $TODO;
+export type HexSerialT = $TODO;
+export type JuncSerialT = $TODO;
+export type PortSerialT = $TODO;
+export type RoadSerialT = $TODO;
+export type PlayerSerialT = $TODO;
+export type ParticipantSerialT = $TODO;
+export type StateSerialT = $TODO;
+export type HistorySerialT = $TODO;
+export type HandSerialT = $TODO;
 
 export type DevCardParamsT = {
   name: string,
@@ -176,7 +175,7 @@ export type InitialConditionsT = {
   deck: string[], // card.type
 };
 
-export type PublicStateT = {};
+export type PublicStateT = $TODO;
 
 export type PlayerIDT = string;
 
@@ -193,6 +192,17 @@ export type OffsetsT = $ReadOnly<{
 }>;
 
 export type ParityT = 'even' | 'odd';
+
+export type RawEdgeArgumentT = $TODO
+export type EdgeArgumentT = $TODO;
+export type EdgeReturnT = $TODO;
+
+export type HistoryItemT = {
+  participant: Participant,
+  edge: Edge,
+  args: EdgeArgumentT,
+  result: EdgeArgumentT,
+};
 
 /*
 export type PlayerStateT = {
@@ -244,3 +254,29 @@ export type PublicPlayerStateT = {
 
 };
 */
+
+export type { Board } from '../core/board';
+export type { BoardNode } from '../core/board/board-node';
+export type { CoordinateCache } from '../core/board/cache';
+export type { DiceValue } from '../core/board/dice-value';
+export type { Hex } from '../core/board/hex';
+export type { Junc } from '../core/board/junc';
+export type { Port } from '../core/board/port';
+export type { Resource } from '../core/board/resource';
+export type { Road } from '../core/board/road';
+export type { Robber } from '../core/board/robber';
+
+export type { Game } from '../core/game';
+export type { Participant } from '../core/game/participant';
+export type { Hand } from '../core/game/participant/hand';
+export type { Bank } from '../core/game/bank';
+export type { DevCardDeck } from '../core/game/dev-card-deck';
+export type { DevCard } from '../core/game/dev-card';
+export type { Dice } from '../core/game/dice';
+export type { History } from '../core/game/history';
+
+export type { Player } from '../core/player';
+export type { Computer } from '../core/player/computer';
+export type { Human } from '../core/player/human';
+
+export type { Graph, Edge, Vertex } from '../core/graph';

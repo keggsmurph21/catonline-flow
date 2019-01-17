@@ -1,11 +1,14 @@
 // @flow strict
 
-import type { Hex } from './hex';
-import type { Junc } from './junc';
-import type { Road } from './road';
-import type { CubeCoordsT } from '../../utils';
+import type {
+
+  CubeCoordsT,
+  Hex,
+  Junc,
+  Road,
+
+} from '../../utils';
 import { round } from '../../utils';
-import { BoardNode } from './board-node';
 
 export class CoordinateCache {
 
