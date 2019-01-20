@@ -67,7 +67,7 @@ export class Game extends Emitter implements Serializable {
   constructor(owner: Player, params: GameParamsT) {
 
     super();
-    
+
     this.params = validate(params); // might throw
 
     const scenario = scenarios[this.params.scenario];
@@ -285,7 +285,7 @@ export class Game extends Emitter implements Serializable {
   }
 
   updateLongestRoad() {
-    console.log(new CatonlineError('not implemented')); // $TODO
+    //console.log(new CatonlineError('not implemented')); // $TODO
   }
 
   equals(game: Game): boolean {
@@ -493,7 +493,7 @@ export class Game extends Emitter implements Serializable {
     if (!this.isRandomized)
       throw new CatonlineError('cannot calculate isOver() until game is randomized');
 
-    console.log(new CatonlineError('not implemented')); // $TODO
+    //console.log(new CatonlineError('not implemented')); // $TODO
     return false;
   }
 

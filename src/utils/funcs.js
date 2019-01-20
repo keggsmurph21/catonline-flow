@@ -134,22 +134,6 @@ export function shuffle<T>(arr: T[]) {
 
 }
 
-// flowlint-next-line unclear-type:off
-export function expectToThrow(fn: any => any, err: { name?: string, message?: RegExp }) {
-  try {
-    fn();
-  } catch (e) {
-
-    // flowlint-next-line sketchy-null:off
-    if (err.name && e.name !== err.name)
-      throw e;
-
-    if (err.message && !err.message.test(e.message))
-      throw e;
-
-  }
-}
-
 export function hashToHexColor(str: string): string {
 
   let hash: number = 0;
@@ -204,7 +188,7 @@ export function print(b: Board) {
     return (num + ' '.repeat(width)).slice(0, width);
   }
 
-  var width = 2;
+  var width = 3;
 
   var dims = {
     minX:  Infinity,

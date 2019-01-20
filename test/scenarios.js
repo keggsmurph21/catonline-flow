@@ -1,9 +1,10 @@
 'use strict';
 
-const scenarios = require('../src/core/scenarios').scenarios;
+const expect = require('chai').expect;
+const scenarios = require('../lib/core/scenarios').scenarios;
 
-test('all scenarios initialize', () => {
-
-  expect(Object.keys(scenarios)).toEqual([ 'standard' ]);
-
+describe('Scenarios', () => {
+  it('should all initialize', () => {
+    expect(Object.keys(scenarios)).deep.equal([ 'standard' ]);
+  });
 });

@@ -4,7 +4,7 @@
   "description": "flow implementation for catonline",
   "main": "index.js",
   "scripts": {
-    "test": "npm run build && jest --coverage --no-watchman",
+    "test": "npm run build && mocha --exit",
     "build": "flow && babel src/ -d lib/"
   },
   "author": "Kevin Murphy",

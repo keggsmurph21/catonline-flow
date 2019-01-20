@@ -29,7 +29,7 @@ export class Junc extends BoardNode implements Serializable {
 
     super('Junc', coords);
 
-    this.id = 'h' + num;
+    this.id = 'j' + num;
     this.num = num;
 
     this.juncs = {};

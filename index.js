@@ -44,4 +44,4 @@ console.log(g.getCurrentParticipant().do('_e_init_settle', { junc: 7 }));
 
 show();
 
-//console.log(print(g.board));
+console.log(print(g.board));
