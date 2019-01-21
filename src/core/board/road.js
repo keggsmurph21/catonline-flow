@@ -3,22 +3,23 @@
 import type {
 
   CubeCoordsT,
+  Hex,
+  Junc,
+  Participant,
   RenderedCoordsT,
   RoadRenderT,
-  RoadSerialT
+  RoadSerialT,
+
 } from '../../utils';
 import _ from 'underscore';
 import { CatonlineError, pointsArrayToPath, Serializable, thin } from '../../utils';
-import { Hex } from './hex';
-import { Junc } from './junc';
 import { BoardNode } from './board-node';
-import { Player } from '../player';
 
 export class Road extends BoardNode implements Serializable {
 
   id: string;
   num: number;
-  owner: Player;
+  owner: Participant;
 
   constructor(num: number, coords: CubeCoordsT) {
 

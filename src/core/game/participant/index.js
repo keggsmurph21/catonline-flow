@@ -16,7 +16,7 @@ import type {
 
 } from '../../../utils';
 import _ from 'underscore';
-import { CatonlineError, Serializable } from '../../../utils';
+import { CatonlineError, EdgeExecutionError, Serializable } from '../../../utils';
 import { Player } from '../../player';
 import { Game } from '..';
 import { Hand } from './hand';
@@ -79,6 +79,15 @@ export class Participant implements Serializable {
 
   isOwner(): boolean {
     return this.game.isOwner(this.player);
+  }
+
+  resetDevCards() {
+    _.each(this.hand.unplayableDCs, (count: number, name: string) => {
+
+      this.hand.unplayableDCs[name] -= count;
+      this.hand.playedDCs[name] += count;
+
+    });
   }
 
   getEdges(): Edge[] {
@@ -259,8 +268,12 @@ export class Participant implements Serializable {
 
   do(name: string, args: EdgeArgumentT): $TODO {
 
+    const edges = this.getEdges().map(edge => edge.name);
+    if (edges.indexOf(name) === -1)
+      throw new EdgeExecutionError(`cannot do edge "name", edge is not adjacent`);
+      
     const ret = this.game.mutate(this, name, args);
-    
+
   }
 
   getPublicScore(): number {

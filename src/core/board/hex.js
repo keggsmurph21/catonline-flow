@@ -6,15 +6,15 @@ import type {
   HexParamsT,
   HexRenderT,
   HexSerialT,
+  Junc,
+  Resource,
+  Road,
   ScenarioT,
 
 } from '../../utils';
 import _ from 'underscore';
 import { CatonlineError, pointsArrayToString, Serializable, thin } from '../../utils';
 import { BoardNode } from './board-node';
-import { Junc } from './junc';
-import { Road } from './road';
-import { Resource } from './resource';
 import { DiceValue } from './dice-value';
 
 export class Hex extends BoardNode implements Serializable {

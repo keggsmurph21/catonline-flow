@@ -236,9 +236,57 @@ describe('Graph', () => {
         const msg = new RegExp(`cannot get Road at "${arg}"`);
         expect(() => g.getCurrentParticipant().do('_e_init_build_road', { road: arg })).to.throw(/*EdgeArgumentError, */msg);
       });
-      //g.getCurrentParticipant().do('_e_init_build_road', { road: }) // 26, 27, 31
+      expect(() => g.getCurrentParticipant().do('_e_init_build_road', { road: 20 })).to.throw(/*EdgeArgumentError, *//You must build a road next to your last settlement/);
+      g.getCurrentParticipant().do('_e_init_build_road', { road: 26 }); // or: 27, 31
 
-    })
-  })
+      let e = getExpectation(g);
+      e.historyLength = 3;
+
+      let ec = e.p[g.currentParticipantID];
+      ec.getPublicScore = 1;
+      ec.getPrivateScore = 1;
+      ec.getNumSettlements = 1;
+      ec.getNumRoads = 1;
+      ec.settlements = [22];
+      ec.roads = [26];
+      ec.vertexName = '_v_pave';
+      ec.edgeNames = ['_e_end_init'];
+
+      checkGraph(g, e);
+
+      g.getCurrentParticipant().do('_e_end_init', {});
+
+      e.historyLength = 4;
+
+      // the old ec
+      ec.vertexName = '_v_end_turn';
+      ec.edgeNames = [];
+
+      // the new ec
+      ec = e.p[g.currentParticipantID];
+      ec.getPublicScore = 0;
+      ec.getPrivateScore = 0;
+      ec.getNumSettlements = 0;
+      ec.getNumRoads = 0;
+      ec.settlements = [];
+      ec.roads = [];
+      ec.vertexName = '_v_end_turn';
+      ec.edgeNames = ['_e_take_turn'];
+
+    });
+  });
+
+  if (false)
+  it('should be consistent after the first player settles, paves, & ends', () => {
+    [1,2,3,4,5].forEach(num => {
+
+      const g = createGame(num);
+      g.getCurrentParticipant().do('_e_take_turn', {});
+      g.getCurrentParticipant().do('_e_init_settle', { junc: 22 });
+      g.getCurrentParticipant().do('_e_init_build_road', { road: 26 });
+      g.getCurrentParticipant().do('_e_end_init', {});
+
+    });
+  });
 
 });

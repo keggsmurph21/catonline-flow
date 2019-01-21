@@ -10,6 +10,7 @@ import type {
   InitialConditionsT,
   Junc,
   PlayerIDT,
+  Road,
   RawEdgeArgumentT,
   TradeT,
 
@@ -235,36 +236,49 @@ export class Game extends Emitter implements Serializable {
 
   }
 
-  settle(participant: Participant, junc: Junc, collect: boolean = true) {
+  iterateTurn() {
 
-    if (junc.owner === participant)
+    this.currentParticipantID += 1;
+    this.currentParticipantID %= this.participants.length;
+    this.turn++;
+    this.hasRolled = false;
+
+    this.participants.forEach(participant => {
+      participant.resetDevCards();
+    });
+
+  }
+
+  settle(participant: Participant, choice: Junc, isFree: boolean = false) {
+
+    if (choice.owner === participant)
       throw new EdgeExecutionError(`You have already settled here`);
 
-    if (!!junc.owner)
+    if (!!choice.owner)
       throw new EdgeExecutionError(`Someone has already settled here`);
 
-    if (!junc.isSettleable)
+    if (!choice.isSettleable)
       throw new EdgeExecutionError(`You can't settle next an existing settlement`);
 
-    if (collect) {
+    if (!isFree) {
       const cost = this.board.scenario.buyable.settlement.cost;
       participant.spend(cost);
     }
 
-    participant.settlements.push(junc);
-    junc.owner = participant;
-    junc.isSettleable = false;
-    junc.getNeighbors().forEach(neighbor => {
-      neighbor.isSettleable = false;
+    participant.settlements.push(choice);
+    choice.owner = participant;
+    choice.isSettleable = false;
+    choice.getNeighbors().forEach(junc => {
+      junc.isSettleable = false;
     });
 
     this.updateLongestRoad();
     this.isOver();
 
-    if (junc.port != null) {
+    if (choice.port != null) {
 
       let bankTradeRate = Object.assign({}, participant.bankTradeRate);
-      const type = junc.port.type;
+      const type = choice.port.type;
 
       if (type === 'mystery') {
         _.each(bankTradeRate, (rate: number, resource: string) => {
@@ -281,6 +295,44 @@ export class Game extends Emitter implements Serializable {
       participant.bankTradeRate = bankTradeRate;
 
     }
+
+  }
+
+  initPave(participant: Participant, choice: Road) {
+
+    if (choice.owner === participant)
+      throw new EdgeExecutionError(`You have already built a road here`);
+
+    if (!!choice.owner)
+      throw new EdgeExecutionError(`Someone has already built a road here`);
+
+    const lastSettlement = participant.settlements.slice(-1)[0];
+
+    let isValid = false;
+    _.each(lastSettlement.roads, road => {
+      if (road === choice)
+        isValid = true;
+    });
+
+    if (!isValid)
+      throw new EdgeExecutionError(`You must build a road next to your last settlement`);
+
+    this._pave(participant, choice, true);
+
+  }
+
+  _pave(participant: Participant, choice: Road, isFree: boolean = false) {
+
+    if (!isFree) {
+      const cost = this.board.scenario.buyable.road.cost;
+      participant.spend(cost);
+    }
+
+    participant.roads.push(choice);
+    choice.owner = participant;
+
+    this.updateLongestRoad();
+    this.isOver();
 
   }
 

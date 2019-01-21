@@ -3,17 +3,17 @@
 import type {
 
   CubeCoordsT,
+  Hex,
   JuncRenderT,
   JuncSerialT,
   Participant,
+  Port,
+  Road,
 
 } from '../../utils';
 import _ from 'underscore';
 import { CatonlineError, Serializable } from '../../utils';
-import { Hex } from './hex';
 import { BoardNode } from './board-node';
-import { Port } from './port';
-import { Road } from './road';
 
 export class Junc extends BoardNode implements Serializable {
 
