@@ -1,3 +1,4 @@
+require('./funcs');
 require('./scenarios');
 require('./board-nodes');
 require('./board');
