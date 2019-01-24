@@ -74,4 +74,38 @@ describe('Board', () => {
 
   });
 
+  it('should only say juncs are settleable if they are next to a non-ocean', () => {
+
+    const b = new Board(scenarios.standard);
+
+    _.each(b.juncs, junc => {
+
+      let adjOceans = 0;
+      let adjResources = 0;
+
+      _.each(junc.hexes, hex => {
+        if (hex) {
+          if (hex.isOcean) {
+            adjOceans += 1;
+          } else {
+            adjResources += 1;
+          }
+        }
+      });
+
+      if (junc.isSettleable) {
+
+        expect(adjOceans).to.be.lessThan(3);
+        expect(adjResources).to.be.greaterThan(0);
+
+      } else {
+
+        expect(adjOceans).to.be.greaterThan(0);
+        expect(adjResources).to.equal(0);
+
+      }
+
+    });
+  });
+
 });

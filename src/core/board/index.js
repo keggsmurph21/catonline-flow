@@ -159,6 +159,13 @@ export class Board implements Serializable {
         junc.roads[clockPos] = road;
 
       });
+
+      // enforce all juncs that are "settleable" are near some resource
+      _.each(junc.hexes, hex => {
+        if (hex && !hex.isOcean)
+          junc.isSettleable = true;
+      });
+
     });
 
     // set port coords and connect port to underlying road

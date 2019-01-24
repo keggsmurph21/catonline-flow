@@ -36,7 +36,7 @@ export class Junc extends BoardNode implements Serializable {
     this.hexes = {};
     this.roads = {};
 
-    this.isSettleable = true;
+    this.isSettleable = false;
     this.isCity = false;
 
   }
