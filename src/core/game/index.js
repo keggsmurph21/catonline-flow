@@ -238,8 +238,29 @@ export class Game extends Emitter implements Serializable {
 
   iterateTurn() {
 
-    this.currentParticipantID += 1;
-    this.currentParticipantID %= this.participants.length;
+    let cpid = this.currentParticipantID;
+
+    if (this.isFirstTurn()) {
+
+      cpid += 1;
+      if (cpid === this.participants.length)
+        cpid -= 1;
+
+    } else if (this.isSecondTurn()) {
+
+      cpid -= 1;
+      if (cpid === 0)
+        cpid += 1;
+
+    } else {
+
+      cpid += 1;
+      cpid %= this.participants.length;
+
+    }
+
+    this.currentParticipantID = cpid;
+
     this.turn++;
     this.hasRolled = false;
 

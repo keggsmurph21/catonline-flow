@@ -7,10 +7,10 @@ const Human = require('./lib/core/player').Human;
 const { print } = require('./lib/utils');
 
 function show() {
-  console.log([
-    g.graph.getAdjacents(p1).map(e => e.name),
-    g.graph.getAdjacents(p2).map(e => e.name)
-  ]);
+  g.participants.forEach(p => {
+    console.log(p.getEdges().map(e => e.name))
+  });
+  console.log()
 }
 
 defaults.numHumans = 2;
@@ -72,38 +72,22 @@ g.getCurrentParticipant().do('_e_take_turn', {});
 g.getCurrentParticipant().do('_e_init_settle', { junc: 22 });
 g.getCurrentParticipant().do('_e_init_build_road', { road: 26 });
 g.getCurrentParticipant().do('_e_end_init', {});
-
-g.participants.forEach(p => {
-  console.log(p.getEdges().map(e => e.name))
-});
-console.log();
-
+show();
 g.getCurrentParticipant().do('_e_take_turn', {});
 g.getCurrentParticipant().do('_e_init_settle', { junc: 10 });
 g.getCurrentParticipant().do('_e_init_build_road', { road: 12 });
 g.getCurrentParticipant().do('_e_end_init', {});
-
-g.participants.forEach(p => {
-  console.log(p.getEdges().map(e => e.name))
-});
-console.log();
-
+show();
 g.getCurrentParticipant().do('_e_take_turn', {});
 g.getCurrentParticipant().do('_e_init_settle', { junc: 0 });
 g.getCurrentParticipant().do('_e_init_build_road', { road: 0 });
 g.getCurrentParticipant().do('_e_end_init', {});
-
-g.participants.forEach(p => {
-  console.log(p.getEdges().map(e => e.name))
-});
-console.log();
-
+show();
 g.getCurrentParticipant().do('_e_take_turn', {});
 g.getCurrentParticipant().do('_e_init_settle', { junc: 30 });
 g.getCurrentParticipant().do('_e_init_build_road', { road: 37 });
 g.getCurrentParticipant().do('_e_end_init', {});
-
-g.participants.forEach(p => {
-  console.log(p.getEdges().map(e => e.name))
-});
-console.log();
+show();
+g.getCurrentParticipant().do('_e_take_turn', {});
+g.getCurrentParticipant().do('_e_init_settle', { junc: 50 });
+show();
