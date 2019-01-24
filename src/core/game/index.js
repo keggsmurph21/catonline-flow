@@ -357,6 +357,23 @@ export class Game extends Emitter implements Serializable {
 
   }
 
+  initCollect(participant: Participant) {
+
+    const lastSettlement = participant.settlements.slice(-1)[0];
+    _.each(lastSettlement.hexes, hex => {
+
+      if (!hex)
+        return;
+
+      const res = hex.resource
+
+      if (res.yields)
+        participant.collect({ [res.name]: 1 });
+
+    });
+
+  }
+
   updateLongestRoad() {
     //console.log(new CatonlineError('not implemented')); // $TODO
   }

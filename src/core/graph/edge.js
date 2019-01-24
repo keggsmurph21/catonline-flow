@@ -212,7 +212,7 @@ export class Edge {
         this.execute = (game, participant, args) => {
 
           game.iterateTurn();
-          
+
         };
         this.isPriority = true;
         this.label = '';
@@ -275,7 +275,9 @@ export class Edge {
         };
         this.validateArgs = (game, args) => { };
         this.execute = (game, participant, args) => {
-          throw new CatonlineError('not implemented'); // initCollect(m,g,p);
+
+          game.initCollect(participant);
+
         };
         this.isPriority = true;
         this.label = '';
@@ -311,11 +313,19 @@ export class Edge {
           return game.isSecondTurn(); // f.isSecondTurn;
         };
         this.validateArgs = (game, args) => {
-          // road
-          throw new EdgeArgumentError('not implemented');
+
+          const road = game.board.roads[args.road];
+
+          if (!road)
+            throw new EdgeArgumentError(`cannot get Road at "${args.road}"`);
+
+          return { road };
+
         };
         this.execute = (game, participant, args) => {
-          throw new CatonlineError('not implemented'); // initPave(m,g,p,a[0]);
+
+          game.initPave(participant, args.road);
+
         };
         this.isPriority = false;
         this.label = '';
@@ -547,7 +557,7 @@ export class Edge {
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented');
         };
-        this.isPriority = true;
+        this.isPriority = false;//true; // why was this here??
         this.label = '';
         break;
 

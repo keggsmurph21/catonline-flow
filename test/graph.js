@@ -1,6 +1,7 @@
 'use strict';
 
 const _ = require('underscore');
+const utils = require('../lib/utils');
 const expect = require('chai').expect;
 const Game = require('../lib/core/game').Game;
 const defaults = require('../lib/core/game').defaults;
@@ -160,6 +161,27 @@ function checkInitialGraph(g) {
 
 }
 
+function randomInitSettle(g) {
+
+  let settleIndex = 0;
+  while (!g.board.juncs[settleIndex].isSettleable)
+    ++settleIndex;
+  g.getCurrentParticipant().do('_e_init_settle', { junc: settleIndex });
+
+}
+
+function randomInitBuildRoad(g, name) {
+
+  let hasBuiltRoad = false;
+  _.each(g.getCurrentParticipant().settlements.slice(-1)[0].roads, road => {
+    if (road && !hasBuiltRoad) {
+      g.getCurrentParticipant().do(name, { road: road.num });
+      hasBuiltRoad = true;
+    }
+  });
+
+}
+
 describe('Graph', () => {
 
   it('creating a game should place people at the beginning spot', () => {
@@ -289,4 +311,58 @@ describe('Graph', () => {
     });
   });
 
+  it('should increment turns correctly for the first two rounds', () => {
+    [1,2,3,4,5].forEach(num => {
+
+      const g = createGame(num);
+      for (let i=0; i<g.participants.length; i++) {
+        g.getCurrentParticipant().do('_e_take_turn', {});
+        randomInitSettle(g);
+        randomInitBuildRoad(g, '_e_init_build_road');
+        g.getCurrentParticipant().do('_e_end_init', {});
+      }
+
+      expect(g.turn).to.equal(g.participants.length + 1);
+      expect(g.currentParticipantID).to.equal(g.participants.length - 1);
+
+      for (let i=0; i<g.participants.length; i++) {
+
+        g.getCurrentParticipant().do('_e_take_turn', {});
+        randomInitSettle(g);
+
+        const edges = g
+          .getCurrentParticipant()
+          .getEdges()
+          .map(e => e.name);
+        expect(edges).to.deep.equal(['_e_init_collect']);
+
+        g.getCurrentParticipant().do('_e_init_collect', {});
+
+        const lastSettlement = g.getCurrentParticipant().settlements.slice(-1)[0];
+
+        const actualNum = g.getCurrentParticipant().getNumResources();
+        let expectedNum = 0;
+        _.each(lastSettlement.hexes, hex => {
+          if (hex && hex.resource.yields)
+            expectedNum += 1;
+        });
+
+        console.log(g.getCurrentParticipant().hand);
+        expect(actualNum).to.be.greaterThan(0);
+        expect(actualNum).to.equal(expectedNum);
+
+        randomInitBuildRoad(g, '_e_init2_build_road');
+        g.getCurrentParticipant().do('_e_end_init');
+
+      }
+
+      g.participants.forEach(p => {
+        console.log(p.getEdges().map(e => e.name))
+      });
+      console.log()
+
+
+
+    });
+  });
 });

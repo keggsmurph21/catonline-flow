@@ -74,7 +74,7 @@ export class Participant implements Serializable {
   }
 
   isCurrentParticipant(): boolean {
-    return this.player.equals(this.game.getCurrentParticipant().player);
+    return this === this.game.getCurrentParticipant();
   }
 
   isOwner(): boolean {
@@ -91,7 +91,26 @@ export class Participant implements Serializable {
   }
 
   getEdges(): Edge[] {
-    return this.game.graph.getAdjacents(this);
+
+    let edges = this.game.graph.getAdjacents(this);
+
+    let priorityEdge = null;
+    edges.forEach(edge => {
+      if (edge.isPriority) {
+
+        if (priorityEdge)
+          throw new CatonlineError(`cannot have multiple priority edges! (${priorityEdge.name}, ${edge.name})`);
+
+        priorityEdge = edge;
+
+      }
+    });
+
+    if (priorityEdge)
+      return [ priorityEdge ];
+
+    return edges;
+
   }
 
   getNumDevCards(): number {
@@ -270,8 +289,8 @@ export class Participant implements Serializable {
 
     const edges = this.getEdges().map(edge => edge.name);
     if (edges.indexOf(name) === -1)
-      throw new EdgeExecutionError(`cannot do edge "name", edge is not adjacent`);
-      
+      throw new EdgeExecutionError(`cannot do edge "${name}", edge is not adjacent`);
+
     const ret = this.game.mutate(this, name, args);
 
   }

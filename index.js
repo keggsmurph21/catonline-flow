@@ -91,3 +91,5 @@ show();
 g.getCurrentParticipant().do('_e_take_turn', {});
 g.getCurrentParticipant().do('_e_init_settle', { junc: 50 });
 show();
+
+console.log(print(g.board));
