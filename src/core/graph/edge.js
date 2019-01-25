@@ -349,8 +349,8 @@ export class Edge {
         this.check = (game, participant) => {
           return !game.isFirstTurn()
             && !game.isSecondTurn()
-            && !game.hasRolled
-            && !participant.canAcceptCurrentTrade(); // !f.isFirstTurn && !f.isSecondTurn && f.hasRolled && f.canTrade;
+            && game.hasRolled
+            && !!participant.getNumResources(); // !f.isFirstTurn && !f.isSecondTurn && f.hasRolled && f.canTrade;
         };
         this.validateArgs = (game, args) => {
           // trade

@@ -132,6 +132,9 @@ export class Game extends Emitter implements Serializable {
       throw new CatonlineError('cannot randomize game until all participants have joined');
 
     shuffle(this.participants);
+    _.each(this.participants, (participant: Participant, num: string) => {
+      participant.num = parseInt(num);
+    });
     this.board.randomize(this.params);
     this.deck.shuffle();
 
@@ -249,7 +252,7 @@ export class Game extends Emitter implements Serializable {
     } else if (this.isSecondTurn()) {
 
       cpid -= 1;
-      if (cpid === 0)
+      if (cpid === -1)
         cpid += 1;
 
     } else {
@@ -365,7 +368,7 @@ export class Game extends Emitter implements Serializable {
       if (!hex)
         return;
 
-      const res = hex.resource
+      const res = hex.resource;
 
       if (res.yields)
         participant.collect({ [res.name]: 1 });

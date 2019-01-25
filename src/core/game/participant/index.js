@@ -24,6 +24,7 @@ import { scenarios } from '../../scenarios';
 
 export class Participant implements Serializable {
 
+  num: number;
   game: Game;
   player: Player;
   hand: Hand;

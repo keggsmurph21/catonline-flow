@@ -25,7 +25,7 @@ function getExpectation(g) {
     isOver: false,
     isRollSeven: false,
     isFull: true,
-    getWaiting: [g.getCurrentParticipant()],
+    getWaiting: [g.getCurrentParticipant().num],
     getStatus: 'in-progress',
 
     p: g.participants.map(p => {
@@ -89,7 +89,7 @@ function createGame(numHumans) {
 
 }
 
-function checkGraph(g, e) {
+function checkGraph(g, e, ignoreSpecifics = false) {
 
   // test some graph stuff
   expect(g.turn).to.equal(e.turn);
@@ -107,22 +107,23 @@ function checkGraph(g, e) {
   //expect(g.isOver()).to.equal(e.isOver);
   expect(g.isRollSeven()).to.equal(e.isRollSeven);
   expect(g.isFull()).to.equal(e.isFull);
-  expect(g.getWaiting()).to.deep.equal(e.getWaiting);
+  expect(g.getWaiting().map(p => p.num)).to.deep.equal(e.getWaiting);
   expect(g.getStatus()).to.equal(e.getStatus);
-
   g.participants.forEach((p, i) => {
 
     expect(p.toDiscard).to.equal(e.p[i].toDiscard);
     expect(p.hasDeclinedTrade).to.equal(e.p[i].hasDeclinedTrade);
     expect(p.hasHeavyPurse).to.equal(e.p[i].hasHeavyPurse);
     expect(p.bankTradeRate).to.equal(e.p[i].bankTradeRate);
-    expect(p.settlements.map(s => s.num)).to.deep.equal(e.p[i].settlements);
-    expect(p.roads.map(r => r.num)).to.deep.equal(e.p[i].roads);
+    if (!ignoreSpecifics) {
+      expect(p.settlements.map(s => s.num)).to.deep.equal(e.p[i].settlements);
+      expect(p.roads.map(r => r.num)).to.deep.equal(e.p[i].roads);
+      expect(p.getNumResources()).to.equal(e.p[i].getNumResources);
+    }
     expect(p.getPublicScore()).to.equal(e.p[i].getPublicScore);
     expect(p.getPrivateScore()).to.equal(e.p[i].getPrivateScore);
     expect(p.getNumDevCards()).to.equal(e.p[i].getNumDevCards);
     expect(p.getNumDevCardsInHand()).to.equal(e.p[i].getNumDevCardsInHand);
-    expect(p.getNumResources()).to.equal(e.p[i].getNumResources);
     expect(p.getNumSettlements()).to.equal(e.p[i].getNumSettlements);
     expect(p.getNumCities()).to.equal(e.p[i].getNumCities);
     expect(p.getNumRoads()).to.equal(e.p[i].getNumRoads);
@@ -130,10 +131,12 @@ function checkGraph(g, e) {
     //expect(p.getLargestArmy()).to.equal(e.p[i].getLargestArmy);
     expect(p.canAcceptCurrentTrade()).to.equal(e.p[i].canAcceptCurrentTrade);
     expect(p.canTradeWithBank()).to.equal(e.p[i].canTradeWithBank);
-    expect(p.canBuild('city')).to.equal(e.p[i].canBuild_city);
-    expect(p.canBuild('devCard')).to.equal(e.p[i].canBuild_devCard);
-    expect(p.canBuild('road')).to.equal(e.p[i].canBuild_road);
-    expect(p.canBuild('settlement')).to.equal(e.p[i].canBuild_settlement);
+    if (!ignoreSpecifics) {
+      expect(p.canBuild('city')).to.equal(e.p[i].canBuild_city);
+      expect(p.canBuild('devCard')).to.equal(e.p[i].canBuild_devCard);
+      expect(p.canBuild('road')).to.equal(e.p[i].canBuild_road);
+      expect(p.canBuild('settlement')).to.equal(e.p[i].canBuild_settlement);
+    }
     expect(p.canPlayDevCard('knight')).to.equal(e.p[i].canPlayDevCard_knight);
     expect(p.canPlayDevCard('monopoly')).to.equal(e.p[i].canPlayDevCard_monopoly);
     expect(p.canPlayDevCard('rb')).to.equal(e.p[i].canPlayDevCard_rb);
@@ -278,7 +281,12 @@ describe('Graph', () => {
 
       g.getCurrentParticipant().do('_e_end_init', {});
 
+      e.turn = 2;
       e.historyLength = 4;
+      e.isFirstTurn = (num !== 1);
+      e.isSecondTurn = (num === 1);
+      e.currentParticipantID = num > 1 ? 1 : 0;
+      e.getWaiting = [num > 1 ? 1 : 0];
 
       // the old ec
       ec.vertexName = '_v_end_turn';
@@ -286,14 +294,16 @@ describe('Graph', () => {
 
       // the new ec
       ec = e.p[g.currentParticipantID];
-      ec.getPublicScore = 0;
-      ec.getPrivateScore = 0;
-      ec.getNumSettlements = 0;
-      ec.getNumRoads = 0;
-      ec.settlements = [];
-      ec.roads = [];
+      ec.getPublicScore = num > 1 ? 0 : 1;
+      ec.getPrivateScore = num > 1 ? 0 : 1;
+      ec.getNumSettlements = num > 1 ? 0 : 1;
+      ec.getNumRoads = num > 1 ? 0 : 1;
+      ec.settlements = num > 1 ? [] : [22];
+      ec.roads = num > 1 ? [] : [26];
       ec.vertexName = '_v_end_turn';
       ec.edgeNames = ['_e_take_turn'];
+
+      checkGraph(g, e);
 
     });
   });
@@ -324,8 +334,12 @@ describe('Graph', () => {
 
       expect(g.turn).to.equal(g.participants.length + 1);
       expect(g.currentParticipantID).to.equal(g.participants.length - 1);
+      expect(g.getCurrentParticipant()).to.equal(g.participants.slice(-1)[0]);
 
       for (let i=0; i<g.participants.length; i++) {
+
+        expect(g.currentParticipantID).to.equal(g.participants.length - i - 1);
+        expect(g.getCurrentParticipant()).to.equal(g.participants.slice(- i - 1)[0]);
 
         g.getCurrentParticipant().do('_e_take_turn', {});
         randomInitSettle(g);
@@ -347,8 +361,7 @@ describe('Graph', () => {
             expectedNum += 1;
         });
 
-        console.log(g.getCurrentParticipant().hand);
-        expect(actualNum).to.be.greaterThan(0);
+        //expect(actualNum).to.be.greaterThan(0); // (could fail on desert)
         expect(actualNum).to.equal(expectedNum);
 
         randomInitBuildRoad(g, '_e_init2_build_road');
@@ -356,12 +369,27 @@ describe('Graph', () => {
 
       }
 
-      g.participants.forEach(p => {
-        console.log(p.getEdges().map(e => e.name))
-      });
-      console.log()
+      let e = getExpectation(g);
+      e.turn = 1 + 2 * num;
+      e.historyLength = 9 * num;
+      e.isFirstTurn = false;
+      e.isSecondTurn = false;
+      e.currentParticipantID = 0;
+      e.getWaiting = [0];
 
+      for (let i=0; i<num; i++) {
+        e.p[i].getPublicScore = 2;
+        e.p[i].getPrivateScore = 2;
+        e.p[i].getNumSettlements = 2;
+        e.p[i].getNumRoads = 2;
 
+        if (i === g.currentParticipantID) {
+          e.p[i].vertexName = '_v_end_turn';
+          e.p[i].edgeNames = ['_e_take_turn'];
+        }
+      }
+
+      checkGraph(g, e, true);
 
     });
   });
