@@ -85,7 +85,7 @@ describe('Game', () => {
 
   });
 
-  it('should test for equality', () => {
+  it('should test for equality with no history', () => {
 
     const g1 = new Game(h, { ...defaults, numHumans: 1 });
     g1.begin();
@@ -275,5 +275,68 @@ describe('Game', () => {
     expect(original.equals(copy)).to.equal(true);
 
   });
+
+  it('should test for equality with history', () => {
+
+    const original = new Game(h, { ...defaults, numHumans: 1 });
+    original.begin();
+
+    const originalConds = original.getInitialConditions();
+    const originalOwner = original.owner;
+    const originalPlayers = {
+      [h.id]: h,
+    };
+
+    const copy = Game.initialize(originalConds, originalOwner, originalPlayers);
+
+    expect(original.equals(copy)).to.equal(true);
+    expect(copy.equals(original)).to.equal(true);
+
+    original.participants[0].do('_e_take_turn');
+
+    expect(original.equals(copy)).to.equal(false);
+    expect(copy.equals(original)).to.equal(false);
+
+    original.participants[0].do('_e_init_settle', '22');
+    copy.participants[0].do('_e_take_turn');
+    copy.participants[0].do('_e_init_settle', '22');
+
+    expect(original.equals(copy)).to.equal(true);
+    expect(copy.equals(original)).to.equal(true);
+
+    original.participants[0].do('_e_init_build_road', '27');
+    copy.participants[0].do('_e_init_build_road', '31');
+
+    expect(original.equals(copy)).to.equal(false);
+    expect(copy.equals(original)).to.equal(false);
+
+  });
+
+  it('serialize', () => {
+
+    const g = new Game(h, { ...defaults, numHumans: 1 });
+    g.begin();
+    g.serialize();
+
+  });
+
+  it('deserialize', () => {
+
+    const original = new Game(h, { ...defaults, numHumans: 1 });
+    original.begin();
+    original.participants[0].do('_e_take_turn');
+    original.participants[0].do('_e_init_settle', '22');
+    const s = original.serialize();
+    const copy = Game.deserialize(s);
+
+    expect(original.equals(copy)).to.equal(true);
+    expect(copy.equals(original)).to.equal(true);
+
+    original.participants[0].do('_e_init_build_road', '27');
+
+    expect(original.equals(copy)).to.equal(false);
+    expect(copy.equals(original)).to.equal(false);
+
+  })
 
 });

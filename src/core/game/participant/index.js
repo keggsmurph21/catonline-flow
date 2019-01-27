@@ -5,11 +5,11 @@ import type {
   CostT,
   DevCardName,
   Edge,
-  EdgeArgumentT,
   HandSerialT,
   Junc,
   ParticipantSerialT,
   PublicStateT,
+  RawEdgeArgumentT,
   Road,
   TradeRateT,
   Vertex,
@@ -29,6 +29,7 @@ export class Participant implements Serializable {
   player: Player;
   hand: Hand;
 
+  // <state>
   vertex: Vertex;
   //adjacents: Edge[];
 
@@ -43,6 +44,8 @@ export class Participant implements Serializable {
 
   settlements: Junc[];
   roads: Road[];
+
+  // </state>
 
   constructor(game: Game, player: Player) {
 
@@ -204,10 +207,10 @@ export class Participant implements Serializable {
     if (trade.from.participant.player.equals(this.player))
       return false;
 
-    if (trade.for.participants.indexOf(this) === -1)
+    if (trade.with.participants.indexOf(this) === -1)
       return false;
 
-    return this.canAfford(trade.for.cards);
+    return this.canAfford(trade.with.cards);
 
   }
 
@@ -296,7 +299,7 @@ export class Participant implements Serializable {
 
   }
 
-  _do(name: string, args: EdgeArgumentT): $TODO {
+  _do(name: string, args: RawEdgeArgumentT): $TODO {
 
     //console.log(name);
     const edges = this.getEdges().map(edge => edge.name);
@@ -308,14 +311,14 @@ export class Participant implements Serializable {
 
   }
 
-  do(name: string, args: EdgeArgumentT): $TODO {
+  do(name: string, args: RawEdgeArgumentT): $TODO {
 
     let ret = this._do(name, args);
 
     while (this._shouldKeepControl()) {
 
       const edgeName = this.getEdges()[0].name;
-      this._do(edgeName, {});
+      this._do(edgeName);
 
     }
 

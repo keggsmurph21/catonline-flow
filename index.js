@@ -71,6 +71,7 @@ g = (numHumans => {
 const gp = g.participants.slice();
 let ret;
 
+/*
 gp[0].do('_e_take_turn', {});
 gp[0].do('_e_init_settle', { junc: 22 });
 gp[0].do('_e_init_build_road', { road: 26 });
@@ -116,5 +117,8 @@ console.log(ret);
 show();
 gp[0].do('_e_roll_move_robber', { hex: 5 });
 show();
+*/
+
+console.log(g.serialize());
 
 //console.log(print(g.board));

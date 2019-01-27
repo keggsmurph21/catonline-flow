@@ -2,9 +2,10 @@
 
 import type {
 
-  EdgeArgumentT,
+  EdgeArgument,
   EdgeReturnT,
   HistoryItemT,
+  HistoryItemSerialT,
   HistorySerialT,
   Participant,
 
@@ -28,12 +29,16 @@ export class History implements Serializable {
     this._items.push(item);
   }
 
-  serialize(): HistorySerialT {
-    throw new CatonlineError('not implemented');
-  }
+  serialize(): HistoryItemSerialT[] {
 
-  deserialize(serial: HistorySerialT): History {
-    throw new CatonlineError('not implemented');
+    return this._items.map(item => {
+      return {
+        participantNum: item.participant.num,
+        edgeName: item.edge.name,
+        argString: item.args.toString(),
+        result: item.result
+      };
+    });
   }
 
 }

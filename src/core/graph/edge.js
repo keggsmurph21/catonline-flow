@@ -2,7 +2,6 @@
 
 import type {
 
-  EdgeArgumentT,
   EdgeReturnT,
   Game,
   Participant,
@@ -10,6 +9,7 @@ import type {
 
 } from '../../utils';
 import { CatonlineError, EdgeArgumentError, EdgeExecutionError, } from '../../utils';
+import { EdgeArgument } from './edge-argument';
 
 export class Edge {
 
@@ -22,8 +22,9 @@ export class Edge {
   arguments: string;//('hex' | 'resource' | 'road' | 'settlement' | 'trade')[];
 
   check: (Game, Participant) => boolean;
-  validateArgs: (Game, RawEdgeArgumentT) => EdgeArgumentT;
-  execute: (Game, Participant, EdgeArgumentT) => EdgeReturnT;
+  argsType: string;
+  parseArgs: (Game, RawEdgeArgumentT) => EdgeArgument;
+  execute: (Game, Participant, EdgeArgument) => EdgeReturnT;
 
   constructor(name: string) {
 
@@ -35,7 +36,7 @@ export class Edge {
         this.check = (game, participant) => {
           return !!game.currentTrade; // f.tradeAccepted;
         };
-        this.validateArgs = (game, args) => { };
+        this.argsType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); //  acceptTradeAsOffer(m,g,p);
         };
@@ -48,7 +49,7 @@ export class Edge {
         this.check = (game, participant) => {
           return participant.canAcceptCurrentTrade(); // f.canAcceptCurrentTrade;
         };
-        this.validateArgs = (game, args) => { };
+        this.argsType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); //  acceptTradeAsOther(m,g,p);
         };
@@ -61,7 +62,7 @@ export class Edge {
         this.check = (game, participant) => {
           return true; // true;
         };
-        this.validateArgs = (game, args) => { };
+        this.argsType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented');
         };
@@ -74,7 +75,7 @@ export class Edge {
         this.check = (game, participant) => {
           return true; // true;
         };
-        this.validateArgs = (game, args) => { };
+        this.argsType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented');
         };
@@ -87,10 +88,7 @@ export class Edge {
         this.check = (game, participant) => {
           return game.hasRolled && participant.canBuild('city'); // f.hasRolled && f.canBuild.city;
         };
-        this.validateArgs = (game, args) => {
-          // settlement
-          throw new EdgeArgumentError('not implemented');
-        };
+        this.argsType = 'junc'; // settlement
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // fortify(m,g,p,a[0]);
         };
@@ -103,10 +101,7 @@ export class Edge {
         this.check = (game, participant) => {
           return game.hasRolled && participant.canBuild('road'); // f.hasRolled && f.canBuild.road;
         };
-        this.validateArgs = (game, args) => {
-          // road
-          throw new EdgeArgumentError('not implemented');
-        };
+        this.argsType = 'road'; // road
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // pave(m,g,p,a[0]);
         };
@@ -119,10 +114,7 @@ export class Edge {
         this.check = (game, participant) => {
           return game.hasRolled && participant.canBuild('settlement'); // f.hasRolled && f.canBuild.settlement;
         };
-        this.validateArgs = (game, args) => {
-          // settlement
-          throw new EdgeArgumentError('not implemented');
-        };
+        this.argsType = 'junc'; // settlement
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // settle(m,g,p,a[0]);
         };
@@ -135,7 +127,7 @@ export class Edge {
         this.check = (game, participant) => {
           return game.hasRolled && participant.canBuild('devCard'); // f.hasRolled && f.canBuy.dc;
         };
-        this.validateArgs = (game, args) => { };
+        this.argsType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); //  buyDevCard(m,g,p);
         };
@@ -148,7 +140,7 @@ export class Edge {
         this.check = (game, participant) => {
           return true; // true;
         };
-        this.validateArgs = (game, args) => { };
+        this.argsType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // cancelTrade(m,g,p);
         };
@@ -161,7 +153,7 @@ export class Edge {
         this.check = (game, participant) => {
           return participant.canAcceptCurrentTrade(); // f.canAcceptTrade;
         };
-        this.validateArgs = (game, args) => { };
+        this.argsType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // declineTrade(m,g,p);
         };
@@ -176,19 +168,11 @@ export class Edge {
             && game.isRollSeven()
             && game.isWaitingForDiscard();
         };
-        this.validateArgs = (game, args) => {
-
-          const hex = game.board.hexes[args.hex];
-
-          if (!hex)
-            throw new EdgeArgumentError(`cannot get Hex at "${args.hex}"`);
-
-          return { hex };
-
-        };
+        this.argsType = 'hex';
         this.execute = (game, participant, args) => {
 
-          game.moveRobber(participant, args.hex);
+          game.moveRobber(participant, args.getHex());
+          return null;
 
         };
         this.isPriority = false;
@@ -200,7 +184,7 @@ export class Edge {
         this.check = (game, participant) => {
           return game.isOver(); // f.isGameOver;
         };
-        this.validateArgs = (game, args) => { };
+        this.argsType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // end(m,g);
         };
@@ -213,10 +197,11 @@ export class Edge {
         this.check = (game, participant) => {
           return game.isFirstTurn() || game.isSecondTurn(); // f.isFirstTurn || f.isSecondTurn;
         };
-        this.validateArgs = (game, args) => { };
+        this.argsType = 'null';
         this.execute = (game, participant, args) => {
 
           game.iterateTurn();
+          return null;
 
         };
         this.isPriority = false;
@@ -228,7 +213,7 @@ export class Edge {
         this.check = (game, participant) => {
           return game.hasRolled; // f.hasRolled;
         };
-        this.validateArgs = (game, args) => { };
+        this.argsType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // iterateTurn(m,g,p);
         };
@@ -241,7 +226,7 @@ export class Edge {
         this.check = (game, participant) => {
           throw new CatonlineError('not implemented'); // !f.waitForTrade; // TODO: implement this
         };
-        this.validateArgs = (game, args) => { };
+        this.argsType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // failTrade(m,g,p);
         };
@@ -254,19 +239,11 @@ export class Edge {
         this.check = (game, participant) => {
           return game.isFirstTurn(); // f.isFirstTurn;
         };
-        this.validateArgs = (game, args) => {
-
-          const road = game.board.roads[args.road];
-
-          if (!road)
-            throw new EdgeArgumentError(`cannot get Road at "${args.road}"`);
-
-          return { road };
-
-        };
+        this.argsType = 'road';
         this.execute = (game, participant, args) => {
 
-          game.initPave(participant, args.road);
+          game.initPave(participant, args.getRoad());
+          return null;
 
         };
         this.isPriority = false;
@@ -278,10 +255,11 @@ export class Edge {
         this.check = (game, participant) => {
           return game.isSecondTurn(); // f.isSecondTurn;
         };
-        this.validateArgs = (game, args) => { };
+        this.argsType = 'null';
         this.execute = (game, participant, args) => {
 
           game.initCollect(participant);
+          return null;
 
         };
         this.isPriority = true;
@@ -293,19 +271,11 @@ export class Edge {
         this.check = (game, participant) => {
           return game.isFirstTurn() || game.isSecondTurn(); // f.isFirstTurn || f.isSecondTurn;
         };
-        this.validateArgs = (game, args) => {
-
-          const junc = game.board.juncs[args.junc];
-
-          if (!junc)
-            throw new EdgeArgumentError(`cannot get Junc at "${args.junc}"`);
-
-          return { junc };
-
-        };
+        this.argsType = 'junc';
         this.execute = (game, participant, args) => {
 
-          game.settle(participant, args.junc, true);
+          game.settle(participant, args.getJunc(), true);
+          return null;
 
         };
         this.isPriority = false;
@@ -317,19 +287,11 @@ export class Edge {
         this.check = (game, participant) => {
           return game.isSecondTurn(); // f.isSecondTurn;
         };
-        this.validateArgs = (game, args) => {
-
-          const road = game.board.roads[args.road];
-
-          if (!road)
-            throw new EdgeArgumentError(`cannot get Road at "${args.road}"`);
-
-          return { road };
-
-        };
+        this.argsType = 'road';
         this.execute = (game, participant, args) => {
 
-          game.initPave(participant, args.road);
+          game.initPave(participant, args.getRoad());
+          return null;
 
         };
         this.isPriority = false;
@@ -341,7 +303,7 @@ export class Edge {
         this.check = (game, participant) => {
           return !game.canSteal; // !f.canSteal;
         };
-        this.validateArgs = (game, args) => { };
+        this.argsType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented');
         };
@@ -357,10 +319,7 @@ export class Edge {
             && game.hasRolled
             && !!participant.getNumResources(); // !f.isFirstTurn && !f.isSecondTurn && f.hasRolled && f.canTrade;
         };
-        this.validateArgs = (game, args) => {
-          // trade
-          throw new EdgeArgumentError('not implemented');
-        };
+        this.argsType = 'trade'; // trade
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // offerTrade(m,g,p,a);
         };
@@ -373,10 +332,7 @@ export class Edge {
         this.check = (game, participant) => {
           return participant.canPlayDevCard('knight'); // f.canPlayDC.knight;
         };
-        this.validateArgs = (game, args) => {
-          // hex
-          throw new EdgeArgumentError('not implemented');
-        };
+        this.argsType = 'hex'; // hex
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // playDC(m,g,p,'knight',a[0]);
         };
@@ -389,10 +345,7 @@ export class Edge {
         this.check = (game, participant) => {
           return participant.canPlayDevCard('monopoly'); // f.canPlayDC.monopoly;
         };
-        this.validateArgs = (game, args) => {
-          // resource
-          throw new EdgeArgumentError('not implemented');
-        };
+        this.argsType = 'resource'; // resource
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // playDC(m,g,p,'monopoly',a[0]);
         };
@@ -405,10 +358,7 @@ export class Edge {
         this.check = (game, participant) => {
           return participant.canPlayDevCard('rb'); // f.canPlayDC.rb;
         };
-        this.validateArgs = (game, args) => {
-          // road road
-          throw new EdgeArgumentError('not implemented');
-        };
+        this.argsType = 'road road'; // road road
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // playDC(m,g,p,'rb',a);
         };
@@ -421,7 +371,7 @@ export class Edge {
         this.check = (game, participant) => {
           return participant.canPlayDevCard('vp'); // f.canPlayDC.vp;
         };
-        this.validateArgs = (game, args) => { };
+        this.argsType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); //  playDC(m,g,p,'vp');
         };
@@ -434,10 +384,7 @@ export class Edge {
         this.check = (game, participant) => {
           return participant.canPlayDevCard('yop'); // f.canPlayDC.yop;
         };
-        this.validateArgs = (game, args) => {
-          // resource resource
-          throw new EdgeArgumentError('not implemented');
-        };
+        this.argsType = 'resource resource'; // resource resource
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // playDC(m,g,p,'yop',a);
         };
@@ -452,44 +399,7 @@ export class Edge {
             && !game.isFirstTurn()
             && !game.isSecondTurn(); // !f.hasRolled && !f.isFirstTurn && !f.isSecondTurn;
         };
-        this.validateArgs = (game, args) => {
-
-          if (args.num == undefined)
-            return undefined;
-
-          const num = parseInt(args.num);
-
-          // $TODO
-          // if (this.DEBUG_MODE) {
-
-            if (isNaN(num))
-              throw new EdgeArgumentError(`cannot roll number "${args.num}"`);
-
-            return { num };
-
-          // } else {
-          //    throw new CatonlineError(`You can only do this in DEBUG_MODE`);
-          // }
-
-        };
-        this.execute = (game, participant, args) => {
-
-          if (args && args.num) {
-
-            // $TODO
-            // if (this.DEBUG_MODE) {
-
-              return game.rollNumber(args.num);
-
-            // } else {
-            //    throw new CatonlineError(`You can only do this in DEBUG_MODE`);
-            // }
-
-          } else {
-            return game.roll();
-          }
-
-        };
+        this.argsType = 'diceroll';
         this.isPriority = false;
         this.label = '';
         break;
@@ -499,10 +409,11 @@ export class Edge {
         this.check = (game, participant) => {
           return !game.isRollSeven(); // !f.isRollSeven;
         };
-        this.validateArgs = (game, args) => { };
+        this.argsType = 'null';
         this.execute = (game, participant, args) => {
 
-          return game.collectResources();
+          game.collectResources();
+          return null;
 
         };
         this.isPriority = true;
@@ -514,10 +425,7 @@ export class Edge {
         this.check = (game, participant) => {
           return participant.toDiscard > 0; // f.discard > 0
         };
-        this.validateArgs = (game, args) => {
-          // trade
-          throw new EdgeArgumentError('not implemented');
-        };
+        this.argsType = 'cost'; // trade
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // discard(m,g,p,a.out);
         };
@@ -530,10 +438,7 @@ export class Edge {
         this.check = (game, participant) => {
           return participant.toDiscard > 0; // f.discard > 0
         };
-        this.validateArgs = (game, args) => {
-          // trade
-          throw new EdgeArgumentError('not implemented');
-        };
+        this.argsType = 'cost'; // trade
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // discard(m,g,p,a.out);
         };
@@ -548,19 +453,11 @@ export class Edge {
             && game.isRollSeven()
             && !game.isWaitingForDiscard();
         };
-        this.validateArgs = (game, args) => {
-
-          const hex = game.board.hexes[args.hex];
-
-          if (!hex)
-            throw new EdgeArgumentError(`cannot get Hex at "${args.hex}"`);
-
-          return { hex };
-
-        };
+        this.argsType = 'hex';
         this.execute = (game, participant, args) => {
 
-          game.moveRobber(participant, args.hex);
+          game.moveRobber(participant, args.getHex());
+          return null;
 
         };
         this.isPriority = false;
@@ -572,10 +469,7 @@ export class Edge {
         this.check = (game, participant) => {
           return game.canSteal; // f.canSteal;
         };
-        this.validateArgs = (game, args) => {
-          // player
-          throw new EdgeArgumentError('not implemented');
-        };
+        this.argsType = 'participant'; // player
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // steal(m,g,p,a[0]);
         };
@@ -588,8 +482,8 @@ export class Edge {
         this.check = (game, participant) => {
           return participant.isCurrentParticipant(); // f.isCurrentPlayer;
         };
-        this.validateArgs = (game, args) => { };
-        this.execute = (game, participant, args) => { };
+        this.argsType = 'null';
+        this.execute = (game, participant, args) => { return null; }
         this.isPriority = true;
         this.label = '';
         break;
@@ -599,8 +493,8 @@ export class Edge {
         this.check = (game, participant) => {
           return !game.isFirstTurn() && !game.isSecondTurn(); // !f.isFirstTurn;
         };
-        this.validateArgs = (game, args) => { };
-        this.execute = (game, participant, args) => { };
+        this.argsType = 'null';
+        this.execute = (game, participant, args) => { return null; }
         this.isPriority = true;
         this.label = '';
         break;
@@ -613,10 +507,7 @@ export class Edge {
             && game.hasRolled
             && participant.canTradeWithBank(); // !f.isFirstTurn && !f.isSecondTurn && f.hasRolled && f.canTradeBank;
         };
-        this.validateArgs = (game, args) => {
-          // trade
-          throw new EdgeArgumentError('not implemented');
-        };
+        this.argsType = 'cost'; // trade
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // tradeWithBank(m,g,p,a);
         };
@@ -628,5 +519,9 @@ export class Edge {
         throw new CatonlineError(`unable to create edge with name "${name}"`);
 
     }
+  }
+
+  parseArgs(game: Game, argString: RawEdgeArgumentT): EdgeArgument {
+    return EdgeArgument.fromString(this.argsType, argString, game);
   }
 }

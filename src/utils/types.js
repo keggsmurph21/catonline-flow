@@ -134,7 +134,7 @@ export type GameSerialT = {
   initialConditions: InitialConditionsT,
   history: HistorySerialT,
   ownerID: PlayerIDT,
-  playerMap: PlayerMapT,
+  playerIDs: PlayerIDT[],
 
 };
 
@@ -221,7 +221,7 @@ export type HistoryItemT = {
 export type HistoryItemSerialT = {
   participantNum: number,
   edgeName: string,
-  args: EdgeArgumentSerialT,
+  argString: EdgeArgumentSerialT,
   result: EdgeReturnSerialT,
 };
 

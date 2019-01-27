@@ -2,16 +2,19 @@
 
 import type {
 
-  EdgeArgumentT,
+  EdgeArgument,
   EdgeReturnT,
   GameParamsT,
   GameSerialT,
   Hex,
+  HistoryItemT,
+  HistoryItemSerialT,
   InitialConditionsHexT,
   InitialConditionsPortT,
   InitialConditionsT,
   Junc,
   PlayerIDT,
+  PlayerMapT,
   Road,
   RawEdgeArgumentT,
   TradeT,
@@ -49,8 +52,8 @@ export class Game extends Emitter implements Serializable {
   initialConditions: InitialConditionsT;
   isRandomized: boolean;
 
+  // <state>
   turn: number;
-  // waiting: Participant[]; // do i need this?
   canSteal: boolean;
   // tradeAccepted: boolean; // do i need this?
   currentTrade: TradeT | null;
@@ -61,6 +64,7 @@ export class Game extends Emitter implements Serializable {
   hasLargestArmy: Participant | null;
   longestRoad: number;
   hasLongestRoad: Participant | null;
+  // </state>
 
   history: History;
 
@@ -147,7 +151,7 @@ export class Game extends Emitter implements Serializable {
 
   }
 
-  static initialize(conds: InitialConditionsT, owner: Player, players: { [PlayerIDT]: Player }): Game {
+  static initialize(conds: InitialConditionsT, owner: Player, players: PlayerMapT): Game {
 
     // make params the same
     const game = new Game(owner, conds.params);
@@ -232,7 +236,7 @@ export class Game extends Emitter implements Serializable {
     try {
 
       const edge = this.graph.getEdge(name);
-      const args = edge.validateArgs(this, rawArgs);
+      const args = edge.parseArgs(this, rawArgs);
       const result = edge.execute(this, participant, args);
 
       this.history.store({ participant, edge, args, result });
@@ -522,36 +526,89 @@ export class Game extends Emitter implements Serializable {
     const thisConds = this.getInitialConditions();
     const thatConds = game.getInitialConditions();
 
-    let equal = true;
+    return true
+      && (() => {
 
-    _.each(thisConds.board.hexes, (hex: InitialConditionsHexT, i: string) => {
-      equal = equal && objectsMatch(hex, thatConds.board.hexes[i])
-    });
+          let equal = true;
 
-    _.each(thatConds.board.hexes, (hex: InitialConditionsHexT, i: string) => {
-      equal = equal && objectsMatch(hex, thisConds.board.hexes[i]);
-    });
+          if (equal)
+            _.each(thisConds.board.hexes, (hex: InitialConditionsHexT, i: string) => {
+              equal = equal && objectsMatch(hex, thatConds.board.hexes[i])
+            });
 
-    _.each(thisConds.board.ports, (portType: InitialConditionsPortT, i: string) => {
-      equal = equal && (portType === thatConds.board.ports[i]);
-    });
+          if (equal)
+            _.each(thatConds.board.hexes, (hex: InitialConditionsHexT, i: string) => {
+              equal = equal && objectsMatch(hex, thisConds.board.hexes[i]);
+            });
 
-    _.each(thatConds.board.ports, (portType: InitialConditionsPortT, i: string) => {
-      equal = equal && (portType === thisConds.board.ports[i]);
-    });
+          if (equal)
+            _.each(thisConds.board.ports, (portType: InitialConditionsPortT, i: string) => {
+              equal = equal && (portType === thatConds.board.ports[i]);
+            });
 
-    return equal
+          if (equal)
+            _.each(thatConds.board.ports, (portType: InitialConditionsPortT, i: string) => {
+              equal = equal && (portType === thisConds.board.ports[i]);
+            });
+
+          return equal;
+
+        })()
       && objectsMatch(thisConds.params, thatConds.params)
       && objectsMatch(thisConds.players, thatConds.players)
-      && objectsMatch(thisConds.deck, thatConds.deck);
+      && objectsMatch(thisConds.deck, thatConds.deck)
+      && this.history.length === game.history.length
+      && this.history._items.reduce(
+        (memo: boolean, item: HistoryItemT, i: number) => {
+
+          const other = game.history._items[i];
+
+          return memo
+            && item.edge.name === other.edge.name
+            && item.args.toString() === other.args.toString()
+            && item.participant.num === other.participant.num
+            && item.result === other.result;
+
+        }, true);
+
   }
 
   serialize(): GameSerialT {
-    throw new CatonlineError('not implemented');
+
+    return {
+      history: this.history.serialize(),
+      initialConditions: this.initialConditions,
+      ownerID: this.owner.id,
+      playerIDs: this.participants.map(participant => participant.player.id),
+    };
+
   }
 
   static deserialize(serial: GameSerialT): Game {
-    throw new CatonlineError('not implemented');
+
+    // $TODO get a better way to create this stuff
+    const originalConds = serial.initialConditions;
+    const originalOwner = new Human(serial.ownerID);
+    const originalPlayers = {};
+    serial.playerIDs.forEach(id => {
+      originalPlayers[id] = new Human(id);
+    });
+
+    const game = Game.initialize(originalConds, originalOwner, originalPlayers);
+
+    serial.history.forEach((item: HistoryItemSerialT) => {
+
+      const participant = game.participants[item.participantNum];
+      if (item.result === null) {
+        participant.do(item.edgeName, item.argString);
+      } else {
+        throw new Error();
+      }
+
+    });
+
+    return game;
+
   }
 
   getInitialConditions(): InitialConditionsT {
