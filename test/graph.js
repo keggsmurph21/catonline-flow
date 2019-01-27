@@ -25,6 +25,7 @@ function getExpectation(g) {
     isOver: false,
     isRollSeven: false,
     isFull: true,
+    isWaitingForDiscard: false,
     getWaiting: [g.getCurrentParticipant().num],
     getStatus: 'in-progress',
 
@@ -107,6 +108,7 @@ function checkGraph(g, e, ignoreSpecifics = false) {
   //expect(g.isOver()).to.equal(e.isOver);
   expect(g.isRollSeven()).to.equal(e.isRollSeven);
   expect(g.isFull()).to.equal(e.isFull);
+  expect(g.isWaitingForDiscard()).to.equal(e.isWaitingForDiscard);
   expect(g.getWaiting().map(p => p.num)).to.deep.equal(e.getWaiting);
   expect(g.getStatus()).to.equal(e.getStatus);
   g.participants.forEach((p, i) => {

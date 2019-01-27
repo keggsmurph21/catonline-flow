@@ -3,8 +3,10 @@
 import type {
 
   EdgeArgumentT,
+  EdgeReturnT,
   GameParamsT,
   GameSerialT,
+  Hex,
   InitialConditionsHexT,
   InitialConditionsPortT,
   InitialConditionsT,
@@ -207,7 +209,25 @@ export class Game extends Emitter implements Serializable {
 
   }
 
-  mutate(participant: Participant, name: string, rawArgs: RawEdgeArgumentT): boolean {
+  getDiscardingParticipants(): Participant[] {
+
+    let discarding = [];
+    this.participants.forEach(participant => {
+
+      if (participant.toDiscard > 0)
+        discarding.push(participant);
+
+    });
+
+    return discarding;
+
+  }
+
+  isWaitingForDiscard(): boolean {
+    return this.getDiscardingParticipants().length > 0;
+  }
+
+  mutate(participant: Participant, name: string, rawArgs: RawEdgeArgumentT): EdgeReturnT {
 
     try {
 
@@ -222,12 +242,12 @@ export class Game extends Emitter implements Serializable {
 
       this.modify();
 
-      return true;
+      return result;
 
     } catch (e) {
 
       if (e instanceof CatonlineError)
-        return false;
+        return null;
 
       throw e;
 
@@ -281,8 +301,13 @@ export class Game extends Emitter implements Serializable {
     if (!!choice.owner)
       throw new EdgeExecutionError(`Someone has already settled here`);
 
-    if (!choice.isSettleable)
-      throw new EdgeExecutionError(`You can't settle next an existing settlement`);
+    if (!choice.isSettleable) {
+      _.each(choice.hexes, (hex: Hex) => {
+        if (hex && !hex.isOcean)
+          throw new EdgeExecutionError(`You can't settle next an existing settlement`);
+      });
+      throw new EdgeExecutionError(`You can't settle in the ocean`);
+    }
 
     if (!isFree) {
       const cost = this.board.scenario.buyable.settlement.cost;
@@ -374,6 +399,111 @@ export class Game extends Emitter implements Serializable {
         participant.collect({ [res.name]: 1 });
 
     });
+
+  }
+
+  _roll() {
+
+    const roll = this.dice.getTotal();
+    this.hasRolled = true;
+
+    if (roll === 7) {
+      this.participants.forEach(participant => {
+        if (participant.hasHeavyPurse()) {
+
+          const toDiscard = Math.floor(participant.getNumResources() / 2);
+          participant.toDiscard = toDiscard;
+
+        }
+      });
+    }
+
+  }
+
+  roll(): number {
+
+    this.dice.roll();
+    this._roll();
+    return this.dice.getTotal();
+
+  }
+
+  rollNumber(num: number): number {
+
+    // $TODO
+    // if (!this.DEBUG_MODE)
+    //    throw new CatonlineError(`You can only do this in DEBUG_MODE`)
+
+    const n1 = 6;
+    const n2 = num - n1;
+
+    this.dice.setRolls(n1, n2);
+    this._roll();
+
+    return this.dice.getTotal();
+
+  }
+
+  collectResources(): void {
+
+    const total = this.dice.getTotal();
+    _.each(this.board.hexes, (hex: Hex) => {
+
+      if (hex === this.board.robber.hex)
+        return;
+
+      if (!hex.resource.yields)
+        return;
+
+      if (hex.dice !== total)
+        return;
+
+      _.each(hex.juncs, (junc: Junc) => {
+
+        if (!junc.owner)
+          return;
+
+        const res = hex.resource.name;
+        const harvest = { [res]: 1 };
+
+        if (junc.isCity)
+          harvest[res] += 1;
+
+        junc.owner.collect(harvest);
+
+      });
+
+    });
+
+  }
+
+  getStealableParticipants(stealer: Participant): Participant[] {
+
+    let stealable = [];
+
+    _.each(this.board.robber.hex.juncs, (junc: Junc) => {
+
+      if (junc.owner !== stealer)
+        stealable.push(junc.owner);
+
+    });
+
+    return stealable;
+
+  }
+
+  moveRobber(mover: Participant, hex: Hex) {
+
+    if (hex === this.board.robber.hex)
+      throw new EdgeExecutionError(`robber is already here`);
+
+    if (hex.isOcean)
+      throw new EdgeExecutionError(`cannot place robber in the ocean`);
+
+    this.board.robber.moveTo(hex);
+
+    const targets = this.getStealableParticipants(mover);
+    this.canSteal = targets.length > 0;
 
   }
 

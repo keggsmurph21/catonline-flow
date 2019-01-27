@@ -133,7 +133,7 @@ export class Edge {
       case ('_e_buy_dc'):
         this.target = '_v_buy_dc';
         this.check = (game, participant) => {
-          return game.hasRolled && participant.canBuild('dev card'); // f.hasRolled && f.canBuy.dc;
+          return game.hasRolled && participant.canBuild('devCard'); // f.hasRolled && f.canBuy.dc;
         };
         this.validateArgs = (game, args) => { };
         this.execute = (game, participant, args) => {
@@ -172,19 +172,24 @@ export class Edge {
       case ('_e_discard_move_robber'):
         this.target = '_v_move_robber';
         this.check = (game, participant) => {
-          throw new CatonlineError('not implemented'); // TODO: implement this
-          /*
-          return participant.isCurrentPlayer()
+          return participant.isCurrentParticipant()
             && game.isRollSeven()
-            && false; // f.isCurrentPlayer && f.isRollSeven && !f.waitForDiscard;
-          */
+            && game.isWaitingForDiscard();
         };
         this.validateArgs = (game, args) => {
-          // hex
-          throw new EdgeArgumentError('not implemented');
+
+          const hex = game.board.hexes[args.hex];
+
+          if (!hex)
+            throw new EdgeArgumentError(`cannot get Hex at "${args.hex}"`);
+
+          return { hex };
+
         };
         this.execute = (game, participant, args) => {
-          throw new CatonlineError('not implemented'); // moveRobber(m,g,p,a[0]);
+
+          game.moveRobber(participant, args.hex);
+
         };
         this.isPriority = false;
         this.label = '';
@@ -214,7 +219,7 @@ export class Edge {
           game.iterateTurn();
 
         };
-        this.isPriority = true;
+        this.isPriority = false;
         this.label = '';
         break;
 
@@ -447,9 +452,43 @@ export class Edge {
             && !game.isFirstTurn()
             && !game.isSecondTurn(); // !f.hasRolled && !f.isFirstTurn && !f.isSecondTurn;
         };
-        this.validateArgs = (game, args) => { };
+        this.validateArgs = (game, args) => {
+
+          if (args.num == undefined)
+            return undefined;
+
+          const num = parseInt(args.num);
+
+          // $TODO
+          // if (this.DEBUG_MODE) {
+
+            if (isNaN(num))
+              throw new EdgeArgumentError(`cannot roll number "${args.num}"`);
+
+            return { num };
+
+          // } else {
+          //    throw new CatonlineError(`You can only do this in DEBUG_MODE`);
+          // }
+
+        };
         this.execute = (game, participant, args) => {
-          throw new CatonlineError('not implemented'); // return roll(m,g,p,a);
+
+          if (args && args.num) {
+
+            // $TODO
+            // if (this.DEBUG_MODE) {
+
+              return game.rollNumber(args.num);
+
+            // } else {
+            //    throw new CatonlineError(`You can only do this in DEBUG_MODE`);
+            // }
+
+          } else {
+            return game.roll();
+          }
+
         };
         this.isPriority = false;
         this.label = '';
@@ -458,11 +497,13 @@ export class Edge {
       case ('_e_roll_collect'):
         this.target = '_v_collect';
         this.check = (game, participant) => {
-          return game.isRollSeven(); // !f.isRollSeven;
+          return !game.isRollSeven(); // !f.isRollSeven;
         };
         this.validateArgs = (game, args) => { };
         this.execute = (game, participant, args) => {
-          throw new CatonlineError('not implemented'); // collectResources(m,g);
+
+          return game.collectResources();
+
         };
         this.isPriority = true;
         this.label = '';
@@ -503,19 +544,24 @@ export class Edge {
       case ('_e_roll_move_robber'):
         this.target = '_v_move_robber';
         this.check = (game, participant) => {
-          throw new CatonlineError('not implemented'); // TODO: implement this
-          /*
-          return participant.isCurrentPlayer()
+          return participant.isCurrentParticipant()
             && game.isRollSeven()
-            && false; // f.isCurrentPlayer && f.isRollSeven && !f.waitForDiscard;
-          */
+            && !game.isWaitingForDiscard();
         };
         this.validateArgs = (game, args) => {
-          // hex
-          throw new EdgeArgumentError('not implemented');
+
+          const hex = game.board.hexes[args.hex];
+
+          if (!hex)
+            throw new EdgeArgumentError(`cannot get Hex at "${args.hex}"`);
+
+          return { hex };
+
         };
         this.execute = (game, participant, args) => {
-          throw new CatonlineError('not implemented'); // moveRobber(m,g,p,a[0]);
+
+          game.moveRobber(participant, args.hex);
+
         };
         this.isPriority = false;
         this.label = '';
@@ -551,13 +597,11 @@ export class Edge {
       case ('_e_to_root'):
         this.target = '_v_root';
         this.check = (game, participant) => {
-          return !game.isFirstTurn(); // !f.isFirstTurn;
+          return !game.isFirstTurn() && !game.isSecondTurn(); // !f.isFirstTurn;
         };
         this.validateArgs = (game, args) => { };
-        this.execute = (game, participant, args) => {
-          throw new CatonlineError('not implemented');
-        };
-        this.isPriority = false;//true; // why was this here??
+        this.execute = (game, participant, args) => { };
+        this.isPriority = true;
         this.label = '';
         break;
 

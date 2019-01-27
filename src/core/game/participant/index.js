@@ -37,7 +37,6 @@ export class Participant implements Serializable {
   toDiscard: number;
   hasDeclinedTrade: boolean;
   //canAcceptTrade: boolean;
-  hasHeavyPurse: boolean; // @ alejo
 
   bankTradeRate: TradeRateT;
   //numKnights: 0, // calculate this on the fly
@@ -57,7 +56,6 @@ export class Participant implements Serializable {
     this.toDiscard = 0;
     this.hasDeclinedTrade = false;
     //this.canAcceptTrade = false;
-    this.hasHeavyPurse = false;
 
     this.bankTradeRate = this.game.bank.DEFAULT_TRADE_RATE;
 
@@ -80,6 +78,11 @@ export class Participant implements Serializable {
 
   isOwner(): boolean {
     return this.game.isOwner(this.player);
+  }
+
+  // @ alejo
+  hasHeavyPurse(): boolean {
+    return this.getNumResources() > 7;
   }
 
   resetDevCards() {
@@ -286,13 +289,37 @@ export class Participant implements Serializable {
     });
   }
 
-  do(name: string, args: EdgeArgumentT): $TODO {
+  _shouldKeepControl(): boolean {
 
+    const edges = this.getEdges();
+    return edges.length === 1 && edges[0].isPriority;
+
+  }
+
+  _do(name: string, args: EdgeArgumentT): $TODO {
+
+    //console.log(name);
     const edges = this.getEdges().map(edge => edge.name);
     if (edges.indexOf(name) === -1)
       throw new EdgeExecutionError(`cannot do edge "${name}", edge is not adjacent`);
 
     const ret = this.game.mutate(this, name, args);
+    return ret;
+
+  }
+
+  do(name: string, args: EdgeArgumentT): $TODO {
+
+    let ret = this._do(name, args);
+
+    while (this._shouldKeepControl()) {
+
+      const edgeName = this.getEdges()[0].name;
+      this._do(edgeName, {});
+
+    }
+
+    return ret;
 
   }
 
