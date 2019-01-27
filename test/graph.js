@@ -171,7 +171,7 @@ function randomInitSettle(g) {
   let settleIndex = 0;
   while (!g.board.juncs[settleIndex].isSettleable)
     ++settleIndex;
-  g.getCurrentParticipant()._do('_e_init_settle', { junc: settleIndex });
+  g.getCurrentParticipant()._do('_e_init_settle', `${settleIndex}`);
 
 }
 
@@ -180,7 +180,7 @@ function randomInitBuildRoad(g, name) {
   let hasBuiltRoad = false;
   _.each(g.getCurrentParticipant().settlements.slice(-1)[0].roads, road => {
     if (road && !hasBuiltRoad) {
-      g.getCurrentParticipant()._do(name, { road: road.num });
+      g.getCurrentParticipant()._do(name, `${road.num}`);
       hasBuiltRoad = true;
     }
   });
@@ -209,11 +209,225 @@ describe('Graph', () => {
 
   });
 
+  it('should parse args correctly', () => {
+
+    function enforce(name, doNumbers = true) {
+
+      const edge = g.graph.getEdge(name);
+      const type = edge.argsType;
+
+      [undefined, null, -1, Infinity, 2.5].forEach(arg => {
+        expect(() => {
+
+            edge.parseArgs(g, arg);
+
+        }).to.throw(/*EdgeArgumentError, */new RegExp(`invalid argument type to "${type}" \\("${typeof arg}"\\)`));
+      });
+
+      if (doNumbers) {
+
+        expect(() => {
+
+          edge.parseArgs(g, '');
+
+        }).to.throw(/*EdgeArgumentError, */new RegExp(`missing argument to "${type}" \\(undefined\\)`));
+        ['-1', '10000', 'a', '.'].forEach(arg => {
+          expect(() => {
+
+            edge.parseArgs(g, arg);
+
+          }).to.throw(/*EdgeArgumentError, */new RegExp(`cannot get \\w+ at "${arg}"`));
+        });
+        expect(edge.parseArgs(g, '12').values.pop().num).to.equal(12);
+
+      }
+
+    }
+
+    function parse(edge, arg) {
+      return g.graph.getEdge(edge).parseArgs(g, arg);
+    }
+
+    var g = createGame(1);
+
+    let args;
+
+    enforce('_e_roll', false); // diceroll
+    [' ', 'x', 'three'].forEach(arg => {
+      expect(() => {
+        parse('_e_roll', arg);
+      }).to.throw(/*EdgeArgumentError, */new RegExp(`cannot roll "NaN" \\("${arg}"\\)`));
+    });
+    ['-1', '0', '1'].forEach(arg => {
+      expect(() => {
+        parse('_e_roll', arg);
+      }).to.throw(/*EdgeArgumentError, */new RegExp(`cannot roll less than 2 \\("${arg}"\\)`));
+    });
+    ['13', '100', '69'].forEach(arg => {
+      expect(() => {
+        parse('_e_roll', arg);
+      }).to.throw(/*EdgeArgumentError, */new RegExp(`cannot roll greater than 12 \\("${arg}"\\)`));
+    });
+    ['2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'].forEach(arg => {
+
+      args = parse('_e_roll', arg);
+      expect(args.getDiceroll()).to.equal(parseInt(arg));
+      expect(args.toString()).to.equal(arg);
+
+    });
+
+    enforce('_e_roll_move_robber'); // hex
+    args = parse('_e_roll_move_robber', '22');
+    expect(args.getHex()).to.equal(g.board.hexes[22]);
+    expect(args.toString()).to.equal('22');
+
+    enforce('_e_init_settle'); // junc
+    args = parse('_e_init_settle', '22');
+    expect(args.getJunc()).to.equal(g.board.juncs[22]);
+    expect(args.toString()).to.equal('22');
+
+    args = parse('_e_to_root');
+    expect(args.toString()).to.equal('null');
+    args = parse('_e_to_root', null);
+    expect(args.toString()).to.equal('null');
+    args = parse('_e_to_root', undefined);
+    expect(args.toString()).to.equal('null');
+
+    enforce('_e_steal_robber', false); // player
+    ['-1', '2'].forEach(arg => {
+      expect(() => {
+        parse('_e_steal_robber', arg)
+      }).to.throw(/*EdgeArgumentError, */new RegExp(`cannot get Participant at "${arg}"`));
+    });
+    args = parse('_e_steal_robber', '0');
+    expect(args.getParticipant()).to.equal(g.participants[0]);
+    expect(args.toString()).to.equal('0');
+
+    enforce('_e_play_monopoly', false); // resource
+    ['bilo', 'test', 'hello'].forEach(arg => {
+      expect(() => {
+        parse('_e_play_monopoly', arg)
+      }).to.throw(/*EdgeArgumentError, */new RegExp(`unrecognized resource name "${arg}"`));
+    });
+    args = parse('_e_play_monopoly', 'wheat');
+    expect(args.getResourceName()).to.equal('wheat');
+    expect(args.toString()).to.equal('wheat');
+
+    enforce('_e_play_yop', false); // resource resource
+    ['bilo', 'test', 'hello', 'wheat'].forEach(arg1 => {
+      ['bilo', 'test', 'hello'].forEach(arg2 => {
+        const arg = arg1 + ' ' + arg2;
+        expect(() => {
+          parse('_e_play_yop', arg);
+        }).to.throw(/*EdgeArgumentError, */new RegExp(`unrecognized resource name "(${arg1}|${arg2})"`));
+      });
+    });
+    args = parse('_e_play_yop', 'wheat brick');
+    expect(args.getResourceNames()).to.deep.equal(['wheat', 'brick']);
+    expect(args.toString()).to.equal('wheat brick');
+
+    enforce('_e_init_build_road'); // road
+    args = parse('_e_init_build_road', '22');
+    expect(args.getRoad()).to.equal(g.board.roads[22]);
+    expect(args.toString()).to.equal('22');
+
+    enforce('_e_play_rb', false); // road road
+    [undefined, null, -1, Infinity, 2.5, 1000].forEach(arg2 => {
+      const arg = '22 ' + arg2;
+      expect(() => {
+        parse('_e_play_rb', arg);
+      }).to.throw(/*EdgeArgumentError, */new RegExp(`cannot get Road at "${arg}"`));
+    });
+    args = parse('_e_play_rb', '22 24');
+    expect(args.getRoads().map(r => r.num)).to.deep.equal([22, 24]);
+    expect(args.toString()).to.equal('22 24');
+
+    enforce('_e_roll_discard', false); // cost
+    expect(() => parse('_e_roll_discard', '')).to.throw(/unrecognized resource name ""/);
+    expect(() => parse('_e_roll_discard', ',')).to.throw(/unrecognized resource name ","/);
+    expect(() => parse('_e_roll_discard', 'foo')).to.throw(/unrecognized resource name "foo"/);
+    expect(() => parse('_e_roll_discard', 'wheat:')).to.throw(/invalid resource quantity "NaN" \("wheat:"\)/);
+    expect(() => parse('_e_roll_discard', 'wheat:foo')).to.throw(/invalid resource quantity "NaN" \("wheat:foo"\)/);
+    expect(() => parse('_e_roll_discard', 'wheat:0')).to.throw(/invalid resource quantity < 1 \("wheat:0"\)/);
+    args = parse('_e_roll_discard', 'wheat:1');
+    expect(args.getCost()).to.deep.equal({ wheat: 1 });
+    expect(args.toString()).to.equal('wheat:1');
+    args = parse('_e_roll_discard', 'wheat:1;brick:2');
+    expect(args.getCost()).to.deep.equal({ wheat: 1, brick: 2 });
+    expect(args.toString()).to.equal('wheat:1;brick:2');
+    args = parse('_e_roll_discard', 'wheat:1;brick:2;sheep:3');
+    expect(args.getCost()).to.deep.equal({ wheat: 1, brick: 2, sheep: 3 });
+    expect(args.toString()).to.equal('wheat:1;brick:2;sheep:3');
+    args = parse('_e_roll_discard', 'wheat:1;wheat:1');
+    expect(args.getCost()).to.deep.equal({ wheat: 2 });
+    expect(args.toString()).to.equal('wheat:2');
+
+    var g = createGame(3);
+
+    enforce('_e_offer_trade', false); // trade
+    expect(() => parse('_e_offer_trade', '')).to.throw(/too few arguments to "trade" \(""\)/);
+    expect(() => parse('_e_offer_trade', ', , , ,')).to.throw(/cannot get Participant at "NaN"/);
+    expect(() => parse('_e_offer_trade', '-1 , , ,')).to.throw(/cannot get Participant at "-1"/);
+    expect(() => parse('_e_offer_trade', '0 foo:2 , ,')).to.throw(/unrecognized resource name "foo"/);
+    expect(() => parse('_e_offer_trade', '0 wheat:1 , ,')).to.throw(/cannot get Participant at ","/);
+    expect(() => parse('_e_offer_trade', '0 wheat:1 -1 ,')).to.throw(/cannot get Participant at "-1"/);
+    expect(() => parse('_e_offer_trade', '0 wheat:1 1 foo:2')).to.throw(/unrecognized resource name "foo"/);
+    args = parse('_e_offer_trade', '0 wheat:1 1 brick:2')
+    expect(args.getTrade()).to.deep.equal({
+      from: {
+        participant: g.participants[0],
+        cards: { wheat: 1 },
+      },
+      with: {
+        participants: [g.participants[1]],
+        cards: { brick: 2 },
+      }
+    });
+    expect(args.toString()).to.equal('0 wheat:1 1 brick:2');
+    args = parse('_e_offer_trade', '0 wheat:1;sheep:3 1 brick:2')
+    expect(args.getTrade()).to.deep.equal({
+      from: {
+        participant: g.participants[0],
+        cards: { wheat: 1, sheep: 3 },
+      },
+      with: {
+        participants: [g.participants[1]],
+        cards: { brick: 2 },
+      }
+    });
+    expect(args.toString()).to.match(/0 (wheat:1;sheep:3|sheep:3;wheat:1) 1 brick:2/);
+    args = parse('_e_offer_trade', '0 wheat:1 1;2 brick:2')
+    expect(args.getTrade()).to.deep.equal({
+      from: {
+        participant: g.participants[0],
+        cards: { wheat: 1 },
+      },
+      with: {
+        participants: [g.participants[1], g.participants[2]],
+        cards: { brick: 2 },
+      }
+    });
+    expect(args.toString()).to.match(/0 wheat:1 (1;2|2;1) brick:2/);
+    args = parse('_e_offer_trade', '1 wheat:1 0 brick:2')
+    expect(args.getTrade()).to.deep.equal({
+      from: {
+        participant: g.participants[1],
+        cards: { wheat: 1 },
+      },
+      with: {
+        participants: [g.participants[0]],
+        cards: { brick: 2 },
+      }
+    });
+    expect(args.toString()).to.match(/1 wheat:1 0 brick:2/);
+
+  });
+
   it('should be consistent after first _e_take_turn', () => {
     [1,2,3,4,5].forEach(num => {
 
       const g = createGame(num);
-      g.getCurrentParticipant().do('_e_take_turn', {});
+      g.getCurrentParticipant().do('_e_take_turn');
 
       const e = getExpectation(g);
       e.historyLength = 1;
@@ -229,13 +443,10 @@ describe('Graph', () => {
 
   it('should be consistent after first _e_init_settle', () => {
     [1,2,3,4,5].forEach(num => {
+
       const g = createGame(num);
-      g.getCurrentParticipant().do('_e_take_turn', {});
-      [undefined, null, -1, Infinity, 2.5].forEach(arg => {
-        const msg = new RegExp(`cannot get Junc at "${arg}"`);
-        expect(() => g.getCurrentParticipant().do('_e_init_settle', { junc: arg })).to.throw(/*EdgeArgumentError, */msg);
-      });
-      g.getCurrentParticipant().do('_e_init_settle', { junc: 22 });
+      g.getCurrentParticipant().do('_e_take_turn');
+      g.getCurrentParticipant().do('_e_init_settle', '22');
 
       let e = getExpectation(g);
       e.historyLength = 2;
@@ -257,14 +468,9 @@ describe('Graph', () => {
     [1,2,3,4,5].forEach(num => {
 
       const g = createGame(num);
-      g.getCurrentParticipant()._do('_e_take_turn', {});
-      g.getCurrentParticipant()._do('_e_init_settle', { junc: 22 });
-      [undefined, null, -1, Infinity, 2.5].forEach(arg => {
-        const msg = new RegExp(`cannot get Road at "${arg}"`);
-        expect(() => g.getCurrentParticipant()._do('_e_init_build_road', { road: arg })).to.throw(/*EdgeArgumentError, */msg);
-      });
-      expect(() => g.getCurrentParticipant()._do('_e_init_build_road', { road: 20 })).to.throw(/*EdgeArgumentError, *//You must build a road next to your last settlement/);
-      g.getCurrentParticipant()._do('_e_init_build_road', { road: 26 }); // or: 27, 31
+      g.getCurrentParticipant().do('_e_take_turn');
+      g.getCurrentParticipant().do('_e_init_settle', '22');
+      g.getCurrentParticipant()._do('_e_init_build_road', `26`); // or: 27, 31
 
       let e = getExpectation(g);
       e.historyLength = 3;
@@ -281,7 +487,7 @@ describe('Graph', () => {
 
       checkGraph(g, e);
 
-      g.getCurrentParticipant()._do('_e_end_init', {});
+      g.getCurrentParticipant()._do('_e_end_init');
 
       e.turn = 2;
       e.historyLength = 4;
@@ -316,10 +522,10 @@ describe('Graph', () => {
 
       const g = createGame(num);
       for (let i=0; i<g.participants.length; i++) {
-        g.getCurrentParticipant()._do('_e_take_turn', {});
+        g.getCurrentParticipant()._do('_e_take_turn');
         randomInitSettle(g);
         randomInitBuildRoad(g, '_e_init_build_road');
-        g.getCurrentParticipant()._do('_e_end_init', {});
+        g.getCurrentParticipant()._do('_e_end_init');
       }
 
       expect(g.turn).to.equal(g.participants.length + 1);
@@ -331,7 +537,7 @@ describe('Graph', () => {
         expect(g.currentParticipantID).to.equal(g.participants.length - i - 1);
         expect(g.getCurrentParticipant()).to.equal(g.participants.slice(- i - 1)[0]);
 
-        g.getCurrentParticipant()._do('_e_take_turn', {});
+        g.getCurrentParticipant()._do('_e_take_turn');
         randomInitSettle(g);
 
         const edges = g
@@ -340,7 +546,7 @@ describe('Graph', () => {
           .map(e => e.name);
         expect(edges).to.deep.equal(['_e_init_collect']);
 
-        g.getCurrentParticipant()._do('_e_init_collect', {});
+        g.getCurrentParticipant()._do('_e_init_collect');
 
         const lastSettlement = g.getCurrentParticipant().settlements.slice(-1)[0];
 

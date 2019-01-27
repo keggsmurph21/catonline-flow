@@ -11,7 +11,7 @@ import type { Road } from '../core/board/road';
 import type { Participant } from '../core/game/participant';
 import type { Hand } from '../core/game/participant/hand';
 import type { Player } from '../core/player';
-import type { Edge } from '../core/graph';
+import type { Edge, EdgeArgument } from '../core/graph';
 
 export type CartesianCoordsT = {
   +x: number,
@@ -125,7 +125,19 @@ export type DeserialT = Game
   | Player;
 */
 
-export type GameSerialT = $TODO;
+export type PlayerMapT = {
+  [PlayerIDT]: Player
+};
+
+export type GameSerialT = {
+
+  initialConditions: InitialConditionsT,
+  history: HistorySerialT,
+  ownerID: PlayerIDT,
+  playerMap: PlayerMapT,
+
+};
+
 export type BoardSerialT = $TODO;
 export type HexSerialT = $TODO;
 export type JuncSerialT = $TODO;
@@ -148,7 +160,7 @@ export type TradeT = {
     participant: Participant,
     cards: CostT,
   },
-  for: {
+  with: {
     participants: Participant[],
     cards: CostT,
   },
@@ -193,15 +205,24 @@ export type OffsetsT = $ReadOnly<{
 
 export type ParityT = 'even' | 'odd';
 
-export type RawEdgeArgumentT = $TODO
-export type EdgeArgumentT = $TODO;
-export type EdgeReturnT = $TODO;
+export type RawEdgeArgumentT = string | void;
+//export type EdgeArgumentT = $TODO;
+export type EdgeArgumentSerialT = $TODO;
+export type EdgeReturnT = null | number;
+export type EdgeReturnSerialT = $TODO;
 
 export type HistoryItemT = {
   participant: Participant,
   edge: Edge,
-  args: EdgeArgumentT,
-  result: EdgeArgumentT,
+  args: EdgeArgument,
+  result: EdgeReturnT,
+};
+
+export type HistoryItemSerialT = {
+  participantNum: number,
+  edgeName: string,
+  args: EdgeArgumentSerialT,
+  result: EdgeReturnSerialT,
 };
 
 /*
@@ -279,4 +300,4 @@ export type { Player } from '../core/player';
 export type { Computer } from '../core/player/computer';
 export type { Human } from '../core/player/human';
 
-export type { Graph, Edge, Vertex } from '../core/graph';
+export type { Graph, Edge, EdgeArgument, Vertex } from '../core/graph';
