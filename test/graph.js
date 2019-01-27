@@ -113,13 +113,13 @@ function checkGraph(g, e, ignoreSpecifics = false) {
 
     expect(p.toDiscard).to.equal(e.p[i].toDiscard);
     expect(p.hasDeclinedTrade).to.equal(e.p[i].hasDeclinedTrade);
-    expect(p.hasHeavyPurse).to.equal(e.p[i].hasHeavyPurse);
     expect(p.bankTradeRate).to.equal(e.p[i].bankTradeRate);
     if (!ignoreSpecifics) {
       expect(p.settlements.map(s => s.num)).to.deep.equal(e.p[i].settlements);
       expect(p.roads.map(r => r.num)).to.deep.equal(e.p[i].roads);
       expect(p.getNumResources()).to.equal(e.p[i].getNumResources);
     }
+    expect(p.hasHeavyPurse()).to.equal(e.p[i].hasHeavyPurse);
     expect(p.getPublicScore()).to.equal(e.p[i].getPublicScore);
     expect(p.getPrivateScore()).to.equal(e.p[i].getPrivateScore);
     expect(p.getNumDevCards()).to.equal(e.p[i].getNumDevCards);
@@ -169,7 +169,7 @@ function randomInitSettle(g) {
   let settleIndex = 0;
   while (!g.board.juncs[settleIndex].isSettleable)
     ++settleIndex;
-  g.getCurrentParticipant().do('_e_init_settle', { junc: settleIndex });
+  g.getCurrentParticipant()._do('_e_init_settle', { junc: settleIndex });
 
 }
 
@@ -178,7 +178,7 @@ function randomInitBuildRoad(g, name) {
   let hasBuiltRoad = false;
   _.each(g.getCurrentParticipant().settlements.slice(-1)[0].roads, road => {
     if (road && !hasBuiltRoad) {
-      g.getCurrentParticipant().do(name, { road: road.num });
+      g.getCurrentParticipant()._do(name, { road: road.num });
       hasBuiltRoad = true;
     }
   });
@@ -255,14 +255,14 @@ describe('Graph', () => {
     [1,2,3,4,5].forEach(num => {
 
       const g = createGame(num);
-      g.getCurrentParticipant().do('_e_take_turn', {});
-      g.getCurrentParticipant().do('_e_init_settle', { junc: 22 });
+      g.getCurrentParticipant()._do('_e_take_turn', {});
+      g.getCurrentParticipant()._do('_e_init_settle', { junc: 22 });
       [undefined, null, -1, Infinity, 2.5].forEach(arg => {
         const msg = new RegExp(`cannot get Road at "${arg}"`);
-        expect(() => g.getCurrentParticipant().do('_e_init_build_road', { road: arg })).to.throw(/*EdgeArgumentError, */msg);
+        expect(() => g.getCurrentParticipant()._do('_e_init_build_road', { road: arg })).to.throw(/*EdgeArgumentError, */msg);
       });
-      expect(() => g.getCurrentParticipant().do('_e_init_build_road', { road: 20 })).to.throw(/*EdgeArgumentError, *//You must build a road next to your last settlement/);
-      g.getCurrentParticipant().do('_e_init_build_road', { road: 26 }); // or: 27, 31
+      expect(() => g.getCurrentParticipant()._do('_e_init_build_road', { road: 20 })).to.throw(/*EdgeArgumentError, *//You must build a road next to your last settlement/);
+      g.getCurrentParticipant()._do('_e_init_build_road', { road: 26 }); // or: 27, 31
 
       let e = getExpectation(g);
       e.historyLength = 3;
@@ -279,7 +279,7 @@ describe('Graph', () => {
 
       checkGraph(g, e);
 
-      g.getCurrentParticipant().do('_e_end_init', {});
+      g.getCurrentParticipant()._do('_e_end_init', {});
 
       e.turn = 2;
       e.historyLength = 4;
@@ -308,28 +308,16 @@ describe('Graph', () => {
     });
   });
 
-  if (false)
-  it('should be consistent after the first player settles, paves, & ends', () => {
-    [1,2,3,4,5].forEach(num => {
-
-      const g = createGame(num);
-      g.getCurrentParticipant().do('_e_take_turn', {});
-      g.getCurrentParticipant().do('_e_init_settle', { junc: 22 });
-      g.getCurrentParticipant().do('_e_init_build_road', { road: 26 });
-      g.getCurrentParticipant().do('_e_end_init', {});
-
-    });
-  });
 
   it('should increment turns correctly for the first two rounds', () => {
     [1,2,3,4,5].forEach(num => {
 
       const g = createGame(num);
       for (let i=0; i<g.participants.length; i++) {
-        g.getCurrentParticipant().do('_e_take_turn', {});
+        g.getCurrentParticipant()._do('_e_take_turn', {});
         randomInitSettle(g);
         randomInitBuildRoad(g, '_e_init_build_road');
-        g.getCurrentParticipant().do('_e_end_init', {});
+        g.getCurrentParticipant()._do('_e_end_init', {});
       }
 
       expect(g.turn).to.equal(g.participants.length + 1);
@@ -341,7 +329,7 @@ describe('Graph', () => {
         expect(g.currentParticipantID).to.equal(g.participants.length - i - 1);
         expect(g.getCurrentParticipant()).to.equal(g.participants.slice(- i - 1)[0]);
 
-        g.getCurrentParticipant().do('_e_take_turn', {});
+        g.getCurrentParticipant()._do('_e_take_turn', {});
         randomInitSettle(g);
 
         const edges = g
@@ -350,22 +338,23 @@ describe('Graph', () => {
           .map(e => e.name);
         expect(edges).to.deep.equal(['_e_init_collect']);
 
-        g.getCurrentParticipant().do('_e_init_collect', {});
+        g.getCurrentParticipant()._do('_e_init_collect', {});
 
         const lastSettlement = g.getCurrentParticipant().settlements.slice(-1)[0];
 
         const actualNum = g.getCurrentParticipant().getNumResources();
         let expectedNum = 0;
         _.each(lastSettlement.hexes, hex => {
-          if (hex && hex.resource.yields)
+          if (hex && hex.resource.yields) {
             expectedNum += 1;
+          }
         });
 
         //expect(actualNum).to.be.greaterThan(0); // (could fail on desert)
         expect(actualNum).to.equal(expectedNum);
 
         randomInitBuildRoad(g, '_e_init2_build_road');
-        g.getCurrentParticipant().do('_e_end_init');
+        g.getCurrentParticipant()._do('_e_end_init');
 
       }
 

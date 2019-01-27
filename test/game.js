@@ -19,7 +19,7 @@ function checkGame(g) {
 
   // test the robber
 
-  const robberHex = g.board.hexes[g.board.robber.location];
+  const robberHex = g.board.robber.hex;
   expect(robberHex.resource.name).to.equal('desert');
 
   // test the hexes

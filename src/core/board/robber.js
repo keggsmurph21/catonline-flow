@@ -2,16 +2,18 @@
 
 //import { Player } from '../player';
 
+import type { Hex } from '../../utils';
+
 export class Robber {
 
-  location: string;
+  hex: Hex;
 
   constructor() {
 
   }
 
-  moveTo(location: string) {
-    this.location = location;
+  moveTo(hex: Hex) {
+    this.hex = hex;
   }
 
 }

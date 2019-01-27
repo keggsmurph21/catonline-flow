@@ -237,7 +237,7 @@ export class Board implements Serializable {
         if (res.name === 'desert') {
 
           hex.dice = new DiceValue(0);
-          this.robber.moveTo(i);
+          this.robber.moveTo(hex);
 
         } else {
 

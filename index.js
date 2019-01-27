@@ -32,7 +32,6 @@ console.log(p1.hand)
 console.log(p1.canBuild('devCard'));
 
 console.log(g.graph.INITIAL_VERTEX);
-*/
 
 show();
 
@@ -54,6 +53,7 @@ console.log(g.currentParticipantID)
 show();
 
 console.log()
+*/
 
 g = (numHumans => {
 
@@ -68,28 +68,53 @@ g = (numHumans => {
 
 })(4);
 
-g.getCurrentParticipant().do('_e_take_turn', {});
-g.getCurrentParticipant().do('_e_init_settle', { junc: 22 });
-g.getCurrentParticipant().do('_e_init_build_road', { road: 26 });
-g.getCurrentParticipant().do('_e_end_init', {});
+const gp = g.participants.slice();
+let ret;
+
+gp[0].do('_e_take_turn', {});
+gp[0].do('_e_init_settle', { junc: 22 });
+gp[0].do('_e_init_build_road', { road: 26 });
+gp[0].do('_e_end_init', {});
 show();
-g.getCurrentParticipant().do('_e_take_turn', {});
-g.getCurrentParticipant().do('_e_init_settle', { junc: 10 });
-g.getCurrentParticipant().do('_e_init_build_road', { road: 12 });
-g.getCurrentParticipant().do('_e_end_init', {});
+gp[1].do('_e_take_turn', {});
+gp[1].do('_e_init_settle', { junc: 7 });
+gp[1].do('_e_init_build_road', { road: 14 });
+gp[1].do('_e_end_init', {});
 show();
-g.getCurrentParticipant().do('_e_take_turn', {});
-g.getCurrentParticipant().do('_e_init_settle', { junc: 0 });
-g.getCurrentParticipant().do('_e_init_build_road', { road: 0 });
-g.getCurrentParticipant().do('_e_end_init', {});
+gp[2].do('_e_take_turn', {});
+gp[2].do('_e_init_settle', { junc: 24 });
+gp[2].do('_e_init_build_road', { road: 34 });
+gp[2].do('_e_end_init', {});
 show();
-g.getCurrentParticipant().do('_e_take_turn', {});
-g.getCurrentParticipant().do('_e_init_settle', { junc: 30 });
-g.getCurrentParticipant().do('_e_init_build_road', { road: 37 });
-g.getCurrentParticipant().do('_e_end_init', {});
+gp[3].do('_e_take_turn', {});
+gp[3].do('_e_init_settle', { junc: 30 });
+gp[3].do('_e_init_build_road', { road: 37 });
+gp[3].do('_e_end_init', {});
 show();
-g.getCurrentParticipant().do('_e_take_turn', {});
-g.getCurrentParticipant().do('_e_init_settle', { junc: 50 });
+//gp[3].do('_e_take_turn', {});
+gp[3].do('_e_init_settle', { junc: 16 });
+gp[3].do('_e_init2_build_road', { road: 32 });
+gp[3].do('_e_end_init', {})
+show();
+gp[2].do('_e_take_turn', {});
+gp[2].do('_e_init_settle', { junc: 37 });
+gp[2].do('_e_init2_build_road', { road: 47 });
+gp[2].do('_e_end_init', {})
+show();
+gp[1].do('_e_take_turn', {});
+gp[1].do('_e_init_settle', { junc: 35 });
+gp[1].do('_e_init2_build_road', { road: 44 });
+gp[1].do('_e_end_init', {})
+show();
+gp[0].do('_e_take_turn', {});
+gp[0].do('_e_init_settle', { junc: 46 });
+gp[0].do('_e_init2_build_road', { road: 60 });
+gp[0].do('_e_end_init', {})
+show();
+ret = gp[0].do('_e_roll', { num: 7 });
+console.log(ret);
+show();
+gp[0].do('_e_roll_move_robber', { hex: 5 });
 show();
 
-console.log(print(g.board));
+//console.log(print(g.board));
