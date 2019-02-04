@@ -397,25 +397,25 @@ describe('Graph', () => {
 
     let args;
 
-    enforce('_e_roll', false); // diceroll
+    enforce('_e_roll_exact', false); // diceroll
     [' ', 'x', 'three'].forEach(arg => {
       expect(() => {
-        parse('_e_roll', arg);
+        parse('_e_roll_exact', arg);
       }).to.throw(/*EdgeArgumentError, */new RegExp(`cannot roll "NaN" \\("${arg}"\\)`));
     });
     ['-1', '0', '1'].forEach(arg => {
       expect(() => {
-        parse('_e_roll', arg);
+        parse('_e_roll_exact', arg);
       }).to.throw(/*EdgeArgumentError, */new RegExp(`cannot roll less than 2 \\("${arg}"\\)`));
     });
     ['13', '100', '69'].forEach(arg => {
       expect(() => {
-        parse('_e_roll', arg);
+        parse('_e_roll_exact', arg);
       }).to.throw(/*EdgeArgumentError, */new RegExp(`cannot roll greater than 12 \\("${arg}"\\)`));
     });
     ['2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'].forEach(arg => {
 
-      args = parse('_e_roll', arg);
+      args = parse('_e_roll_exact', arg);
       expect(args.getDiceroll()).to.equal(parseInt(arg));
       expect(args.toString()).to.equal(arg);
 
@@ -737,41 +737,168 @@ describe('Graph', () => {
 
   it('check rolling', () => {
 
+    // deterministic
     [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].forEach(num => {
 
       const g = getGameAfterFirstTwoRounds();
 
+      // sanity checks
+      expect(g.participants[0].hand.resources.ore).to.equal(0);
+      expect(g.participants[0].hand.resources.wheat).to.equal(0);
+      expect(g.participants[0].hand.resources.sheep).to.equal(1);
+      expect(g.participants[0].hand.resources.brick).to.equal(0);
+      expect(g.participants[0].hand.resources.wood).to.equal(0);
+
+      expect(g.participants[1].hand.resources.ore).to.equal(0);
+      expect(g.participants[1].hand.resources.wheat).to.equal(1);
+      expect(g.participants[1].hand.resources.sheep).to.equal(2);
+      expect(g.participants[1].hand.resources.brick).to.equal(0);
+      expect(g.participants[1].hand.resources.wood).to.equal(0);
+
+      expect(g.participants[2].hand.resources.ore).to.equal(0);
+      expect(g.participants[2].hand.resources.wheat).to.equal(0);
+      expect(g.participants[2].hand.resources.sheep).to.equal(1);
+      expect(g.participants[2].hand.resources.brick).to.equal(1);
+      expect(g.participants[2].hand.resources.wood).to.equal(1);
+
+      expect(g.participants[3].hand.resources.ore).to.equal(0);
+      expect(g.participants[3].hand.resources.wheat).to.equal(0);
+      expect(g.participants[3].hand.resources.sheep).to.equal(0);
+      expect(g.participants[3].hand.resources.brick).to.equal(0);
+      expect(g.participants[3].hand.resources.wood).to.equal(1);
+
       if (num < 2) {
 
         expect(() => {
-          g.getCurrentParticipant().do('_e_roll', String(num));
+          g.getCurrentParticipant().do('_e_roll_exact', String(num));
         }).to.throw(/cannot roll less than 2 \("\d"\)/);
 
       } else if (num > 12) {
 
         expect(() => {
-          g.getCurrentParticipant().do('_e_roll', String(num));
+          g.getCurrentParticipant().do('_e_roll_exact', String(num));
         }).to.throw(/cannot roll greater than 12 \("\d\d"\)/);
 
       } else {
 
-        g.getCurrentParticipant().do('_e_roll', String(num));
+        g.getCurrentParticipant().do('_e_roll_exact', String(num));
+        expect(g.isRollSeven()).to.equal(num === 7);
 
-        if (num === 7) {
+        switch (num) {
 
-          expect(g.isRollSeven()).to.equal(true);
+          case 2:
+            break;
 
-        } else {
+          case 3:
+            break;
 
-          expect(g.isRollSeven()).to.equal(false);
-          console.log(g.history.serialize())
+          case 4:
+            expect(g.participants[0].hand.resources.wood).to.equal(1);
+            expect(g.participants[1].hand.resources.wood).to.equal(1);
+            expect(g.participants[2].hand.resources.wood).to.equal(4);
+            expect(g.participants[3].hand.resources.wood).to.equal(1);
+            break;
 
+          case 5:
+            expect(g.participants[0].hand.resources.wheat).to.equal(1);
+            expect(g.participants[3].hand.resources.ore).to.equal(1);
+            break;
+
+          case 6:
+            break;
+
+          case 7:
+            break;
+
+          case 8:
+            expect(g.participants[0].hand.resources.sheep).to.equal(2);
+            expect(g.participants[1].hand.resources.sheep).to.equal(3);
+            expect(g.participants[2].hand.resources.sheep).to.equal(2);
+            expect(g.participants[2].hand.resources.wood).to.equal(2);
+            expect(g.participants[3].hand.resources.wood).to.equal(2);
+            break;
+
+          case 9:
+            expect(g.participants[2].hand.resources.brick).to.equal(2);
+            break;
+
+          case 10:
+            expect(g.participants[0].hand.resources.sheep).to.equal(2);
+            expect(g.participants[1].hand.resources.sheep).to.equal(3);
+            break;
+
+          case 11:
+            expect(g.participants[1].hand.resources.wheat).to.equal(2);
+            break;
+
+          case 12:
+            break;
         }
-
       }
 
     });
 
+    // random
+    for (let i=0; i<20; i++) {
+
+      const g = getGameAfterFirstTwoRounds();
+      const ret = g.getCurrentParticipant().do('_e_roll');
+      const num = ret.getDiceroll();
+
+      expect(g.isRollSeven()).to.equal(num === 7);
+
+      switch (num) {
+
+        case 2:
+          break;
+
+        case 3:
+          break;
+
+        case 4:
+          expect(g.participants[0].hand.resources.wood).to.equal(1);
+          expect(g.participants[1].hand.resources.wood).to.equal(1);
+          expect(g.participants[2].hand.resources.wood).to.equal(4);
+          expect(g.participants[3].hand.resources.wood).to.equal(1);
+          break;
+
+        case 5:
+          expect(g.participants[0].hand.resources.wheat).to.equal(1);
+          expect(g.participants[3].hand.resources.ore).to.equal(1);
+          break;
+
+        case 6:
+          break;
+
+        case 7:
+          break;
+
+        case 8:
+          expect(g.participants[0].hand.resources.sheep).to.equal(2);
+          expect(g.participants[1].hand.resources.sheep).to.equal(3);
+          expect(g.participants[2].hand.resources.sheep).to.equal(2);
+          expect(g.participants[2].hand.resources.wood).to.equal(2);
+          expect(g.participants[3].hand.resources.wood).to.equal(2);
+          break;
+
+        case 9:
+          expect(g.participants[2].hand.resources.brick).to.equal(2);
+          break;
+
+        case 10:
+          expect(g.participants[0].hand.resources.sheep).to.equal(2);
+          expect(g.participants[1].hand.resources.sheep).to.equal(3);
+          break;
+
+        case 11:
+          expect(g.participants[1].hand.resources.wheat).to.equal(2);
+          break;
+
+        case 12:
+          break;
+
+      }
+    }
   });
 
 });

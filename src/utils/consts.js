@@ -83,6 +83,7 @@ export const EDGE_NAMES = [
   "_e_play_vp",
   "_e_play_yop",
   "_e_roll",
+  "_e_roll_exact",
   "_e_roll_collect",
   "_e_roll_discard",
   "_e_roll_discard_other",

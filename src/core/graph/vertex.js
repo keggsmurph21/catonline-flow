@@ -155,6 +155,7 @@ export class Vertex {
           '_e_play_vp',
           '_e_play_yop',
           '_e_roll',
+          '_e_roll_exact',
           '_e_trade_bank'
         ];
         break;

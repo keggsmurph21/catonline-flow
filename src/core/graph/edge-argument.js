@@ -36,8 +36,8 @@ export class EdgeArgument {
   }
 
   static fromString(type: string, s: RawEdgeArgumentT, game: Game): EdgeArgument {
-    const arg = new EdgeArgument(type);
 
+    let arg = new EdgeArgument(type);
     let i;
 
     switch (type) {

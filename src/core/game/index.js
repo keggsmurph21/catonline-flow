@@ -200,6 +200,9 @@ export class Game extends Emitter implements Serializable {
       game.board.hexes[index].resource = new Resource(resource);
       game.board.hexes[index].dice = new DiceValue(diceValue);
 
+      if (resource === 'desert')
+        game.board.robber.moveTo(game.board.hexes[index]);
+
     });
 
     // overwrite the board port values
@@ -480,7 +483,7 @@ export class Game extends Emitter implements Serializable {
       if (!hex.resource.yields)
         return;
 
-      if (hex.dice !== total)
+      if (hex.dice.value !== total)
         return;
 
       _.each(hex.juncs, (junc: Junc) => {

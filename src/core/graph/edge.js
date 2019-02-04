@@ -433,30 +433,32 @@ export class Edge {
             && !game.isFirstTurn()
             && !game.isSecondTurn(); // !f.hasRolled && !f.isFirstTurn && !f.isSecondTurn;
         };
+        this.argsType = 'null';
+        this.resultType = 'diceroll';
+        this.execute = (game, participant, args) => {
+
+          const ret = game.roll();
+          return EdgeResult.fromString('diceroll', String(ret), game)
+
+        };
+        this.isPriority = false;
+        this.label = '';
+        break;
+
+      case ('_e_roll_exact'):
+        this.target = '_v_roll';
+        this.check = (game, participant) => {
+          return !game.hasRolled
+            && !game.isFirstTurn()
+            && !game.isSecondTurn(); // DEBUG_MODE
+        };
         this.argsType = 'diceroll';
         this.resultType = 'diceroll';
         this.execute = (game, participant, args) => {
 
-          let ret;
-
-          try {
-
-            const num = args.getDiceroll();
-            ret = game.rollNumber(num);
-
-          } catch (e) {
-
-            if (e instanceof CatonlineError) {
-
-              ret = game.roll();
-
-            } else {
-              throw e;
-            }
-          }
-
-          ret = String(ret);
-          return EdgeResult.fromString('diceroll', ret, game)
+          const num = args.getDiceroll();
+          const ret = game.rollNumber(num);
+          return EdgeResult.fromString('diceroll', String(ret), game)
 
         };
         this.isPriority = false;
