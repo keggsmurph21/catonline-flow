@@ -20,6 +20,7 @@ export class Road extends BoardNode implements Serializable {
   id: string;
   num: number;
   owner: Participant;
+  isPaveable: boolean;
 
   constructor(num: number, coords: CubeCoordsT) {
 
@@ -27,6 +28,7 @@ export class Road extends BoardNode implements Serializable {
 
     this.id = 'r' + num;
     this.num = num;
+    this.isPaveable = false;
 
     this.roads = {};
     this.hexes = {};

@@ -88,7 +88,7 @@ gp[2].do('_e_end_init', {});
 show();
 gp[3].do('_e_take_turn', {});
 gp[3].do('_e_init_settle', '30');
-gp[3].do('_e_init_build_road', '37');
+gp[3].do('_e_init_build_road', '38');
 gp[3].do('_e_end_init', {});
 show();
 //gp[3].do('_e_take_turn', {});

@@ -394,6 +394,9 @@ export class Game extends Emitter implements Serializable {
 
   _pave(participant: Participant, choice: Road, isFree: boolean = false) {
 
+    if (!choice.isPaveable)
+      throw new EdgeExecutionError(`You cannot build a road into the ocean`);
+
     if (!isFree) {
       const cost = this.board.scenario.buyable.road.cost;
       participant.spend(cost);

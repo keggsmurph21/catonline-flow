@@ -205,7 +205,7 @@ function getGameAfterFirstTwoRounds() {
       "2 _e_end_init _ _",
       "3 _e_take_turn _ _",
       "3 _e_init_settle 30 _",
-      "3 _e_init_build_road 37 _",
+      "3 _e_init_build_road 38 _",
       "3 _e_end_init _ _",
       "3 _e_take_turn _ _",
       "3 _e_init_settle 16 _",

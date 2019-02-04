@@ -131,6 +131,9 @@ export class Board implements Serializable {
 
         }
 
+        if (!hex.isOcean)
+          road.isPaveable = true;
+          
         hex.roads[clockPos] = road;
 
       });
