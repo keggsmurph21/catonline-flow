@@ -75,4 +75,5 @@ export class Graph {
 
 export { Edge } from './edge';
 export { EdgeArgument } from './edge-argument';
+export { EdgeResult } from './edge-result';
 export { Vertex } from './vertex';

@@ -13,73 +13,16 @@ import type {
 
 } from '../../utils';
 import _ from 'underscore';
-import { CatonlineError, EdgeArgumentError } from '../../utils';
+import {
 
-function parseIndex(name: string, s: RawEdgeArgumentT): number {
+  CatonlineError,
+  costToString,
+  EdgeArgumentError,
+  parseCost,
+  parseIndex,
+  parseResource,
 
-  if (typeof s !== 'string')
-    throw new EdgeArgumentError(`invalid argument type to "${name}" ("${typeof s}")`);
-
-  if (s.length === 0)
-    throw new EdgeArgumentError(`missing argument to "${name}" (undefined)`)
-
-  return parseInt(s);
-
-}
-
-function parseCost(game: Game, s: RawEdgeArgumentT): CostT {
-
-  if (typeof s !== 'string')
-    throw new EdgeArgumentError(`invalid argument type to "cost" ("${typeof s}")`);
-
-  let cost = {};
-
-  (s || '').split(/;/).forEach(pair => {
-
-    let [key, value] = pair.split(':');
-    key = parseResource(game, key)
-
-    if (cost[key] === undefined)
-      cost[key] = 0;
-
-    value = parseInt(value);
-
-    if (isNaN(value))
-      throw new EdgeArgumentError(`invalid resource quantity "${value}" ("${s}")`);
-
-    if (value < 1)
-      throw new EdgeArgumentError(`invalid resource quantity < 1 ("${s}")`);
-
-    cost[key] += value;
-
-  });
-
-  if (Object.keys(cost).length === 0)
-    throw new EdgeArgumentError(`must specify at least one resource ("${s}")`);
-
-  return cost;
-
-}
-
-function parseResource(game: Game, s: RawEdgeArgumentT): string {
-
-  const allResources = Object.keys(game.board.scenario.resources);
-
-  if (typeof s !== 'string')
-    throw new EdgeArgumentError(`invalid argument type to "resource" ("${typeof s}")`);
-
-  if (allResources.indexOf(s) < 0)
-    throw new EdgeArgumentError(`unrecognized resource name "${s}"`);
-
-  return s;
-
-}
-
-function costToString(cost: CostT): string {
-  return _.map(cost, (num: number, resource: string) => {
-    return resource + ':' + num;
-  }).join(';');
-}
+} from '../../utils';
 
 export class EdgeArgument {
 
@@ -272,7 +215,7 @@ export class EdgeArgument {
         return this.getJunc().num + '';
 
       case 'null':
-        return 'null';
+        return '_';
 
       case 'participant':
         return this.getParticipant().num + '';

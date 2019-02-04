@@ -187,6 +187,151 @@ function randomInitBuildRoad(g, name) {
 
 }
 
+function getGameAfterFirstTwoRounds() {
+
+  const serial = {
+    "history": [
+      "0 _e_take_turn _ _",
+      "0 _e_init_settle 22 _",
+      "0 _e_init_build_road 26 _",
+      "0 _e_end_init _ _",
+      "1 _e_take_turn _ _",
+      "1 _e_init_settle 7 _",
+      "1 _e_init_build_road 14 _",
+      "1 _e_end_init _ _",
+      "2 _e_take_turn _ _",
+      "2 _e_init_settle 24 _",
+      "2 _e_init_build_road 34 _",
+      "2 _e_end_init _ _",
+      "3 _e_take_turn _ _",
+      "3 _e_init_settle 30 _",
+      "3 _e_init_build_road 37 _",
+      "3 _e_end_init _ _",
+      "3 _e_take_turn _ _",
+      "3 _e_init_settle 16 _",
+      "3 _e_init_collect _ _",
+      "3 _e_init2_build_road 32 _",
+      "3 _e_end_init _ _",
+      "2 _e_take_turn _ _",
+      "2 _e_init_settle 37 _",
+      "2 _e_init_collect _ _",
+      "2 _e_init2_build_road 47 _",
+      "2 _e_end_init _ _",
+      "1 _e_take_turn _ _",
+      "1 _e_init_settle 35 _",
+      "1 _e_init_collect _ _",
+      "1 _e_init2_build_road 44 _",
+      "1 _e_end_init _ _",
+      "0 _e_take_turn _ _",
+      "0 _e_init_settle 46 _",
+      "0 _e_init_collect _ _",
+      "0 _e_init2_build_road 60 _",
+      "0 _e_end_init _ _",
+      "0 _e_take_turn _ _",
+    ],
+    "initialConditions": {
+      "params": {
+        "scenario": "standard",
+        "isPublic": true,
+        "portStyle": "fixed",
+        "tileStyle": "random",
+        "numComputers": 0,
+        "numHumans": 4,
+        "vpGoal": 10
+      },
+      "owner": "owner",
+      "players": [
+        "owner",
+        1,
+        2,
+        3
+      ],
+      "board": {
+        "hexes": [
+          "ocean 0",
+          "ocean 0",
+          "ocean 0",
+          "ocean 0",
+          "ocean 0",
+          "wheat 5",
+          "wood 4",
+          "wood 8",
+          "ocean 0",
+          "ocean 0",
+          "sheep 10",
+          "sheep 8",
+          "wood 4",
+          "ore 5",
+          "ocean 0",
+          "ocean 0",
+          "sheep 10",
+          "wheat 11",
+          "brick 9",
+          "ore 11",
+          "ore 3",
+          "ocean 0",
+          "ocean 0",
+          "sheep 2",
+          "desert 0",
+          "brick 6",
+          "wood 12",
+          "ocean 0",
+          "ocean 0",
+          "brick 6",
+          "wheat 3",
+          "wheat 9",
+          "ocean 0",
+          "ocean 0",
+          "ocean 0",
+          "ocean 0",
+          "ocean 0"
+        ],
+        "ports": [
+          "mystery",
+          "ore",
+          "mystery",
+          "brick",
+          "mystery",
+          "mystery",
+          "sheep",
+          "wood",
+          "wheat"
+        ]
+      },
+      "deck": [
+        "knight",
+        "monopoly",
+        "knight",
+        "vp",
+        "vp",
+        "knight",
+        "knight",
+        "knight",
+        "knight",
+        "rb",
+        "vp",
+        "knight",
+        "vp",
+        "knight",
+        "yop",
+        "knight",
+        "knight",
+        "yop",
+        "knight",
+        "knight",
+        "vp",
+        "knight",
+        "knight",
+        "monopoly",
+        "rb"
+      ]
+    }
+  };
+
+  return Game.deserialize(serial);
+
+}
+
 describe('Graph', () => {
 
   it('creating a game should place people at the beginning spot', () => {
@@ -287,11 +432,11 @@ describe('Graph', () => {
     expect(args.toString()).to.equal('22');
 
     args = parse('_e_to_root');
-    expect(args.toString()).to.equal('null');
+    expect(args.toString()).to.equal('_');
     args = parse('_e_to_root', null);
-    expect(args.toString()).to.equal('null');
+    expect(args.toString()).to.equal('_');
     args = parse('_e_to_root', undefined);
-    expect(args.toString()).to.equal('null');
+    expect(args.toString()).to.equal('_');
 
     enforce('_e_steal_robber', false); // player
     ['-1', '2'].forEach(arg => {
@@ -516,7 +661,6 @@ describe('Graph', () => {
     });
   });
 
-
   it('should increment turns correctly for the first two rounds', () => {
     [1,2,3,4,5].forEach(num => {
 
@@ -590,4 +734,44 @@ describe('Graph', () => {
 
     });
   });
+
+  it('check rolling', () => {
+
+    [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].forEach(num => {
+
+      const g = getGameAfterFirstTwoRounds();
+
+      if (num < 2) {
+
+        expect(() => {
+          g.getCurrentParticipant().do('_e_roll', String(num));
+        }).to.throw(/cannot roll less than 2 \("\d"\)/);
+
+      } else if (num > 12) {
+
+        expect(() => {
+          g.getCurrentParticipant().do('_e_roll', String(num));
+        }).to.throw(/cannot roll greater than 12 \("\d\d"\)/);
+
+      } else {
+
+        g.getCurrentParticipant().do('_e_roll', String(num));
+
+        if (num === 7) {
+
+          expect(g.isRollSeven()).to.equal(true);
+
+        } else {
+
+          expect(g.isRollSeven()).to.equal(false);
+          console.log(g.history.serialize())
+
+        }
+
+      }
+
+    });
+
+  });
+
 });

@@ -28,3 +28,10 @@ export class EdgeExecutionError extends CatonlineError {
     this.name = 'EdgeExecutionError';
   }
 }
+export class EdgeResultError extends CatonlineError {
+  name: string;
+  constructor(message: string) {
+    super(message);
+    this.name = 'EdgeResultError';
+  }
+}

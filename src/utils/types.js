@@ -11,7 +11,7 @@ import type { Road } from '../core/board/road';
 import type { Participant } from '../core/game/participant';
 import type { Hand } from '../core/game/participant/hand';
 import type { Player } from '../core/player';
-import type { Edge, EdgeArgument } from '../core/graph';
+import type { Edge, EdgeArgument, EdgeResult } from '../core/graph';
 
 export type CartesianCoordsT = {
   +x: number,
@@ -180,8 +180,8 @@ export type InitialConditionsT = {
   owner: PlayerIDT,
   players: PlayerIDT[],
   board: {
-    hexes: { [string]: InitialConditionsHexT },
-    ports: { [string]: InitialConditionsPortT },
+    hexes: string[],
+    ports: string[],
   },
   deck: string[], // card.type
 };
@@ -205,24 +205,24 @@ export type OffsetsT = $ReadOnly<{
 export type ParityT = 'even' | 'odd';
 
 export type RawEdgeArgumentT = string | void;
-//export type EdgeArgumentT = $TODO;
-export type EdgeArgumentSerialT = $TODO;
-export type EdgeReturnT = null | number;
-export type EdgeReturnSerialT = $TODO;
+export type EdgeArgumentSerialT = string;
+
+export type RawEdgeResultT = string;
+export type EdgeResultSerialT = string;
 
 export type HistoryItemT = {
   participant: Participant,
   edge: Edge,
   args: EdgeArgument,
-  result: EdgeReturnT,
+  result: EdgeResult,
 };
 
-export type HistoryItemSerialT = {
+export type HistoryItemSerialT = string;/*{
   participantNum: number,
   edgeName: string,
   argString: EdgeArgumentSerialT,
-  result: EdgeReturnSerialT,
-};
+  resultString: EdgeResultSerialT,
+};*/
 
 /*
 export type PlayerStateT = {
@@ -299,4 +299,4 @@ export type { Player } from '../core/player';
 export type { Computer } from '../core/player/computer';
 export type { Human } from '../core/player/human';
 
-export type { Graph, Edge, EdgeArgument, Vertex } from '../core/graph';
+export type { Graph, Edge, EdgeArgument, EdgeResult, Vertex } from '../core/graph';

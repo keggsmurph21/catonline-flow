@@ -5,15 +5,18 @@ import type {
   Board,
   CartesianCoordsT,
   ClockPosition,
+  CostT,
   CubeCoordsT,
+  Game,
   OffsetsT,
   ParityT,
+  RawEdgeArgumentT,
   RenderedCoordsT,
 
 } from './types';
 import _ from 'underscore';
 import { offsetsByClockPosition } from './consts';
-import { CatonlineError } from './errors';
+import { CatonlineError, EdgeArgumentError } from './errors';
 
 export function cartesianToCube(coords: CartesianCoordsT): CubeCoordsT {
 
@@ -228,4 +231,70 @@ export function print(b: Board) {
 
   return m.map(n => n.join('')).join('\n');
 
+}
+
+export function parseIndex(name: string, s: RawEdgeArgumentT): number {
+
+  if (typeof s !== 'string')
+    throw new EdgeArgumentError(`invalid argument type to "${name}" ("${typeof s}")`);
+
+  if (s.length === 0)
+    throw new EdgeArgumentError(`missing argument to "${name}" (undefined)`)
+
+  return parseInt(s);
+
+}
+
+export function parseCost(game: Game, s: RawEdgeArgumentT): CostT {
+
+  if (typeof s !== 'string')
+    throw new EdgeArgumentError(`invalid argument type to "cost" ("${typeof s}")`);
+
+  let cost = {};
+
+  (s || '').split(/;/).forEach(pair => {
+
+    let [key, value] = pair.split(':');
+    key = parseResource(game, key)
+
+    if (cost[key] === undefined)
+      cost[key] = 0;
+
+    value = parseInt(value);
+
+    if (isNaN(value))
+      throw new EdgeArgumentError(`invalid resource quantity "${value}" ("${s}")`);
+
+    if (value < 1)
+      throw new EdgeArgumentError(`invalid resource quantity < 1 ("${s}")`);
+
+    cost[key] += value;
+
+  });
+
+  if (Object.keys(cost).length === 0)
+    throw new EdgeArgumentError(`must specify at least one resource ("${s}")`);
+
+  return cost;
+
+}
+
+export function parseResource(game: Game, s: RawEdgeArgumentT): string {
+
+  const allResources = Object.keys(game.board.scenario.resources);
+
+  if (typeof s !== 'string')
+    throw new EdgeArgumentError(`invalid argument type to "resource" ("${typeof s}")`);
+
+  if (allResources.indexOf(s) < 0)
+    throw new EdgeArgumentError(`unrecognized resource name "${s}"`);
+
+  return s;
+
+}
+
+export function costToString(cost: CostT): string {
+  return _.map(cost, (num: number, resource: string) => {
+    return resource + ':' + num;
+  }).join(';');
 }

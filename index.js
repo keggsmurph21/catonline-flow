@@ -117,6 +117,8 @@ show();
 gp[0].do('_e_roll_move_robber', '5');
 show();
 
-console.log(g.serialize());
+console.log(JSON.stringify(g.serialize(), null, 2));
+
+Game.deserialize(g.serialize());
 
 //console.log(print(g.board));

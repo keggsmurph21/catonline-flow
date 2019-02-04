@@ -3,7 +3,6 @@
 import type {
 
   EdgeArgument,
-  EdgeReturnT,
   GameParamsT,
   GameSerialT,
   Hex,
@@ -22,7 +21,17 @@ import type {
 } from '../../utils';
 import _ from 'underscore';
 import Emitter from 'events';
-import { CatonlineError, EdgeExecutionError, objectsMatch, round, Serializable, shuffle } from '../../utils';
+import {
+
+  CatonlineError,
+  EdgeExecutionError,
+  EdgeResult,
+  objectsMatch,
+  round,
+  Serializable,
+  shuffle
+
+} from '../../utils';
 import { validate } from './params';
 import { Board } from '../board';
 import { Computer, Human, Player } from '../player';
@@ -182,14 +191,23 @@ export class Game extends Emitter implements Serializable {
     });
 
     // overwrite the board hex values
-    _.each(conds.board.hexes, (hex: InitialConditionsHexT, i: string) => {
-      game.board.hexes[i].resource = new Resource(hex.resource);
-      game.board.hexes[i].dice = new DiceValue(hex.dice);
+    conds.board.hexes.forEach((hex: string, i: number) => {
+
+      const index = String(i);
+      const [resource, diceString] = hex.split(' ');
+      const diceValue = parseInt(diceString);
+
+      game.board.hexes[index].resource = new Resource(resource);
+      game.board.hexes[index].dice = new DiceValue(diceValue);
+
     });
 
     // overwrite the board port values
-    _.each(conds.board.ports, (port: InitialConditionsPortT, i: string) => {
-      game.board.ports[i].type = port;
+    conds.board.ports.forEach((port: string, i: number) => {
+
+      const index = String(i);
+      game.board.ports[index].type = port;
+
     });
 
     // overwrite the deck
@@ -231,12 +249,11 @@ export class Game extends Emitter implements Serializable {
     return this.getDiscardingParticipants().length > 0;
   }
 
-  mutate(participant: Participant, name: string, rawArgs: RawEdgeArgumentT): EdgeReturnT {
+  mutate(participant: Participant, name: string, rawArgs: RawEdgeArgumentT): EdgeResult {
 
     try {
 
       const edge = this.graph.getEdge(name);
-      console.log(edge);
       const args = edge.parseArgs(this, rawArgs);
       const result = edge.execute(this, participant, args);
 
@@ -252,7 +269,7 @@ export class Game extends Emitter implements Serializable {
     } catch (e) {
 
       if (e instanceof CatonlineError)
-        return null;
+        return new EdgeResult('null');
 
       throw e;
 
@@ -533,23 +550,23 @@ export class Game extends Emitter implements Serializable {
           let equal = true;
 
           if (equal)
-            _.each(thisConds.board.hexes, (hex: InitialConditionsHexT, i: string) => {
-              equal = equal && objectsMatch(hex, thatConds.board.hexes[i])
+            thisConds.board.hexes.forEach((hex: string, i: number) => {
+              equal = hex === thatConds.board.hexes[i];
             });
 
           if (equal)
-            _.each(thatConds.board.hexes, (hex: InitialConditionsHexT, i: string) => {
-              equal = equal && objectsMatch(hex, thisConds.board.hexes[i]);
+            thatConds.board.hexes.forEach((hex: string, i: number) => {
+              equal = hex === thisConds.board.hexes[i];
             });
 
           if (equal)
-            _.each(thisConds.board.ports, (portType: InitialConditionsPortT, i: string) => {
-              equal = equal && (portType === thatConds.board.ports[i]);
+            thisConds.board.ports.forEach((port: string, i: number) => {
+              equal = port === thatConds.board.ports[i];
             });
 
           if (equal)
-            _.each(thatConds.board.ports, (portType: InitialConditionsPortT, i: string) => {
-              equal = equal && (portType === thisConds.board.ports[i]);
+            thatConds.board.ports.forEach((port: string, i: number) => {
+              equal = port === thisConds.board.ports[i];
             });
 
           return equal;
@@ -568,7 +585,7 @@ export class Game extends Emitter implements Serializable {
             && item.edge.name === other.edge.name
             && item.args.toString() === other.args.toString()
             && item.participant.num === other.participant.num
-            && item.result === other.result;
+            && item.result.toString() === other.result.toString();
 
         }, true);
 
@@ -595,13 +612,25 @@ export class Game extends Emitter implements Serializable {
 
     const game = Game.initialize(originalConds, originalOwner, originalPlayers);
 
+
     serial.history.forEach((item: HistoryItemSerialT) => {
 
-      const participant = game.participants[item.participantNum];
-      if (item.result === null) {
-        participant.do(item.edgeName, item.argString);
+      const [
+        participantNumString,
+        edgeName,
+        argString,
+        resultString,
+      ] = item.split(' ');
+      const participantNum = parseInt(participantNumString);
+
+      const participant = game.participants[participantNum];
+      const edge = game.graph.getEdge(edgeName);
+      const result = edge.parseResult(game, resultString)
+
+      if (result.type === 'null') {
+        participant._do(edgeName, argString);
       } else {
-        throw new Error();
+        participant._do(edgeName, resultString);
       }
 
     });
@@ -621,13 +650,10 @@ export class Game extends Emitter implements Serializable {
       players: this.participants
         .map(participant => participant.player.id),
       board: {
-        hexes: _.mapObject(this.board.hexes, hex => {
-          return {
-            resource: hex.resource.name,
-            dice: hex.dice.value,
-          }
+        hexes: _.map(this.board.hexes, hex => {
+          return [ hex.resource.name, hex.dice.value ].join(' ');
         }),
-        ports: _.mapObject(this.board.ports, port => port.type),
+        ports: _.map(this.board.ports, port => port.type)
       },
       deck: this.deck.cards.map(card => card.type),
     };

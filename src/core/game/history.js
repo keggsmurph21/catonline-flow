@@ -3,7 +3,7 @@
 import type {
 
   EdgeArgument,
-  EdgeReturnT,
+  EdgeResult,
   HistoryItemT,
   HistoryItemSerialT,
   HistorySerialT,
@@ -32,12 +32,20 @@ export class History implements Serializable {
   serialize(): HistoryItemSerialT[] {
 
     return this._items.map(item => {
+      return [
+        item.participant.num,
+        item.edge.name,
+        item.args.toString(),
+        item.result.toString(),
+      ].join(' ');
+      /*
       return {
         participantNum: item.participant.num,
         edgeName: item.edge.name,
         argString: item.args.toString(),
-        result: item.result
+        resultString: item.result.toString(),
       };
+      */
     });
   }
 

@@ -2,14 +2,21 @@
 
 import type {
 
-  EdgeReturnT,
   Game,
   Participant,
   RawEdgeArgumentT,
+  RawEdgeResultT,
 
 } from '../../utils';
-import { CatonlineError, EdgeArgumentError, EdgeExecutionError, } from '../../utils';
+import {
+
+  CatonlineError,
+  EdgeArgumentError,
+  EdgeExecutionError,
+
+} from '../../utils';
 import { EdgeArgument } from './edge-argument';
+import { EdgeResult } from './edge-result';
 
 export class Edge {
 
@@ -19,12 +26,13 @@ export class Edge {
   target: string;
 
   isPriority: boolean;
-  arguments: string;//('hex' | 'resource' | 'road' | 'settlement' | 'trade')[];
+  arguments: string;
 
   check: (Game, Participant) => boolean;
   argsType: string;
-  parseArgs: (Game, RawEdgeArgumentT) => EdgeArgument;
-  execute: (Game, Participant, EdgeArgument) => EdgeReturnT;
+  resultType: string;
+  //parseArgs: (Game, RawEdgeArgumentT) => EdgeArgument;
+  execute: (Game, Participant, EdgeArgument) => EdgeResult;
 
   constructor(name: string) {
 
@@ -37,6 +45,7 @@ export class Edge {
           return !!game.currentTrade; // f.tradeAccepted;
         };
         this.argsType = 'null';
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); //  acceptTradeAsOffer(m,g,p);
         };
@@ -50,6 +59,7 @@ export class Edge {
           return participant.canAcceptCurrentTrade(); // f.canAcceptCurrentTrade;
         };
         this.argsType = 'null';
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); //  acceptTradeAsOther(m,g,p);
         };
@@ -63,6 +73,7 @@ export class Edge {
           return true; // true;
         };
         this.argsType = 'null';
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented');
         };
@@ -76,6 +87,7 @@ export class Edge {
           return true; // true;
         };
         this.argsType = 'null';
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented');
         };
@@ -89,6 +101,7 @@ export class Edge {
           return game.hasRolled && participant.canBuild('city'); // f.hasRolled && f.canBuild.city;
         };
         this.argsType = 'junc'; // settlement
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // fortify(m,g,p,a[0]);
         };
@@ -102,6 +115,7 @@ export class Edge {
           return game.hasRolled && participant.canBuild('road'); // f.hasRolled && f.canBuild.road;
         };
         this.argsType = 'road'; // road
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // pave(m,g,p,a[0]);
         };
@@ -115,6 +129,7 @@ export class Edge {
           return game.hasRolled && participant.canBuild('settlement'); // f.hasRolled && f.canBuild.settlement;
         };
         this.argsType = 'junc'; // settlement
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // settle(m,g,p,a[0]);
         };
@@ -128,6 +143,7 @@ export class Edge {
           return game.hasRolled && participant.canBuild('devCard'); // f.hasRolled && f.canBuy.dc;
         };
         this.argsType = 'null';
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); //  buyDevCard(m,g,p);
         };
@@ -141,6 +157,7 @@ export class Edge {
           return true; // true;
         };
         this.argsType = 'null';
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // cancelTrade(m,g,p);
         };
@@ -154,6 +171,7 @@ export class Edge {
           return participant.canAcceptCurrentTrade(); // f.canAcceptTrade;
         };
         this.argsType = 'null';
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // declineTrade(m,g,p);
         };
@@ -169,10 +187,11 @@ export class Edge {
             && game.isWaitingForDiscard();
         };
         this.argsType = 'hex';
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
 
           game.moveRobber(participant, args.getHex());
-          return null;
+          return new EdgeResult('null');
 
         };
         this.isPriority = false;
@@ -185,6 +204,7 @@ export class Edge {
           return game.isOver(); // f.isGameOver;
         };
         this.argsType = 'null';
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // end(m,g);
         };
@@ -198,10 +218,11 @@ export class Edge {
           return game.isFirstTurn() || game.isSecondTurn(); // f.isFirstTurn || f.isSecondTurn;
         };
         this.argsType = 'null';
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
 
           game.iterateTurn();
-          return null;
+          return new EdgeResult('null');
 
         };
         this.isPriority = false;
@@ -214,6 +235,7 @@ export class Edge {
           return game.hasRolled; // f.hasRolled;
         };
         this.argsType = 'null';
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // iterateTurn(m,g,p);
         };
@@ -227,6 +249,7 @@ export class Edge {
           throw new CatonlineError('not implemented'); // !f.waitForTrade; // TODO: implement this
         };
         this.argsType = 'null';
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // failTrade(m,g,p);
         };
@@ -240,10 +263,11 @@ export class Edge {
           return game.isFirstTurn(); // f.isFirstTurn;
         };
         this.argsType = 'road';
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
 
           game.initPave(participant, args.getRoad());
-          return null;
+          return new EdgeResult('null');
 
         };
         this.isPriority = false;
@@ -256,10 +280,11 @@ export class Edge {
           return game.isSecondTurn(); // f.isSecondTurn;
         };
         this.argsType = 'null';
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
 
           game.initCollect(participant);
-          return null;
+          return new EdgeResult('null');
 
         };
         this.isPriority = true;
@@ -272,10 +297,11 @@ export class Edge {
           return game.isFirstTurn() || game.isSecondTurn(); // f.isFirstTurn || f.isSecondTurn;
         };
         this.argsType = 'junc';
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
 
           game.settle(participant, args.getJunc(), true);
-          return null;
+          return new EdgeResult('null');
 
         };
         this.isPriority = false;
@@ -288,10 +314,11 @@ export class Edge {
           return game.isSecondTurn(); // f.isSecondTurn;
         };
         this.argsType = 'road';
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
 
           game.initPave(participant, args.getRoad());
-          return null;
+          return new EdgeResult('null');
 
         };
         this.isPriority = false;
@@ -304,6 +331,7 @@ export class Edge {
           return !game.canSteal; // !f.canSteal;
         };
         this.argsType = 'null';
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented');
         };
@@ -320,6 +348,7 @@ export class Edge {
             && !!participant.getNumResources(); // !f.isFirstTurn && !f.isSecondTurn && f.hasRolled && f.canTrade;
         };
         this.argsType = 'trade'; // trade
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // offerTrade(m,g,p,a);
         };
@@ -333,6 +362,7 @@ export class Edge {
           return participant.canPlayDevCard('knight'); // f.canPlayDC.knight;
         };
         this.argsType = 'hex'; // hex
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // playDC(m,g,p,'knight',a[0]);
         };
@@ -346,6 +376,7 @@ export class Edge {
           return participant.canPlayDevCard('monopoly'); // f.canPlayDC.monopoly;
         };
         this.argsType = 'resource'; // resource
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // playDC(m,g,p,'monopoly',a[0]);
         };
@@ -359,6 +390,7 @@ export class Edge {
           return participant.canPlayDevCard('rb'); // f.canPlayDC.rb;
         };
         this.argsType = 'road road'; // road road
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // playDC(m,g,p,'rb',a);
         };
@@ -372,6 +404,7 @@ export class Edge {
           return participant.canPlayDevCard('vp'); // f.canPlayDC.vp;
         };
         this.argsType = 'null';
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); //  playDC(m,g,p,'vp');
         };
@@ -385,6 +418,7 @@ export class Edge {
           return participant.canPlayDevCard('yop'); // f.canPlayDC.yop;
         };
         this.argsType = 'resource resource'; // resource resource
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // playDC(m,g,p,'yop',a);
         };
@@ -400,24 +434,30 @@ export class Edge {
             && !game.isSecondTurn(); // !f.hasRolled && !f.isFirstTurn && !f.isSecondTurn;
         };
         this.argsType = 'diceroll';
+        this.resultType = 'diceroll';
         this.execute = (game, participant, args) => {
+
+          let ret;
 
           try {
 
             const num = args.getDiceroll();
-            return game.rollNumber(num);
+            ret = game.rollNumber(num);
 
           } catch (e) {
 
             if (e instanceof CatonlineError) {
 
-              return game.roll();
+              ret = game.roll();
 
             } else {
               throw e;
             }
           }
-          
+
+          ret = String(ret);
+          return EdgeResult.fromString('diceroll', ret, game)
+
         };
         this.isPriority = false;
         this.label = '';
@@ -429,10 +469,11 @@ export class Edge {
           return !game.isRollSeven(); // !f.isRollSeven;
         };
         this.argsType = 'null';
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
 
           game.collectResources();
-          return null;
+          return new EdgeResult('null');
 
         };
         this.isPriority = true;
@@ -445,6 +486,7 @@ export class Edge {
           return participant.toDiscard > 0; // f.discard > 0
         };
         this.argsType = 'cost'; // trade
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // discard(m,g,p,a.out);
         };
@@ -458,6 +500,7 @@ export class Edge {
           return participant.toDiscard > 0; // f.discard > 0
         };
         this.argsType = 'cost'; // trade
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // discard(m,g,p,a.out);
         };
@@ -473,10 +516,11 @@ export class Edge {
             && !game.isWaitingForDiscard();
         };
         this.argsType = 'hex';
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
 
           game.moveRobber(participant, args.getHex());
-          return null;
+          return new EdgeResult('null');
 
         };
         this.isPriority = false;
@@ -489,6 +533,7 @@ export class Edge {
           return game.canSteal; // f.canSteal;
         };
         this.argsType = 'participant'; // player
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // steal(m,g,p,a[0]);
         };
@@ -502,7 +547,8 @@ export class Edge {
           return participant.isCurrentParticipant(); // f.isCurrentPlayer;
         };
         this.argsType = 'null';
-        this.execute = (game, participant, args) => { return null; }
+        this.resultType = 'null';
+        this.execute = (game, participant, args) => { return new EdgeResult('null'); }
         this.isPriority = true;
         this.label = '';
         break;
@@ -513,7 +559,8 @@ export class Edge {
           return !game.isFirstTurn() && !game.isSecondTurn(); // !f.isFirstTurn;
         };
         this.argsType = 'null';
-        this.execute = (game, participant, args) => { return null; }
+        this.resultType = 'null';
+        this.execute = (game, participant, args) => { return new EdgeResult('null'); }
         this.isPriority = true;
         this.label = '';
         break;
@@ -527,6 +574,7 @@ export class Edge {
             && participant.canTradeWithBank(); // !f.isFirstTurn && !f.isSecondTurn && f.hasRolled && f.canTradeBank;
         };
         this.argsType = 'cost'; // trade
+        this.resultType = 'null';
         this.execute = (game, participant, args) => {
           throw new CatonlineError('not implemented'); // tradeWithBank(m,g,p,a);
         };
@@ -542,5 +590,9 @@ export class Edge {
 
   parseArgs(game: Game, argString: RawEdgeArgumentT): EdgeArgument {
     return EdgeArgument.fromString(this.argsType, argString, game);
+  }
+
+  parseResult(game: Game, resultString: RawEdgeResultT): EdgeResult {
+    return EdgeResult.fromString(this.resultType, resultString, game);
   }
 }
