@@ -400,6 +400,25 @@ export class Edge {
             && !game.isSecondTurn(); // !f.hasRolled && !f.isFirstTurn && !f.isSecondTurn;
         };
         this.argsType = 'diceroll';
+        this.execute = (game, participant, args) => {
+
+          try {
+
+            const num = args.getDiceroll();
+            return game.rollNumber(num);
+
+          } catch (e) {
+
+            if (e instanceof CatonlineError) {
+
+              return game.roll();
+
+            } else {
+              throw e;
+            }
+          }
+          
+        };
         this.isPriority = false;
         this.label = '';
         break;

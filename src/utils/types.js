@@ -133,8 +133,6 @@ export type GameSerialT = {
 
   initialConditions: InitialConditionsT,
   history: HistorySerialT,
-  ownerID: PlayerIDT,
-  playerIDs: PlayerIDT[],
 
 };
 
@@ -179,6 +177,7 @@ export type InitialConditionsPortT = string; // port.type
 
 export type InitialConditionsT = {
   params: GameParamsT,
+  owner: PlayerIDT,
   players: PlayerIDT[],
   board: {
     hexes: { [string]: InitialConditionsHexT },

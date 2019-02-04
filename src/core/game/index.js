@@ -236,6 +236,7 @@ export class Game extends Emitter implements Serializable {
     try {
 
       const edge = this.graph.getEdge(name);
+      console.log(edge);
       const args = edge.parseArgs(this, rawArgs);
       const result = edge.execute(this, participant, args);
 
@@ -578,8 +579,6 @@ export class Game extends Emitter implements Serializable {
     return {
       history: this.history.serialize(),
       initialConditions: this.initialConditions,
-      ownerID: this.owner.id,
-      playerIDs: this.participants.map(participant => participant.player.id),
     };
 
   }
@@ -588,9 +587,9 @@ export class Game extends Emitter implements Serializable {
 
     // $TODO get a better way to create this stuff
     const originalConds = serial.initialConditions;
-    const originalOwner = new Human(serial.ownerID);
+    const originalOwner = new Human(originalConds.owner);
     const originalPlayers = {};
-    serial.playerIDs.forEach(id => {
+    originalConds.players.forEach(id => {
       originalPlayers[id] = new Human(id);
     });
 
@@ -618,6 +617,7 @@ export class Game extends Emitter implements Serializable {
 
     return {
       params: this.params,
+      owner: this.owner.id,
       players: this.participants
         .map(participant => participant.player.id),
       board: {
