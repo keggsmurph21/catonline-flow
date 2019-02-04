@@ -332,9 +332,7 @@ export class Edge {
         };
         this.argsType = 'null';
         this.resultType = 'null';
-        this.execute = (game, participant, args) => {
-          throw new CatonlineError('not implemented');
-        };
+        this.execute = (game, participant, args) => { return new EdgeResult('null'); }
         this.isPriority = true;
         this.label = '';
         break;

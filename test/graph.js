@@ -901,4 +901,82 @@ describe('Graph', () => {
     }
   });
 
+  it('check rolling a 7', () => {
+
+    (() => {
+
+      const g = getGameAfterFirstTwoRounds();
+      const p = g.participants[0];
+
+      p.do('_e_roll_exact', '7');
+      expect(p.getEdges().map(e => e.name)).to.deep.equal([ '_e_roll_move_robber' ]);
+
+      expect(() => p.do('_e_roll_move_robber', '24')).to.throw(/robber is already here/);
+      expect(() => p.do('_e_roll_move_robber', '15')).to.throw(/cannot place robber in the ocean/);
+
+    })();
+
+    (() => {
+
+      const g = getGameAfterFirstTwoRounds();
+      const p = g.participants[0];
+
+      p.do('_e_roll_exact', '7');
+      p.do('_e_roll_move_robber', '29');
+      expect(g.getStealableParticipants(p).size).to.equal(0);
+      expect(p.getEdges().map(e => e.name)).to.deep.equal([ '_e_end_turn', '_e_offer_trade' ]);
+
+    })();
+
+    (() => {
+
+      const g = getGameAfterFirstTwoRounds();
+      const p = g.participants[0];
+
+      p.do('_e_roll_exact', '7');
+      p.do('_e_roll_move_robber', '16');
+      expect(g.getStealableParticipants(p).size).to.equal(0);
+      expect(p.getEdges().map(e => e.name)).to.deep.equal([ '_e_end_turn', '_e_offer_trade' ]);
+
+    })();
+
+    (() => {
+
+      const g = getGameAfterFirstTwoRounds();
+      const p = g.participants[0];
+
+      p.do('_e_roll_exact', '7');
+      p.do('_e_roll_move_robber', '13');
+      expect(g.getStealableParticipants(p).size).to.equal(1);
+      expect(p.getEdges().map(e => e.name)).to.deep.equal([ '_e_steal_robber' ]);
+
+    })();
+
+    (() => {
+
+      const g = getGameAfterFirstTwoRounds();
+      const p = g.participants[0];
+
+      p.do('_e_roll_exact', '7');
+      p.do('_e_roll_move_robber', '11');
+      expect(g.getStealableParticipants(p).size).to.equal(2);
+      expect(p.getEdges().map(e => e.name)).to.deep.equal([ '_e_steal_robber' ]);
+
+    })();
+
+    (() => {
+
+      const g = getGameAfterFirstTwoRounds();
+      const p = g.participants[0];
+
+      p.do('_e_roll_exact', '7');
+      p.do('_e_roll_move_robber', '12');
+      expect(g.getStealableParticipants(p).size).to.equal(1);
+      expect(p.getEdges().map(e => e.name)).to.deep.equal([ '_e_steal_robber' ]);
+
+    })();
+
+  });
+
+
 });

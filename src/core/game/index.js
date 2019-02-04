@@ -505,14 +505,14 @@ export class Game extends Emitter implements Serializable {
 
   }
 
-  getStealableParticipants(stealer: Participant): Participant[] {
+  getStealableParticipants(stealer: Participant): Set<Participant> {
 
-    let stealable = [];
+    let stealable = new Set();
 
     _.each(this.board.robber.hex.juncs, (junc: Junc) => {
 
-      if (junc.owner !== stealer)
-        stealable.push(junc.owner);
+      if (junc.owner && junc.owner !== stealer)
+        stealable.add(junc.owner);
 
     });
 
@@ -531,7 +531,7 @@ export class Game extends Emitter implements Serializable {
     this.board.robber.moveTo(hex);
 
     const targets = this.getStealableParticipants(mover);
-    this.canSteal = targets.length > 0;
+    this.canSteal = targets.size > 0;
 
   }
 
