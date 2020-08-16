@@ -978,5 +978,22 @@ describe('Graph', () => {
 
   });
 
+  it('check roll then steal', () => {
+
+    (() => {
+
+      const g = getGameAfterFirstTwoRounds();
+      const p = g.participants[0];
+
+      p.do('_e_roll_exact', '7');
+      p.do('_e_roll_move_robber', '12');
+
+      expect(() => p.do('_e_steal_robber', '0')).to.throw(/poop/);
+
+      expect(p.getEdges().map(e => e.name)).to.deep.equal([ '_e_steal_robber' ]);
+
+    })();
+
+  });
 
 });

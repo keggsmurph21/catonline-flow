@@ -533,9 +533,13 @@ export class Edge {
           return game.canSteal; // f.canSteal;
         };
         this.argsType = 'participant'; // player
-        this.resultType = 'null';
+        this.resultType = 'resource?';
         this.execute = (game, participant, args) => {
-          throw new CatonlineError('not implemented'); // steal(m,g,p,a[0]);
+
+          const target = args.getParticipant();
+          const resource = game.steal(participant, target);
+          return EdgeResult.fromString('resource?', resource, game);
+
         };
         this.isPriority = false;
         this.label = '';

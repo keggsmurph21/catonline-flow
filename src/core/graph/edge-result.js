@@ -67,6 +67,14 @@ export class EdgeResult {
         arg.values = [r];
         break;
 
+      case 'resource?':
+        if (s === undefined) {
+          arg.values = [null];
+        } else {
+          arg.values = [parseResource(game, s)];
+        }
+        break;
+
       default:
         throw new CatonlineError(`unexpected EdgeArgumentType "${type}"`);
     }
@@ -89,6 +97,9 @@ export class EdgeResult {
       case 'resource':
         return this.values[0];
 
+      case 'resource?':
+        return '';
+
       default:
         throw new CatonlineError(`unexpected EdgeArgumentType "${this.type}"`);
 
@@ -106,10 +117,10 @@ export class EdgeResult {
 
   getResourceName(): string {
 
-    if (this.type !== 'resource')
+    if (this.type !== 'resource' || this.type !== 'resource?')
       throw new CatonlineError(`cannot call getResourceName() for type "${this.type}"`);
 
-    return this.values[0];
+    return this.toString();
 
   }
 

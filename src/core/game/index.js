@@ -24,6 +24,7 @@ import Emitter from 'events';
 import {
 
   CatonlineError,
+  getRandomChoice,
   EdgeExecutionError,
   EdgeResult,
   objectsMatch,
@@ -517,6 +518,26 @@ export class Game extends Emitter implements Serializable {
     });
 
     return stealable;
+
+  }
+
+  steal(thief: Participant, target: Participant): string | void {
+
+    if (thief === target)
+      throw new EdgeExecutionError(`cannot steal from yourself!`);
+
+    const targets = this.getStealableParticipants(thief);
+    if (!targets.has(target))
+      throw new EdgeExecutionError(`cannot steal from "${target.player.id}"`);
+
+    let allResources = [];
+    _.each(target.hand.resources, (num: number, resource: string) => {
+      for (let i=0; i<num; i++)
+        allResources.push(resource);
+    });
+
+    const resource = getRandomChoice(allResources);
+    return resource || undefined;
 
   }
 

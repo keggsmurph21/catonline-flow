@@ -207,7 +207,7 @@ export type ParityT = 'even' | 'odd';
 export type RawEdgeArgumentT = string | void;
 export type EdgeArgumentSerialT = string;
 
-export type RawEdgeResultT = string;
+export type RawEdgeResultT = string | void;
 export type EdgeResultSerialT = string;
 
 export type HistoryItemT = {
